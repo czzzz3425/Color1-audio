@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/wood_bundle.gd" id="1_bundle"]
+[ext_resource type="Texture2D" uid="uid://dl6hhtg0yiioc" path="res://art/things/wood.png" id="2_wood"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bundle"]
+size = Vector2(25, 11)
+
+[node name="WoodBundle" type="CharacterBody2D"]
+script = ExtResource("1_bundle")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, -5.5)
+shape = SubResource("RectangleShape2D_bundle")
+
+[node name="Visual" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(1, -5)
+texture = ExtResource("2_wood")

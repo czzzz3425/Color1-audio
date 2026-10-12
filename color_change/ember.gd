@@ -20,6 +20,7 @@ var _has_red := true
 
 func _ready() -> void:
 	add_to_group("colorable")
+	add_to_group("heat_source")   # 火种本身就是热源：能开火驱动的机关（元素阀等）
 
 
 func has_color() -> bool:

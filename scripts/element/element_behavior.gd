@@ -9,6 +9,7 @@ extends Node2D
 
 const Rules := preload("res://scripts/element/element_rules.gd")
 const SHATTER := preload("res://effects/shatter/shatter.gd")
+const ASH := preload("res://scripts/ash.gd")
 
 ## 燃烧光斑半径（世界像素，256px ≈ 1 格）。燃烧物在此挖出一片可见区域（塞尔达式遮罩挖洞），越小越聚焦。
 @export_range(16.0, 2048.0, 8.0) var light_radius := 352.0
@@ -18,6 +19,7 @@ const SHATTER := preload("res://effects/shatter/shatter.gd")
 
 var _burning := false
 var _frozen := false
+var _grown := false
 var _element := ""
 
 var _parent: Node2D
@@ -42,6 +44,8 @@ func apply(element_id: String) -> bool:
 		return _apply_burn()
 	elif element_id == "freeze":
 		return _apply_freeze()
+	elif element_id == "grow":
+		return _apply_grow()
 	return false
 
 
@@ -57,9 +61,12 @@ func current_element() -> String:
 func clear() -> void:
 	_burning = false
 	_frozen = false
+	_grown = false
 	_element = ""
 	_clear_vfx()
 	_free_light()
+	_set_heat(false)
+	_set_growth(false)
 
 
 func _apply_burn() -> bool:
@@ -69,11 +76,20 @@ func _apply_burn() -> bool:
 	if _frozen:
 		_frozen = false
 		_clear_vfx()
+	# 火烧藤 = 烧成灰烬（红 × 绿 = 灰烬）：藤烧尽，留下余烬堆，对象冷却回无。
+	if _grown:
+		_grown = false
+		_clear_vfx()
+		_set_growth(false)
+		_spawn_ash()
+		_element = ""
+		return true
 
 	_burning = true
 	_element = "burn"
 	_spawn_vfx("burn")
 	_spawn_light()
+	_set_heat(true)
 	_schedule_spread("burn")
 	return true
 
@@ -85,15 +101,34 @@ func _apply_freeze() -> bool:
 		_element = ""
 		_clear_vfx()
 		_free_light()
+		_set_heat(false)
 		_shatter()
 		return true
 
+	# 冰封藤蔓：冻结覆盖生长，不碎裂（藤是活的）。
+	if _grown:
+		_grown = false
+		_clear_vfx()
+		_set_growth(false)
 	if _frozen:
 		return false
 	_frozen = true
 	_element = "freeze"
 	_spawn_vfx("freeze")
 	_schedule_spread("freeze")
+	return true
+
+
+## 生长（绿）：让有机物体「发芽缠藤」，登记为生长源。
+## 生长需要温和环境——已有任何元素（燃烧/冻结/已生长）都长不出来（返回 false 不耗种子）。
+func _apply_grow() -> bool:
+	if _element != "":
+		return false
+	_grown = true
+	_element = "grow"
+	_spawn_vfx("grow")
+	_schedule_spread("grow")
+	_set_growth(true)
 	return true
 
 
@@ -143,6 +178,28 @@ func _free_light() -> void:
 	_light = null
 
 
+## 燃烧物登记为「热源」：元素阀/火机关靠扫描 heat_source 组判断附近有没有火。
+## 与 light_source（发光，供暗房挖洞/焰虱追光）区分——热源是「能开火驱动机关」的火。
+func _set_heat(on: bool) -> void:
+	if _parent == null or not is_instance_valid(_parent):
+		return
+	if on:
+		_parent.add_to_group("heat_source")
+	else:
+		_parent.remove_from_group("heat_source")
+
+
+## 缠藤物登记为「生长源」：未来「扫描生长源」的机关据此判断附近有没有藤蔓。
+## 与 heat_source（开火机关）/ light_source（暗房挖洞、焰虱追光）同款组原语。
+func _set_growth(on: bool) -> void:
+	if _parent == null or not is_instance_valid(_parent):
+		return
+	if on:
+		_parent.add_to_group("growth_source")
+	else:
+		_parent.remove_from_group("growth_source")
+
+
 func _spawn_vfx(element_id: String) -> void:
 	_clear_vfx()
 	var cfg := Rules.config(element_id)
@@ -176,3 +233,16 @@ func _shatter() -> void:
 		var t := create_tween()
 		t.tween_property(_parent, "modulate:a", 0.0, 0.5)
 		t.tween_callback(_parent.queue_free)
+
+
+## 烧藤成灰烬：在宿主旁生成一个灰烬堆（热源 + 肥料，可吸红）。
+func _spawn_ash() -> void:
+	if _parent == null or not is_instance_valid(_parent):
+		return
+	var host_parent := _parent.get_parent()
+	if host_parent == null:
+		return
+	var ash := ASH.new()
+	ash.name = "Ash"
+	host_parent.add_child(ash)
+	ash.global_position = _parent.global_position

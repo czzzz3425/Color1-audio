@@ -57,6 +57,11 @@ func has_color() -> bool:
 	return _behavior.has_element()
 
 
+## 当前元素状态（非破坏性读取：burn / freeze / grow / ""）。供元素踏板等传感器查询。
+func current_element() -> String:
+	return _behavior.current_element() if _behavior != null else ""
+
+
 ## 命中判定：世界坐标点是否落在物体上。子类各自实现（多边形 / 贴图矩形）。
 func contains_point(_world_pos: Vector2) -> bool:
 	return false

@@ -100,7 +100,7 @@ func _dormant(delta: float) -> void:
 		_refresh()
 
 
-func _chase(delta: float) -> void:
+func _chase(_delta: float) -> void:
 	var target := _nearest_light()
 	if target == null:
 		_state = State.DORMANT   # 目标消失（灯灭了 / 太远）
@@ -125,7 +125,7 @@ func _frozen(delta: float) -> void:
 		_refresh()
 
 
-func _retreat(delta: float) -> void:
+func _retreat(_delta: float) -> void:
 	var away := Vector2.RIGHT
 	if _player != null and is_instance_valid(_player):
 		away = global_position - _player.global_position
@@ -196,6 +196,11 @@ func absorb_color() -> Dictionary:
 
 
 func _refresh() -> void:
+	# 追击态（红光大亮）才算热源：能开火驱动机关；潜伏/冻结/耗竭都不是。
+	if _state == State.CHASE:
+		add_to_group("heat_source")
+	else:
+		remove_from_group("heat_source")
 	# 光始终在 light_source 组（潜伏/耗竭=微光星标，追击/冻结=满亮），靠调半径区分。
 	if light != null:
 		var full: bool = _state == State.CHASE or _state == State.FROZEN
