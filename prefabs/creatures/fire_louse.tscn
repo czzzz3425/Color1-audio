@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/fire_louse.gd" id="1_louse"]
+[ext_resource type="Script" path="res://scripts/light_source.gd" id="2_light"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 14.0
+
+[node name="FireLouse" type="CharacterBody2D"]
+script = ExtResource("1_louse")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(1, 1, 1, 1)
+polygon = PackedVector2Array(0, -18, 15, -9, 15, 9, 0, 18, -15, 9, -15, -9)
+
+[node name="Gem0" type="Polygon2D" parent="."]
+position = Vector2(0, -24)
+color = Color(1, 0.55, 0.2, 1)
+polygon = PackedVector2Array(0, -5, 5, 0, 0, 5, -5, 0)
+
+[node name="Gem1" type="Polygon2D" parent="."]
+position = Vector2(-13, -15)
+color = Color(1, 0.55, 0.2, 1)
+polygon = PackedVector2Array(0, -5, 5, 0, 0, 5, -5, 0)
+
+[node name="Gem2" type="Polygon2D" parent="."]
+position = Vector2(13, -15)
+color = Color(1, 0.55, 0.2, 1)
+polygon = PackedVector2Array(0, -5, 5, 0, 0, 5, -5, 0)
+
+[node name="Light" type="Node2D" parent="."]
+script = ExtResource("2_light")
