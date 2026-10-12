@@ -29,6 +29,7 @@
 [ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="26_mmfjm"]
 [ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/companion.dialogue" id="27_k8ld0"]
 [ext_resource type="Script" uid="uid://bsesqduu4fs8m" path="res://scripts/companion_hint.gd" id="28_k8ld0"]
+[ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="29_hnsmf"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
@@ -4905,6 +4906,7 @@ script = ExtResource("20_so66j")
 
 [node name="Companion" type="Node2D" parent="." unique_id=702909903]
 position = Vector2(4845, -430)
+scale = Vector2(0.35, 0.35)
 script = ExtResource("26_mmfjm")
 dialogue_resource = ExtResource("27_k8ld0")
 
@@ -4914,9 +4916,10 @@ collision_layer = 0
 [node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea" unique_id=1129870735]
 shape = SubResource("CircleShape2D_mbb35")
 
-[node name="Visual" type="Polygon2D" parent="Companion" unique_id=62155096]
-color = Color(0.95, 0.8, 0.25, 1)
-polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+[node name="Visual" type="Sprite2D" parent="Companion" unique_id=1526831269]
+position = Vector2(3.0002136, 18)
+scale = Vector2(0.18135531, 0.17155984)
+texture = ExtResource("29_hnsmf")
 
 [node name="CompanionHint_01" type="Node2D" parent="." unique_id=1147803756]
 position = Vector2(5720, -365)
