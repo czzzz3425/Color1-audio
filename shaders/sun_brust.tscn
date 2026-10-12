@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://n3wwxdawkxle"]
+
+[ext_resource type="Texture2D" uid="uid://i2wr7ihe6f6u" path="res://icon.svg" id="1_kebtp"]
+[ext_resource type="Shader" uid="uid://dcqsrgo08k78j" path="res://Sun_brust.gdshader" id="2_n64lc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bhunq"]
+shader = ExtResource("2_n64lc")
+shader_parameter/ray_count = 15.0000006175
+shader_parameter/ray_width = 0.8000000373014801
+shader_parameter/inner_radius = 0.150000007125
+shader_parameter/inner_fade_width = 0.10000000475
+shader_parameter/outer_radius = 0.50000002049012
+shader_parameter/outer_fade_width = 0.150000007125
+shader_parameter/ray_color = Color(1, 0.9, 0.5, 1)
+shader_parameter/intensity = 1.0
+shader_parameter/rotate_speed = 0.1000000997499999
+shader_parameter/flicker_speed = 5.0000002375
+
+[node name="Sun_brust" type="Node2D" unique_id=1281056664]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=31513465]
+texture = ExtResource("1_kebtp")
+
+[node name="ColorRect" type="ColorRect" parent="Sprite2D" unique_id=118669262]
+material = SubResource("ShaderMaterial_bhunq")
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -294.0
+offset_top = -268.0
+offset_right = 167.0
+offset_bottom = 141.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(64, 65)
