@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dbe41t3b1o654" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="SpriteFrames" uid="uid://ovwahcmis1mw" path="res://resources/player_sprite_frames.tres" id="2_frames"]
 [ext_resource type="Script" uid="uid://csm8oq2wnf1sc" path="res://shaders/character_shadow.gd" id="3_qhqgy"]
+[ext_resource type="Script" uid="uid://btssn7ertn4od" path="res://scripts/range_indicator.gd" id="4_dqkch"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qhqgy"]
 size = Vector2(128, 41)
@@ -31,3 +32,10 @@ offset = Vector2(0, -8)
 [node name="Collision" type="CollisionShape2D" parent="." unique_id=1738913374]
 position = Vector2(0, 43.5)
 shape = SubResource("RectangleShape2D_qhqgy")
+
+[node name="RangeIndicator" type="Node2D" parent="." unique_id=520981178]
+script = ExtResource("4_dqkch")
+ring_color = Color(0.07382279, 0.051754642, 0, 0.972549)
+fill_color = Color(1, 0.9019608, 0.54901963, 0)
+dash_width = 20.0
+dash_count = 24

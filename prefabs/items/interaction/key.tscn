@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://xqglxi8wds7j" path="res://scripts/key.gd" id="1_key"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pickup"]
+size = Vector2(128, 96)
+
+[node name="Key" type="Node2D"]
+script = ExtResource("1_key")
+
+[node name="PickupArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="Collision" type="CollisionShape2D" parent="PickupArea"]
+position = Vector2(0, 43)
+shape = SubResource("RectangleShape2D_pickup")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(1, 0.85, 0.2, 1)
+polygon = PackedVector2Array(0, -48, 48, 0, 0, 48, -48, 0)

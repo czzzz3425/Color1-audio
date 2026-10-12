@@ -78,21 +78,9 @@ func _stateful_objects() -> Array:
 
 # —— 相机边界 ——
 func _apply_camera_limits() -> void:
-	var cam := _find_player_camera()
-	if cam:
-		cam.limit_left = int(camera_limits.position.x)
-		cam.limit_top = int(camera_limits.position.y)
-		cam.limit_right = int(camera_limits.end.x)
-		cam.limit_bottom = int(camera_limits.end.y)
-
-
-func _find_player_camera() -> Camera2D:
-	var p := get_tree().get_first_node_in_group("player")
-	if p == null:
-		return null
-	var cam := p.get_node_or_null("Camera")
-	if cam is Camera2D:
-		return cam
-	for c in p.find_children("*", "Camera2D", true, false):
-		return c
-	return null
+	CameraLimits.apply(
+		int(camera_limits.position.x),
+		int(camera_limits.position.y),
+		int(camera_limits.end.x),
+		int(camera_limits.end.y)
+	)

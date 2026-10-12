@@ -25,6 +25,10 @@
 [ext_resource type="Script" uid="uid://cj32gld0g6dep" path="res://scripts/flow_marker_spawner.gd" id="20_so66j"]
 [ext_resource type="Script" uid="uid://cy2d5bdlhq86l" path="res://scripts/one_way_gate.gd" id="21_oneway"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
+[ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="26_mmfjm"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/companion.dialogue" id="27_k8ld0"]
+[ext_resource type="Script" uid="uid://bsesqduu4fs8m" path="res://scripts/companion_hint.gd" id="28_k8ld0"]
+[ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -4247,6 +4251,9 @@ size = Vector2(1320, 920)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(64, 96)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_mbb35"]
+radius = 48.0
+
 [node name="Level1" type="Node2D" unique_id=1753068649]
 y_sort_enabled = true
 script = ExtResource("18_room")
@@ -4296,6 +4303,7 @@ position = Vector2(1492, 557)
 script = ExtResource("14_vivmo")
 room_name = "暗房"
 dark = true
+size = Vector2(1320, 920)
 
 [node name="Collision" type="CollisionShape2D" parent="DarkRoom" unique_id=685403129]
 position = Vector2(-11405, 7290)
@@ -4872,3 +4880,35 @@ z_index = 10
 tile_map_data = PackedByteArray("AADU/+D/AAADAAAAAADU/+H/AAADAAAAAADU/+L/AAADAAAAAADU/+P/AAADAAAAAADU/+T/AAADAAAAAADU/+X/AAADAAAAAADU/+b/AAADAAAAAADU/+f/AAADAAAAAADU/+j/AAADAAAAAADU/+n/AAADAAAAAADU/+r/AAADAAAAAADU/+v/AAADAAAAAADU/+z/AAADAAAAAADU/+3/AAADAAAAAADU/+7/AAADAAAAAADU/+//AAADAAAAAADV/+D/AAADAAAAAADV/+H/AAADAAAAAADV/+L/AAADAAAAAADV/+P/AAADAAAAAADV/+T/AAADAAAAAADV/+X/AAADAAAAAADV/+b/AAADAAAAAADV/+f/AAADAAAAAADV/+j/AAADAAAAAADV/+n/AAADAAAAAADV/+r/AAADAAAAAADV/+v/AAADAAAAAADV/+z/AAADAAAAAADV/+3/AAADAAAAAADV/+7/AAADAAAAAADV/+//AAADAAAAAADW/+D/AAADAAAAAADW/+H/AAADAAAAAADW/+L/AAADAAAAAADW/+P/AAADAAAAAADW/+T/AAADAAAAAADW/+X/AAADAAAAAADW/+b/AAADAAAAAADW/+f/AAADAAAAAADW/+j/AAADAAAAAADW/+n/AAADAAAAAADW/+r/AAADAAAAAADW/+v/AAADAAAAAADW/+z/AAADAAAAAADW/+3/AAADAAAAAADW/+7/AAADAAAAAADW/+//AAADAAAAAADX/+D/AAADAAAAAADX/+H/AAADAAAAAADX/+L/AAADAAAAAADX/+P/AAADAAAAAADX/+T/AAADAAAAAADX/+X/AAADAAAAAADX/+b/AAADAAAAAADX/+f/AAADAAAAAADX/+j/AAADAAAAAADX/+n/AAADAAAAAADX/+r/AAADAAAAAADX/+v/AAADAAAAAADX/+z/AAADAAAAAADX/+3/AAADAAAAAADX/+7/AAADAAAAAADX/+//AAADAAAAAADY/+D/AAADAAAAAADY/+H/AAADAAAAAADY/+L/AAADAAAAAADY/+P/AAADAAAAAADY/+T/AAADAAAAAADY/+X/AAADAAAAAADY/+b/AAADAAAAAADY/+f/AAADAAAAAADY/+j/AAADAAAAAADY/+n/AAADAAAAAADY/+r/AAADAAAAAADY/+v/AAADAAAAAADY/+z/AAADAAAAAADY/+3/AAADAAAAAADY/+7/AAADAAAAAADY/+//AAADAAAAAADZ/+D/AAADAAAAAADZ/+H/AAADAAAAAADZ/+L/AAADAAAAAADZ/+P/AAADAAAAAADZ/+T/AAADAAAAAADZ/+X/AAADAAAAAADZ/+b/AAADAAAAAADZ/+f/AAADAAAAAADZ/+j/AAADAAAAAADZ/+n/AAADAAAAAADZ/+r/AAADAAAAAADZ/+v/AAADAAAAAADZ/+z/AAADAAAAAADZ/+3/AAADAAAAAADZ/+7/AAADAAAAAADZ/+//AAADAAAAAADU//D/AAADAAAAAADU//H/AAADAAAAAADU//L/AAADAAAAAADU//P/AAADAAAAAADU//T/AAADAAAAAADU//X/AAADAAAAAADU//b/AAADAAAAAADU//f/AAADAAAAAADU//j/AAADAAAAAADU//n/AAADAAAAAADU//r/AAADAAAAAADU//v/AAADAAAAAADU//z/AAADAAAAAADU//3/AAADAAAAAADV//D/AAADAAAAAADV//H/AAADAAAAAADV//L/AAADAAAAAADV//P/AAADAAAAAADV//T/AAADAAAAAADV//X/AAADAAAAAADV//b/AAADAAAAAADV//f/AAADAAAAAADV//j/AAADAAAAAADV//n/AAADAAAAAADV//r/AAADAAAAAADV//v/AAADAAAAAADV//z/AAADAAAAAADV//3/AAADAAAAAADW//D/AAADAAAAAADW//H/AAADAAAAAADW//L/AAADAAAAAADW//P/AAADAAAAAADW//T/AAADAAAAAADW//X/AAADAAAAAADW//b/AAADAAAAAADW//f/AAADAAAAAADW//j/AAADAAAAAADW//n/AAADAAAAAADW//r/AAADAAAAAADW//v/AAADAAAAAADW//z/AAADAAAAAADW//3/AAADAAAAAADX//D/AAADAAAAAADX//H/AAADAAAAAADX//L/AAADAAAAAADX//P/AAADAAAAAADX//T/AAADAAAAAADX//X/AAADAAAAAADX//b/AAADAAAAAADX//f/AAADAAAAAADX//j/AAADAAAAAADX//n/AAADAAAAAADX//r/AAADAAAAAADX//v/AAADAAAAAADX//z/AAADAAAAAADX//3/AAADAAAAAADY//D/AAADAAAAAADY//H/AAADAAAAAADY//L/AAADAAAAAADY//P/AAADAAAAAADY//T/AAADAAAAAADY//X/AAADAAAAAADY//b/AAADAAAAAADY//f/AAADAAAAAADY//j/AAADAAAAAADY//n/AAADAAAAAADY//r/AAADAAAAAADY//v/AAADAAAAAADY//z/AAADAAAAAADY//3/AAADAAAAAADZ//D/AAADAAAAAADZ//H/AAADAAAAAADZ//L/AAADAAAAAADZ//P/AAADAAAAAADZ//T/AAADAAAAAADZ//X/AAADAAAAAADZ//b/AAADAAAAAADZ//f/AAADAAAAAADZ//j/AAADAAAAAADZ//n/AAADAAAAAADZ//r/AAADAAAAAADZ//v/AAADAAAAAADZ//z/AAADAAAAAADZ//3/AAADAAAAAAA=")
 tile_set = ExtResource("19_isj1j")
 script = ExtResource("20_so66j")
+
+[node name="Companion" type="Node2D" parent="." unique_id=702909903]
+position = Vector2(4845, -430)
+script = ExtResource("26_mmfjm")
+dialogue_resource = ExtResource("27_k8ld0")
+
+[node name="InteractArea" type="Area2D" parent="Companion" unique_id=1914830084]
+collision_layer = 0
+
+[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea" unique_id=1129870735]
+shape = SubResource("CircleShape2D_mbb35")
+
+[node name="Visual" type="Polygon2D" parent="Companion" unique_id=62155096]
+color = Color(0.95, 0.8, 0.25, 1)
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[node name="CompanionHint_01" type="Node2D" parent="." unique_id=1147803756]
+position = Vector2(5720, -365)
+script = ExtResource("28_k8ld0")
+cue = "hint_start"
+
+[node name="startroom" parent="." unique_id=110648566 instance=ExtResource("29_mbb35")]
+position = Vector2(-737, -189)
+size = Vector2(6500, 5500)
+
+[node name="startroom2" parent="." unique_id=894835832 instance=ExtResource("29_mbb35")]
+position = Vector2(4767, -196)
+size = Vector2(4500, 7000)
+
+[node name="startroom3" parent="." unique_id=1860127233 instance=ExtResource("29_mbb35")]
+position = Vector2(13021, -355)
+size = Vector2(12000, 7000)

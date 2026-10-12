@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://d17gh6ci1yc2n" path="res://scripts/switch.gd" id="1_switch"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_switch"]
+size = Vector2(128, 128)
+
+[node name="Switch" type="Area2D"]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_switch")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_switch")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(1, 1, 1, 1)
+polygon = PackedVector2Array(-48, -48, 48, -48, 48, 48, -48, 48)

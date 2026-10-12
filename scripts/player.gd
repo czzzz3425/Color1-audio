@@ -37,7 +37,7 @@ enum State {
 @export var animation_frames: SpriteFrames
 
 @export_group("Interact")
-@export_range(8.0, 4096.0, 1.0) var interact_range := 768.0
+@export_range(8.0, 4096.0, 1.0) var interact_range := 1024.0
 
 @export_group("Light")
 ## 玩家自带微光半径（世界像素，256px ≈ 1 格）。暗房里照亮自身周围；相机 zoom 0.25，太小在屏幕上根本看不见。
@@ -92,6 +92,7 @@ var _base_sprite_offset := Vector2.ZERO
 var _outline_material: ShaderMaterial
 var _highlighted: Node = null
 var _highlight_outline: Sprite2D = null
+var _range_indicator: RangeIndicator = null   # 工作圈节点（_setup_range_indicator 拿到，每帧同步 active）
 var _freeze_preview_water: Node = null   # 当前显示冻结预览的水格
 var _freeze_preview_on := false          # 预览当前是否开启（含「手里是蓝」这一条件）
 var _base_collision_mask := 0    # 场景里配好的碰撞掩码（含水层）
@@ -126,6 +127,7 @@ func _ready() -> void:
 	_outline_material.shader = OUTLINE_SHADER
 	_select_element("")  # 初始化 HUD + 描边 + 首次信号
 	_setup_light()
+	_setup_range_indicator()
 
 
 ## 玩家自带微光：黑暗房间里照亮自身周围（遮罩挖洞；亮房里遮罩全透明，无影响）。
@@ -135,7 +137,21 @@ func _setup_light() -> void:
 	add_child(l)
 
 
+## 工作圈可视化：以玩家为圆心、interact_range 为半径的 q 版虚线圆（跟班能飞到的范围）。
+## 优先复用场景里预设的 RangeIndicator 子节点（虚线样式可在 Inspector 调）；没有则动态补一个。
+func _setup_range_indicator() -> void:
+	var ring := get_node_or_null("RangeIndicator") as RangeIndicator
+	if ring == null:
+		ring = RangeIndicator.new()
+		ring.name = "RangeIndicator"
+		add_child(ring)
+	ring.radius = interact_range
+	_range_indicator = ring
+
+
 func _physics_process(delta: float) -> void:
+	if _range_indicator != null:
+		_range_indicator.active = _companion_recruited()
 	_handle_color_input()
 	_update_highlight()
 	_update_water_preview()
@@ -416,32 +432,64 @@ func _cycle_selection(dir: int) -> void:
 	_select_element(held[idx])
 
 
-## 吸收：从鼠标指向的带色物体抽走元素，存入颜色库（种子守恒）。
+## 吸收：让跟班飞过去从鼠标指向的带色物体抽走元素，带回后入库（种子守恒）。
+## 跟班跟随之后才有交互：未招募直接不做。
 func _absorb() -> void:
+	if not _companion_recruited():
+		return
 	var target := _colored_at_mouse()
 	if target == null:
 		return
-	var info: Dictionary = target.call("absorb_color")
-	var el := str(info.get("element", ""))
-	if el == "":
+	var companion := _companion()
+	companion.call("absorb", target)
+
+
+## 组 "companion" 里的跟班（本项目只有一个）。
+func _companion() -> Node:
+	var nodes := get_tree().get_nodes_in_group("companion")
+	if nodes.is_empty():
+		return null
+	return nodes[0]
+
+
+## 跟班是否已招募（跟随之后玩家才有上色/吸收/高亮等交互能力）。
+func _companion_recruited() -> bool:
+	var companion := _companion()
+	return companion != null and bool(companion.call("is_recruited"))
+
+
+## 跟班吸收带回的种子入库（吸收成功后由跟班回调）。
+func receive_element(element: String, amount: int) -> void:
+	if amount <= 0 or element == "":
 		return
-	var amt := int(info.get("amount", 1))
-	_inventory[el] = int(_inventory.get(el, 0)) + amt
-	_select_element(el)  # 吸收后自动选中新拿到的颜色
+	_inventory[element] = int(_inventory.get(element, 0)) + amount
+	_select_element(element)  # 吸收后自动选中新拿到的颜色
 
 
-## 赋予：把当前选中的元素种到鼠标指向的可上色物体，消耗一颗种子（种子守恒）。
+## 跟班飞到后目标没吃下颜色，退回乐观扣除的种子（上色失败时由跟班回调）。
+func refund_element(element: String, amount: int) -> void:
+	if amount <= 0 or element == "":
+		return
+	_inventory[element] = int(_inventory.get(element, 0)) + amount
+	_notify_inventory()
+
+
+## 赋予：让跟班飞过去把当前选中的元素种到鼠标指向的可上色物体（种子守恒）。
+## 跟班跟随之后才有交互：未招募直接不做。乐观扣种子，失败由跟班回调 refund_element 退回。
 func _grant() -> void:
-	if _selected_element == "":
+	if _selected_element == "" or not _companion_recruited():
 		return
 	var target := _grantable_at_mouse()
 	if target == null:
 		return
 	var cfg := Rules.config(_selected_element)
-	# 只在目标真的吃下这个颜色时才扣种子（水只吃蓝、已结冰不再吃，避免白扣）。
-	var applied: bool = bool(target.call("apply_color", cfg.get("color", Color.WHITE), cfg.get("color_name", ""), global_position))
-	if not applied:
-		return
+	var companion := _companion()
+	if bool(companion.call("paint", target, cfg.get("color", Color.WHITE), cfg.get("color_name", ""), _selected_element)):
+		_consume_selected()
+
+
+## 扣掉当前选中元素的一颗种子，扣光后自动切到下一个持有色。
+func _consume_selected() -> void:
 	_inventory[_selected_element] = int(_inventory[_selected_element]) - 1
 	if int(_inventory[_selected_element]) <= 0:
 		_inventory.erase(_selected_element)
@@ -454,6 +502,8 @@ func _grant() -> void:
 ## 鼠标当前指向、且在 "colorable" group 里的物体（重叠时取 z_index 最高/最上层）。
 func _colorable_at_mouse() -> Node:
 	var mp := get_global_mouse_position()
+	if global_position.distance_to(mp) > interact_range:
+		return null   # 工作圈之外：鼠标指示无效
 	var best: Node = null
 	var best_z := -INF
 	for obj in get_tree().get_nodes_in_group("colorable"):
@@ -489,7 +539,11 @@ func _grantable_at_mouse() -> Node:
 ## 给鼠标指向的可交互物体加描边提示，目标变化时自动切换。
 ## 优先级：带色（可吸收/溶解）> 可赋予（可上色）。这样手里攥着颜色时，
 ## 鼠标下的冰/带色物仍提示「可吸收」，而不是误导成「可赋予」。
+## 跟班跟随之后才有交互：未招募时不做任何悬停高亮。
 func _update_highlight() -> void:
+	if not _companion_recruited():
+		_clear_highlight()
+		return
 	var target := _colored_at_mouse()
 	if target == null and _selected_element != "":
 		target = _grantable_at_mouse()
@@ -531,6 +585,8 @@ func _clear_highlight() -> void:
 ## 鼠标下、未结冰的水格（用于冻结预览）。只找水，不管是否带色/可赋予。
 func _water_at_mouse() -> Node:
 	var mp := get_global_mouse_position()
+	if global_position.distance_to(mp) > interact_range:
+		return null   # 工作圈之外：冻结预览同样无效
 	var best: Node = null
 	var best_z := -INF
 	for obj in get_tree().get_nodes_in_group("colorable"):
@@ -550,7 +606,14 @@ func _water_at_mouse() -> Node:
 
 
 ## 悬停水面反馈：手里是蓝时叠一个半透明冰块预览（提示「可结冰」）。
+## 跟班跟随之后才有交互：未招募时不预览。
 func _update_water_preview() -> void:
+	if not _companion_recruited():
+		if is_instance_valid(_freeze_preview_water) and _freeze_preview_water.has_method("set_freeze_preview"):
+			_freeze_preview_water.set_freeze_preview(false)
+		_freeze_preview_water = null
+		_freeze_preview_on = false
+		return
 	var w := _water_at_mouse()
 	var preview_on := w != null and _selected_element == "freeze"
 	if w != _freeze_preview_water or preview_on != _freeze_preview_on:

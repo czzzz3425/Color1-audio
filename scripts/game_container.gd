@@ -7,8 +7,11 @@ extends Node2D
 
 @onready var player: Node2D = $Player
 @onready var room_container: Node2D = $RoomContainer
+@onready var pcam: PhantomCamera2D = $MainPCam as PhantomCamera2D
 
 
 func _ready() -> void:
 	SceneManager.setup(player, room_container)
+	if pcam != null:
+		pcam.follow_target = player
 	SceneManager.change_room(start_room, start_entrance)
