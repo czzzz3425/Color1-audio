@@ -478,6 +478,24 @@ func refund_element(element: String, amount: int) -> void:
 		_notify_inventory()
 
 
+## 敌人（焰虱）碰到玩家时抢走库存种子——种子守恒的反向操作。抢到返回 true，抢不到返回 false。
+func steal_element(element: String, amount: int = 1) -> bool:
+	if amount <= 0 or element == "":
+		return false
+	var have := int(_inventory.get(element, 0))
+	if have <= 0:
+		return false
+	_inventory[element] = have - amount
+	if int(_inventory[element]) <= 0:
+		_inventory.erase(element)
+		if _selected_element == element:
+			var rest := _held_elements()
+			_select_element(rest[0] if not rest.is_empty() else "")
+	else:
+		_notify_inventory()
+	return true
+
+
 ## 赋予：让跟班飞过去把当前选中的元素种到鼠标指向的可上色物体（种子守恒）。
 ## 跟班跟随之后才有交互：未招募直接不做。乐观扣种子，失败由跟班回调 refund_element 退回。
 func _grant() -> void:
