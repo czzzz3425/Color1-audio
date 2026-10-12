@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://cyegdl1jno3wu" path="res://art/picture_boluo/土墙块（湖水过渡）2.png" id="4_wbtxt"]
 [ext_resource type="Texture2D" uid="uid://v05473rse7id" path="res://art/picture_boluo/湖水.png" id="5_isj1j"]
 [ext_resource type="Texture2D" uid="uid://jxl8cetg4nil" path="res://art/picture_boluo/土墙块（湖水过渡）3.png" id="5_x2fux"]
+[ext_resource type="Texture2D" uid="uid://cpp75f0guxi8q" path="res://art/picture_boluo/地块1tm.png" id="6_s7g0b"]
 [ext_resource type="Texture2D" uid="uid://dos3ufdok4ldo" path="res://art/picture_boluo/冰块.png" id="7_d5akn"]
 [ext_resource type="PackedScene" uid="uid://dj86vqolar41r" path="res://prefabs/items/interaction/box.tscn" id="8_5vw27"]
 [ext_resource type="PackedScene" uid="uid://cth270frtlesc" path="res://prefabs/items/interaction/ice_block.tscn" id="9_4c57u"]
@@ -106,6 +107,26 @@ texture_region_size = Vector2i(256, 256)
 2:3/0 = 0
 3:3/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_mmfjm"]
+texture = ExtResource("6_s7g0b")
+texture_region_size = Vector2i(256, 256)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+0:3/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+3:3/0 = 0
+
 [sub_resource type="TileSet" id="TileSet_co6qv"]
 tile_size = Vector2i(256, 256)
 custom_data_layer_0/name = "height"
@@ -114,6 +135,7 @@ sources/0 = SubResource("TileSetAtlasSource_4c57u")
 sources/1 = SubResource("TileSetAtlasSource_d5akn")
 sources/2 = SubResource("TileSetAtlasSource_x2fux")
 sources/3 = SubResource("TileSetAtlasSource_s7g0b")
+sources/4 = SubResource("TileSetAtlasSource_mmfjm")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_water"]
 texture = ExtResource("5_isj1j")
