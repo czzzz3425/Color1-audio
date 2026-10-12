@@ -32,6 +32,7 @@
 [ext_resource type="Script" uid="uid://bsesqduu4fs8m" path="res://scripts/companion_hint.gd" id="28_k8ld0"]
 [ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="29_hnsmf"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
+[ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="31_hjqri"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -4942,6 +4943,19 @@ shape = SubResource("CircleShape2D_mbb35")
 position = Vector2(3.0002136, 18)
 scale = Vector2(0.18135531, 0.17155984)
 texture = ExtResource("29_hnsmf")
+
+[node name="Line2D" type="Line2D" parent="Companion" unique_id=1422790944 node_paths=PackedStringArray("target")]
+top_level = true
+points = PackedVector2Array(-775, 2125)
+default_color = Color(0.2509804, 1, 1, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("31_hjqri")
+target = NodePath("..")
+max_points = 8
+min_distance = 10.0
+jitter_amount = 4.0
 
 [node name="CompanionHint_01" type="Node2D" parent="." unique_id=1147803756]
 position = Vector2(5720, -365)
