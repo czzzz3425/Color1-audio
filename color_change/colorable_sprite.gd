@@ -47,11 +47,13 @@ func _ready() -> void:
 
 
 func apply_color(c: Color, color_name: String = "", from_pos: Vector2 = Vector2.INF) -> bool:
+	var element := Rules.element_for_color_name(color_name)
+	if element == "":
+		return false
+	if not _behavior.apply(element):
+		return false
 	var origin := global_position if from_pos == Vector2.INF else from_pos
 	_start_fill(c, origin)
-	var element := Rules.element_for_color_name(color_name)
-	if element != "":
-		_behavior.apply(element)
 	return true
 
 

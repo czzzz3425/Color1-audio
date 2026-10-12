@@ -36,7 +36,7 @@ unlock_options = ["item:torch", "switch:bridge"]   # 道具 torch 或 开关 bri
 
 一把钥匙开一扇门，**开门时钥匙被消耗销毁**。钥匙与门用 id 一一对应：
 
-- **钥匙**：`scripts/key.gd`（`class_name Key`），结构 `Node2D` + `PickupArea`(Area2D) + `Visual`。字段 `key_id`（唯一键）/ `key_name`（显示名）。碰到即拾取，左上角记录「拾取了钥匙：<名>」，随后从世界消失。
+- **钥匙**：`scripts/key.gd`（`class_name KeyItem`），结构 `Node2D` + `PickupArea`(Area2D) + `Visual`。字段 `key_id`（唯一键）/ `key_name`（显示名）。碰到即拾取，左上角记录「拾取了钥匙：<名>」，随后从世界消失。
 - **门**：`Door` / `RoomDoor` 填 `required_key_id`（= 某把钥匙的 `key_id`）。碰门时：
   - 有钥匙 → 消耗（销毁）该钥匙 + 左上记录「用「<名>」打开了门」→ 开门/传送；
   - 无钥匙 → 居中提示「门锁住了，需要「<名>」」；

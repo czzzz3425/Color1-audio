@@ -15,7 +15,7 @@ extends EditorScript
 ##   7. 场景整体：无入口、无 Goal（提示级）
 ##   8. Switch：switch_id 空/重复
 ##   9. AbilityPickup：ability_id 空/重复
-##  10. Key：key_id 空/重复；required_key_id 与门一一对应（同一钥匙不被两扇门引用）
+##  10. KeyItem：key_id 空/重复；required_key_id 与门一一对应（同一钥匙不被两扇门引用）
 
 const Lock := preload("res://scripts/lock_condition.gd")
 
@@ -42,7 +42,7 @@ func _run() -> void:
 	var items: Array[ItemPickup] = []
 	var abilities: Array[AbilityPickup] = []
 	var switches: Array[Switch] = []
-	var keys: Array[Key] = []
+	var keys: Array[KeyItem] = []
 	var zones: Array[RoomZone] = []
 	for n in all:
 		if n is Door:
@@ -59,8 +59,8 @@ func _run() -> void:
 			abilities.append(n as AbilityPickup)
 		if n is Switch:
 			switches.append(n as Switch)
-		if n is Key:
-			keys.append(n as Key)
+		if n is KeyItem:
+			keys.append(n as KeyItem)
 		if n is RoomZone:
 			zones.append(n as RoomZone)
 
@@ -266,8 +266,8 @@ func _check_abilities(abilities: Array[AbilityPickup]) -> void:
 		seen[aid] = true
 
 
-# —— 10. 钥匙 Key（1:1 钥匙门）——
-func _check_keys(keys: Array[Key], doors: Array[Door], room_doors: Array[RoomDoor]) -> void:
+# —— 10. 钥匙 KeyItem（1:1 钥匙门）——
+func _check_keys(keys: Array[KeyItem], doors: Array[Door], room_doors: Array[RoomDoor]) -> void:
 	var key_ids: Dictionary = {}
 	for k in keys:
 		var kid: String = k.key_id
