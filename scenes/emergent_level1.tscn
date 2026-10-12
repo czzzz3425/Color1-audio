@@ -1,10 +1,10 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/entrance.gd" id="2_entrance"]
 [ext_resource type="Script" path="res://scripts/companion.gd" id="3_companion"]
 [ext_resource type="Resource" path="res://dialogue/companion.dialogue" id="4_dialogue"]
-[ext_resource type="PackedScene" path="res://prefabs/rooms/goal.tscn" id="5_goal"]
+[ext_resource type="Script" path="res://scripts/door.gd" id="5_door"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="6_seed"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/wood_bundle.tscn" id="7_wood"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="8_plate"]
@@ -18,6 +18,9 @@ size = Vector2(2400, 160)
 
 [sub_resource type="RectangleShape2D" id="Rect_bottom"]
 size = Vector2(2400, 160)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(64, 160)
 
 [node name="EmergentLevel1" type="Node2D"]
 y_sort_enabled = true
@@ -89,6 +92,20 @@ position = Vector2(150, 0)
 sensor_path = NodePath("../ElementPlate")
 required_element = "burn"
 
-[node name="Goal" parent="." instance=ExtResource("5_goal")]
-position = Vector2(350, 0)
-is_final = true
+[node name="to_level_1" type="Area2D" parent="."]
+position = Vector2(-550, 0)
+script = ExtResource("5_door")
+door_id = "to_level_1"
+target_scene = "res://scenes/level_1.tscn"
+target_entrance = "spawn"
+
+[node name="Collision" type="CollisionShape2D" parent="to_level_1"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Visual" type="Polygon2D" parent="to_level_1"]
+color = Color(0.5, 0.85, 0.5, 1)
+polygon = PackedVector2Array(-32, -80, 32, -80, 32, 80, -32, 80)
+
+[node name="RewardSeeds" parent="." instance=ExtResource("6_seed")]
+position = Vector2(400, -20)
+grow_seeds = 3
