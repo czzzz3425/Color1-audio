@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://n3wwxdawkxle"]
+
+[sub_resource type="Gradient" id="Gradient_uouvr"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.5198511, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sn0t7"]
+gradient = SubResource("Gradient_uouvr")
+width = 4
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="Gradient" id="Gradient_r63mi"]
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_6f8o3"]
+gradient = SubResource("Gradient_r63mi")
+
+[sub_resource type="Curve" id="Curve_kebtp"]
+_data = [Vector2(0, 0), 0.0, 4.9999995, 0, 1, Vector2(0.2, 1), 4.9999995, 0.03983354, 1, 0, Vector2(0.8, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.4827793, 0.0, 0, 0]
+point_count = 4
+metadata/_snap_enabled = true
+
+[sub_resource type="CurveTexture" id="CurveTexture_qr0ht"]
+curve = SubResource("Curve_kebtp")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_riqys"]
+particle_flag_disable_z = true
+angle_min = 1.0728835e-05
+angle_max = 360.00003
+direction = Vector3(0, -1, 0)
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.5
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_qr0ht")
+color = Color(1, 0.9490196, 0, 1)
+color_ramp = SubResource("GradientTexture1D_6f8o3")
+
+[node name="SunBrust" type="Node2D" unique_id=234792349]
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="." unique_id=1302093042]
+amount = 64
+texture = SubResource("GradientTexture2D_sn0t7")
+lifetime = 0.5
+explosiveness = 1.0
+randomness = 0.5
+process_material = SubResource("ParticleProcessMaterial_riqys")
