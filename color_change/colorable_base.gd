@@ -40,13 +40,16 @@ func _configure_behavior(behavior: ElementBehavior) -> void:
 	pass
 
 
-## 上色入口：先让子类做视觉反馈（扩散），再把元素派发给行为组件。
+## 上色入口：先派发元素给行为组件，状态真的变了才做视觉反馈（扩散）。
+## 返回是否真的生效（同色重复给 = false），供玩家侧据此判断是否消耗种子。
 func apply_color(c: Color, color_name: String = "", from_pos: Vector2 = Vector2.INF) -> bool:
+	var element := Rules.element_for_color_name(color_name)
+	if element == "":
+		return false
+	if not _behavior.apply(element):
+		return false
 	var origin := global_position if from_pos == Vector2.INF else from_pos
 	_apply_visual(c, origin)
-	var element := Rules.element_for_color_name(color_name)
-	if element != "":
-		_behavior.apply(element)
 	return true
 
 

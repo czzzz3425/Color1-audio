@@ -1,4 +1,4 @@
-class_name Key
+class_name KeyItem
 extends StatefulObject
 ## 钥匙：玩家碰到即拾取到 GameState.keys 背包，并在左上角记录一条消息。
 ## 1:1 钥匙门：key_id 唯一，对应一扇 Door / RoomDoor 的 required_key_id；开门时被消耗销毁。

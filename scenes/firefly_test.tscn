@@ -1,0 +1,61 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="2_companion"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/companion.dialogue" id="3_dialogue"]
+[ext_resource type="PackedScene" uid="uid://cth270frtlesc" path="res://prefabs/items/interaction/ice_block.tscn" id="4_ice"]
+[ext_resource type="PackedScene" path="res://prefabs/creatures/firefly.tscn" id="5_firefly"]
+[ext_resource type="Script" uid="uid://bwht6afqxmfus" path="res://scripts/darkness_overlay.gd" id="6_darkness"]
+[ext_resource type="Material" uid="uid://by7wgjc88b0vq" path="res://shaders/darkness_material.tres" id="7_mat"]
+[ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="8_roomzone"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
+radius = 48.0
+
+[node name="FireflyTest" type="Node2D"]
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -10
+color = Color(0.08, 0.1, 0.14, 1)
+polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
+
+[node name="Player" parent="." groups=["player"] instance=ExtResource("1_player")]
+position = Vector2(0, 0)
+
+[node name="Camera" type="Camera2D" parent="Player"]
+zoom = Vector2(0.25, 0.25)
+
+[node name="Companion" type="Node2D" parent="."]
+position = Vector2(0, 80)
+script = ExtResource("2_companion")
+dialogue_resource = ExtResource("3_dialogue")
+
+[node name="InteractArea" type="Area2D" parent="Companion"]
+collision_layer = 0
+
+[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea"]
+shape = SubResource("CircleShape2D_companion")
+
+[node name="Visual" type="Polygon2D" parent="Companion"]
+color = Color(0.95, 0.8, 0.25, 1)
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[node name="IceBlock" parent="." instance=ExtResource("4_ice")]
+position = Vector2(-400, 0)
+scale = Vector2(4, 4)
+
+[node name="Firefly" parent="." instance=ExtResource("5_firefly")]
+position = Vector2(300, -80)
+
+[node name="Firefly2" parent="." instance=ExtResource("5_firefly")]
+position = Vector2(500, 100)
+
+[node name="Darkness" type="Polygon2D" parent="."]
+z_index = 4096
+material = ExtResource("7_mat")
+polygon = PackedVector2Array(-20000, -20000, 20000, -20000, 20000, 20000, -20000, 20000)
+script = ExtResource("6_darkness")
+
+[node name="DarkRoom" parent="." instance=ExtResource("8_roomzone")]
+position = Vector2(0, 0)
+dark = true

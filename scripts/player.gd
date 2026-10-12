@@ -471,7 +471,11 @@ func refund_element(element: String, amount: int) -> void:
 	if amount <= 0 or element == "":
 		return
 	_inventory[element] = int(_inventory.get(element, 0)) + amount
-	_notify_inventory()
+	# 乐观扣除曾把最后一颗扣到 0 而自动切走了选中色：退款后恢复选中。
+	if _selected_element == "":
+		_select_element(element)
+	else:
+		_notify_inventory()
 
 
 ## 赋予：让跟班飞过去把当前选中的元素种到鼠标指向的可上色物体（种子守恒）。

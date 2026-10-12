@@ -20,9 +20,9 @@ config/icon="res://icon.svg"
 GameState="*res://scripts/game_state.gd"
 SceneManager="*res://scripts/scene_manager.gd"
 HeightMap="*res://scripts/height_map.gd"
-_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 DialogueManager="*uid://c3rodes2l3gxb"
 PhantomCameraManager="*uid://duq6jhf6unyis"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [dialogue_manager]
 
@@ -40,10 +40,6 @@ project/assembly_name="Color"
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/phantom_camera/plugin.cfg")
-
-[internationalization]
-
-locale/translations_pot_files=PackedStringArray("res://dialogue/player.dialogue", "res://dialogue/companion.dialogue")
 
 [physics]
 

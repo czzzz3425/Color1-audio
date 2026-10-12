@@ -34,13 +34,15 @@ func _ready() -> void:
 
 
 ## 入口：对父物体应用一个元素（由 colorable_* 的 apply_color 调用）。
-func apply(element_id: String) -> void:
+## 返回是否真的改变了状态（false = 与当前元素相同，调用方据此避免消耗种子）。
+func apply(element_id: String) -> bool:
 	if not Rules.has(element_id):
-		return
+		return false
 	if element_id == "burn":
-		_apply_burn()
+		return _apply_burn()
 	elif element_id == "freeze":
-		_apply_freeze()
+		return _apply_freeze()
+	return false
 
 
 func has_element() -> bool:
@@ -60,9 +62,9 @@ func clear() -> void:
 	_free_light()
 
 
-func _apply_burn() -> void:
+func _apply_burn() -> bool:
 	if _burning:
-		return
+		return false
 	# 点燃冻结中的物体 = 解冻后再燃烧。
 	if _frozen:
 		_frozen = false
@@ -73,9 +75,10 @@ func _apply_burn() -> void:
 	_spawn_vfx("burn")
 	_spawn_light()
 	_schedule_spread("burn")
+	return true
 
 
-func _apply_freeze() -> void:
+func _apply_freeze() -> bool:
 	# 冻结正在燃烧的物体 = 熄灭并摧毁（交互：freeze × burn → 销毁）。
 	if _burning:
 		_burning = false
@@ -83,14 +86,15 @@ func _apply_freeze() -> void:
 		_clear_vfx()
 		_free_light()
 		_shatter()
-		return
+		return true
 
 	if _frozen:
-		return
+		return false
 	_frozen = true
 	_element = "freeze"
 	_spawn_vfx("freeze")
 	_schedule_spread("freeze")
+	return true
 
 
 func _schedule_spread(element_id: String) -> void:
