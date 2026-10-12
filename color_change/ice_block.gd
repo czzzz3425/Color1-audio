@@ -48,6 +48,7 @@ func absorb_color() -> Dictionary:
 
 ## 破碎并放行：先移除碰撞（立刻可通行），再播破碎动画，最后销毁。
 func _break() -> void:
+    AudioManager.play_ice_break()
 	collision.set_deferred("disabled", true)
 	var shatter := SHATTER.new()
 	shatter.target = visual
