@@ -4279,6 +4279,9 @@ radius = 48.0
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_iw4em"]
 size = Vector2(64, 96)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hnsmf"]
+size = Vector2(64, 96)
+
 [node name="Level1" type="Node2D" unique_id=1753068649]
 y_sort_enabled = true
 script = ExtResource("18_room")
@@ -4949,6 +4952,21 @@ target_entrance = "spawn"
 shape = SubResource("RectangleShape2D_iw4em")
 
 [node name="Visual" type="Polygon2D" parent="to_emergent" unique_id=1489502754]
+z_index = 5
+color = Color(0.5, 0.85, 0.5, 1)
+polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+
+[node name="to_emergent2" type="Area2D" parent="." unique_id=124763088]
+position = Vector2(500, 0)
+script = ExtResource("20_door")
+door_id = "to_emergent2"
+target_scene = "res://scenes/emergent_level2.tscn"
+target_entrance = "spawn"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="to_emergent2" unique_id=1794635649]
+shape = SubResource("RectangleShape2D_hnsmf")
+
+[node name="Visual" type="Polygon2D" parent="to_emergent2" unique_id=2110580971]
 z_index = 5
 color = Color(0.5, 0.85, 0.5, 1)
 polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
