@@ -6,7 +6,12 @@ extends Line2D
 @export var jitter_amount: float = 2.0 # 手绘抖动幅度（推荐 1.0 ~ 3.0）
 @export var tail_offset: Vector2 = Vector2(0, 15) # 尾巴尖的偏移量，默认向下15像素
 
+@export_group("静止收尾设置")
+@export var stop_speed_threshold: float = 10.0 # 速度低于多少算静止
+@export var erase_speed: int = 3 # 静止时每帧删除几个点（调大消失更快，调到20以上等于瞬间消失）
+
 var points_array: PackedVector2Array = []
+var last_target_pos: Vector2
 
 ## 未选中任何颜色时的兜底拖尾色（玩家拿到颜色之前默认黑色）。
 const DEFAULT_TRAIL_COLOR := Color.BLACK
@@ -31,6 +36,9 @@ func _ready():
 	var p := get_tree().get_first_node_in_group("player")
 	if p != null and p.has_signal("color_changed"):
 		p.connect("color_changed", _on_color_changed)
+		
+	if target:
+		last_target_pos = target.global_position
 
 
 ## 当前应该用的拖尾颜色：玩家选中了颜色用选中色，否则用默认黑色。
@@ -53,6 +61,7 @@ func _set_trail_color(color: Color) -> void:
 	grad.set_color(1, Color(color.r, color.g, color.b, 0.0))
 	gradient = grad
 
+
 func _process(delta):
 	if not target:
 		return
@@ -60,26 +69,37 @@ func _process(delta):
 	# 👈 计算起点：用幽灵当前位置 + 尾巴偏移量
 	var start_pos = target.global_position + tail_offset
 	
-	# 如果点为空，或者移动距离超过了阈值，就记录新点
-	if points_array.is_empty() or start_pos.distance_to(points_array[-1]) > min_distance:
-		
-		# ✨ 核心：加入手绘抖动
-		var jitter = Vector2(
-			randf_range(-jitter_amount, jitter_amount),
-			randf_range(-jitter_amount, jitter_amount)
-		)
-		
-		# 把带有随机偏移的坐标加进去
-		points_array.append(start_pos + jitter)
-		
-		# 限制最大长度，删掉最旧的
-		if points_array.size() > max_points:
-			points_array.remove_at(0)
-			
-		points = points_array
+	# 👈 核心修改：判断小跟班是否在移动
+	var is_moving = false
+	if target.get("velocity"):
+		# 如果有 velocity 属性，用速度判断
+		is_moving = target.velocity.length() > stop_speed_threshold
+	else:
+		# 如果没有 velocity 属性，用位置差判断
+		is_moving = start_pos.distance_to(last_target_pos) > 1.0
+		last_target_pos = start_pos
 
-	# 如果幽灵停下来了，让拖尾慢慢消失（收笔效果）
-	if target.get("velocity") and target.velocity.length() < 10:
+	if is_moving:
+		# --- 移动时：正常记录点 ---
+		if points_array.is_empty() or start_pos.distance_to(points_array[-1]) > min_distance:
+			# 加入手绘抖动
+			var jitter = Vector2(
+				randf_range(-jitter_amount, jitter_amount),
+				randf_range(-jitter_amount, jitter_amount)
+			)
+			
+			points_array.append(start_pos + jitter)
+			
+			# 限制最大长度，删掉最旧的
+			if points_array.size() > max_points:
+				points_array.remove_at(0)
+				
+			points = points_array
+	else:
+		# --- 静止时：快速抹除拖尾（收笔效果） ---
 		if points_array.size() > 0:
-			points_array.remove_at(0)
+			# 每帧删除 erase_speed 个点
+			for i in range(erase_speed):
+				if points_array.size() > 0:
+					points_array.remove_at(0)
 			points = points_array
