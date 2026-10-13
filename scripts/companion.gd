@@ -154,6 +154,15 @@ func absorb(target: Node) -> bool:
 	return true
 
 
+## 玩家指示：让跟班飞过去与 target 交互（如开宝箱）。返回是否接受。
+func interact(target: Node) -> bool:
+	if not is_available():
+		return false
+	_task = {"type": "interact", "target": target}
+	_begin_task()
+	return true
+
+
 ## —— 任务执行（飞出 → 落地 → 执行 → 飞回）——
 
 func _begin_task() -> void:
@@ -214,11 +223,14 @@ func _execute_task() -> void:
 		var applied: bool = bool(target.call("apply_color", _task["color"], _task["color_name"], global_position))
 		if not applied and player != null and player.has_method("refund_element"):
 			player.call("refund_element", _task["element"], 1)
-	else:  # absorb：抽色后带回来，飞回玩家才结算。
+	elif _task["type"] == "absorb":  # 抽色后带回来，飞回玩家才结算。
 		var info: Dictionary = target.call("absorb_color")
 		var el := str(info.get("element", ""))
 		if el != "":
 			_carry = {"element": el, "amount": int(info.get("amount", 1))}
+	else:  # interact：落地后让目标执行交互（如开宝箱）。
+		if target.has_method("interact"):
+			target.call("interact")
 	_fly_back()
 
 

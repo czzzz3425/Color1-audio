@@ -1,21 +1,43 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dax0trat0pow8"]
 
 [ext_resource type="Script" uid="uid://xqglxi8wds7j" path="res://scripts/key.gd" id="1_key"]
+[ext_resource type="Texture2D" uid="uid://sp8ii7v8xgnt" path="res://art/picture_boluo/钥匙tm.png" id="2_7xm6c"]
+[ext_resource type="Shader" uid="uid://dcqsrgo08k78j" path="res://shaders/Sun_brust.gdshader" id="3_e82cr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pickup"]
-size = Vector2(128, 96)
+size = Vector2(70, 96)
 
-[node name="Key" type="Node2D"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bhunq"]
+shader = ExtResource("3_e82cr")
+shader_parameter/ray_count = 15.0000006175
+shader_parameter/ray_width = 0.8000000373014801
+shader_parameter/inner_radius = 0.15
+shader_parameter/inner_fade_width = 0.10000000475
+shader_parameter/outer_radius = 0.5
+shader_parameter/outer_fade_width = 0.15
+shader_parameter/ray_color = Color(1, 0.9, 0.5, 1)
+shader_parameter/intensity = 1.0
+shader_parameter/rotate_speed = 0.1000000997499999
+shader_parameter/flicker_speed = 5.0000002375
+
+[node name="Key" type="Node2D" unique_id=627855700]
 script = ExtResource("1_key")
 
-[node name="PickupArea" type="Area2D" parent="."]
+[node name="PickupArea" type="Area2D" parent="." unique_id=926829611]
 collision_layer = 0
-collision_mask = 1
 
-[node name="Collision" type="CollisionShape2D" parent="PickupArea"]
+[node name="Collision" type="CollisionShape2D" parent="PickupArea" unique_id=333356965]
 position = Vector2(0, 43)
 shape = SubResource("RectangleShape2D_pickup")
 
-[node name="Visual" type="Polygon2D" parent="."]
-color = Color(1, 0.85, 0.2, 1)
-polygon = PackedVector2Array(0, -48, 48, 0, 0, 48, -48, 0)
+[node name="Visual" type="Sprite2D" parent="." unique_id=352462188]
+position = Vector2(-1, 44)
+scale = Vector2(0.50390625, 0.4609375)
+texture = ExtResource("2_7xm6c")
+
+[node name="ColorRect" type="ColorRect" parent="Visual" unique_id=182176127]
+material = SubResource("ShaderMaterial_bhunq")
+offset_left = -226.23256
+offset_top = -275.52542
+offset_right = 228.21706
+offset_bottom = 225.6271

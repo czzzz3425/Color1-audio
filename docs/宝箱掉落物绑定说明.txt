@@ -1,0 +1,98 @@
+宝箱掉落物绑定说明
+============================================================
+
+一、这是什么
+
+宝箱（Baoxiang）开箱后会掉落一件物品（默认是钥匙）。物品掉到宝箱
+脚边，玩家走过去碰到即自动拾取进背包，之后可用来开门 / 解锁。
+宝箱本身是「小跟班飞过去开」的交互：玩家在工作圈内把鼠标悬停在宝箱
+上点左键，小跟班飞过去开箱，宝箱切到开启图层并掉出物品。
+
+
+二、涉及的文件
+
+- 宝箱  ：prefabs/items/static prop/Baoxiang.tscn  + scripts/baoxiang.gd
+- 钥匙  ：prefabs/items/interaction/key.tscn        + scripts/key.gd
+- 道具  ：prefabs/items/interaction/item_pickup.tscn + scripts/item_pickup.gd
+- 能力  ：prefabs/items/interaction/ability_pickup.tscn + scripts/ability_pickup.gd
+
+
+三、绑定步骤（以「掉一把银钥匙开一扇门」为例）
+
+1. 把 Baoxiang.tscn 拖进场景。
+
+2. 选中宝箱，在 Inspector 的 Drop 分组里填这几个字段：
+
+   drop_scene  = prefabs/items/interaction/key.tscn
+				 （默认已经是钥匙，不用改）
+
+   drop_id     = silver
+				 （掉落物的唯一 id，下面那扇门也用同一个）
+
+   drop_name   = 银钥匙
+				 （可选，拾取提示里显示的名字；留空则用 drop_id）
+
+   drop_offset = (0, 90)
+				 （可选，掉落物相对宝箱中心的落点；y 向下，默认掉在脚边）
+
+3. 给要开的那扇门（Door 或 RoomDoor）填：
+
+   required_key_id = silver
+
+   这样这把钥匙就和这扇门 1:1 绑定了：开门时钥匙被消耗销毁。
+
+
+四、三种掉落物对照表
+
+  ┌──────────┬────────────────────────────────┬───────────────┬──────────────────────────┐
+  │ 掉落类型 │ drop_scene 换成                  │ drop_id 语义   │ 门侧对应配置              │
+  ├──────────┼────────────────────────────────┼───────────────┼──────────────────────────┤
+  │ 钥匙     │ .../interaction/key.tscn（默认） │ key_id        │ required_key_id = 同 id  │
+  │ 关键道具 │ .../interaction/item_pickup.tscn │ prop_id       │ unlock_options=["item:id"]│
+  │ 能力     │ .../interaction/ability_pickup.tscn│ ability_id   │ unlock_options=["ability:id"]│
+  └──────────┴────────────────────────────────┴───────────────┴──────────────────────────┘
+
+  · 钥匙：1:1，开门消耗销毁。
+  · 道具/能力：碰到即拾取、永久保留，unlock_options 的锁不消耗它们。
+
+
+五、绑定关系的核心
+
+唯一纽带是 drop_id。它同时填在两个地方：
+
+  - 宝箱的 drop_id（决定掉出什么、id 是什么）
+  - 门的 required_key_id 或 unlock_options 里的 id（决定哪把钥匙/哪个条件能开）
+
+两者一致，宝箱和门就通过这件掉落物连起来了。
+
+
+六、掉落位置怎么调
+
+  drop_offset 是相对宝箱中心的偏移，单位是世界像素，y 轴向下。
+
+  - 想掉到宝箱正下方更远一点：把 y 调大，例如 (0, 120)。
+  - 想掉到宝箱左边/右边：改 x，例如 (-80, 90)。
+  - 留空或删掉掉落物场景（drop_scene = null）＝ 只开箱、不掉东西。
+
+
+七、持久化行为
+
+  - 宝箱的开启状态会保存：重进房间后宝箱保持开启，不会重复掉。
+  - 如果开了箱但没捡东西就离开了房间，回来时会重新掉一次，物品不会丢。
+  - 已经捡走的物品不会重复掉；钥匙被门用掉之后也不会再刷。
+
+
+八、注意事项
+
+  1. drop_id 必须唯一。每个宝箱掉一件东西，id 别和其他宝箱重复，
+	 否则钥匙门会找不到对应关系。
+
+  2. 同一房间放多个宝箱时，给每个宝箱改一个唯一的节点名（或在
+	 Inspector 里手动设 state_id），否则存档会互相覆盖。
+
+  3. 道具（item_pickup）和能力（ability_pickup）的 Visual 目前是
+	 占位色块（蓝方块 / 绿菱形），没有真实贴图。掉这两类之前，先给
+	 它们的 Visual 换成真实贴图（把 Polygon2D 换成 Sprite2D 并赋图）。
+
+  4. 掉钥匙时务必填 drop_id；留空会退回用节点名当 id，容易和别的
+	 钥匙撞名，不推荐。

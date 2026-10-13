@@ -367,7 +367,7 @@ func _handle_color_input() -> void:
 	if Input.is_action_just_pressed("absorb"):
 		_absorb()
 	if Input.is_action_just_pressed("interact"):
-		_grant()
+		_interact()
 	if Input.is_action_just_pressed("cycle_color_up"):
 		_cycle_selection(1)
 	if Input.is_action_just_pressed("cycle_color_down"):
@@ -442,6 +442,17 @@ func _absorb() -> void:
 		return
 	var companion := _companion()
 	companion.call("absorb", target)
+
+
+## 左键：优先让跟班飞过去开宝箱；鼠标下没有宝箱时，回落到赋予（上色）。跟班跟随之后才有交互。
+func _interact() -> void:
+	if not _companion_recruited():
+		return
+	var chest := _chest_at_mouse()
+	if chest != null:
+		_companion().call("interact", chest)
+		return
+	_grant()
 
 
 ## 组 "companion" 里的跟班（本项目只有一个）。
@@ -519,6 +530,29 @@ func _consume_selected() -> void:
 		_select_element(rest[0] if not rest.is_empty() else "")
 	else:
 		_notify_inventory()
+
+
+## 鼠标当前指向、且未开启的宝箱（工作圈内，重叠时取 z_index 最高/最上层）。
+func _chest_at_mouse() -> Node:
+	var mp := get_global_mouse_position()
+	if global_position.distance_to(mp) > interact_range:
+		return null   # 工作圈之外：鼠标指示无效
+	var best: Node = null
+	var best_z := -INF
+	for obj in get_tree().get_nodes_in_group("chest"):
+		if not GameState.is_in_current_scene(obj):
+			continue
+		if not obj.has_method("contains_point"):
+			continue
+		if bool(obj.get("is_open")):
+			continue
+		if not bool(obj.call("contains_point", mp)):
+			continue
+		var z := float(obj.get("z_index"))
+		if z >= best_z:
+			best_z = z
+			best = obj
+	return best
 
 
 ## 鼠标当前指向、且在 "colorable" group 里的物体（重叠时取 z_index 最高/最上层）。
