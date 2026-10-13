@@ -1,5 +1,5 @@
 extends TileMapLayer
-## 纯空气墙：把画好的格子转成不可见的 StaticBody2D 碰撞。
+## 空气墙：保留 tilemap 显示的墙格，同时为每个格子生成不可见碰撞。
 ## 只阻挡玩家，不参与水、结冰、可上色，也不写 HeightMap。
 
 const WORLD_LAYER := 2
@@ -22,5 +22,4 @@ func _ready() -> void:
 		col.shape = shape
 		body.add_child(col)
 		add_child(body)
-	# 运行时清掉可见 tile，只留下不可见碰撞。
-	clear()
+	# 不 clear，保留 tilemap 的可见贴图。

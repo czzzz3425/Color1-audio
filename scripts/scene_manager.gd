@@ -55,11 +55,23 @@ func _do_change_room(target_scene: String, target_entrance: String) -> void:
 		room_exited.emit(current_room.get("room_id"))
 		if current_room.has_method("exit"):
 			current_room.exit()
+		# 小跟班要跨关跟随：在卸载旧房前，把属于旧房的 companion 移到常驻容器，避免一起被 free。
+		var companions: Array = []
+		for c in get_tree().get_nodes_in_group("companion"):
+			if current_room.is_ancestor_of(c):
+				companions.append(c)
+		for c in companions:
+			if is_instance_valid(c) and c.get_parent() != room_container:
+				c.reparent(room_container, true)
 		current_room.queue_free()
 		current_room = null
 		GameState.current_room = null
 		GameState.current_room_id = ""
 		HeightMap.clear()
+		# 切关时把暗房遮罩复位为亮，避免上个关的暗房效果残留到新关。
+		var darkness := get_tree().get_first_node_in_group("darkness")
+		if darkness != null:
+			darkness.darkness = 0.0
 
 	# 2. 加载新房
 	var packed: PackedScene = load(target_scene)

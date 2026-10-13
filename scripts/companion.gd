@@ -67,6 +67,11 @@ var _carry: Dictionary = {}   # 吸收带回的种子 {element, amount}
 
 
 func _ready() -> void:
+	# 切关后小跟班已常驻；旧关重新实例化时会出现第二个，这里让后加载的自毁，避免重复。
+	for c in get_tree().get_nodes_in_group("companion"):
+		if is_instance_valid(c) and c != self:
+			queue_free()
+			return
 	add_to_group("companion")
 	player = get_tree().get_first_node_in_group("player") as Node2D
 	_area = $InteractArea as Area2D
