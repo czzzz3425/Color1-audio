@@ -4966,6 +4966,7 @@ max_points = 8
 min_distance = 10.0
 jitter_amount = 4.0
 stop_speed_threshold = 7.5
+erase_speed = 5
 
 [node name="CompanionHint_01" type="Node2D" parent="." unique_id=1147803756]
 position = Vector2(5720, -365)
