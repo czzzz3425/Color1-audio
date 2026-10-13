@@ -8,7 +8,7 @@ extends RefCounted
 const COLOR_NAME_TO_ELEMENT := {
 	"红": "burn",
 	"蓝": "freeze",
-	# "绿": "grow",  # 搁置
+	"绿": "grow",
 }
 
 const ELEMENTS := {
@@ -27,6 +27,14 @@ const ELEMENTS := {
 		"spreads": false,
 		"spread_radius": 880.0,
 		"spread_delay": 0.7,
+	},
+	"grow": {
+		"color_name": "绿",
+		"color": Color(0.35, 0.85, 0.4),
+		"vfx": "",
+		"spreads": false,
+		"spread_radius": 512.0,
+		"spread_delay": 1.0,
 	},
 }
 

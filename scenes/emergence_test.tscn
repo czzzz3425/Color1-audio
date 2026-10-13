@@ -1,0 +1,144 @@
+[gd_scene format=3 uid="uid://bu8pi4p8f5fpq"]
+
+[ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="2_companion"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/companion.dialogue" id="3_dialogue"]
+[ext_resource type="Script" uid="uid://bwht6afqxmfus" path="res://scripts/darkness_overlay.gd" id="4_darkness"]
+[ext_resource type="Material" uid="uid://by7wgjc88b0vq" path="res://shaders/darkness_material.tres" id="5_mat"]
+[ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="6_roomzone"]
+[ext_resource type="PackedScene" path="res://prefabs/rooms/goal.tscn" id="7_goal"]
+[ext_resource type="PackedScene" path="res://prefabs/creatures/fire_louse.tscn" id="8_louse"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/wood_bundle.tscn" id="9_wood"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_valve.tscn" id="10_valve"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_conduit.tscn" id="11_conduit"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="12_seed"]
+[ext_resource type="Script" uid="uid://c72jfj8on1i3d" path="res://color_change/hud.gd" id="13_hud"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/growth_seed.tscn" id="14_wa0ey"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="15_plate"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_balance.tscn" id="16_balance"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
+radius = 48.0
+
+[sub_resource type="RectangleShape2D" id="Rect_top"]
+size = Vector2(2400, 160)
+
+[sub_resource type="RectangleShape2D" id="Rect_bottom"]
+size = Vector2(2400, 160)
+
+[node name="EmergenceTest" type="Node2D" unique_id=1345009529]
+
+[node name="Background" type="Polygon2D" parent="." unique_id=286595930]
+z_index = -10
+color = Color(0.08, 0.1, 0.14, 1)
+polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
+
+[node name="Player" parent="." unique_id=1253966471 groups=["player"] instance=ExtResource("1_player")]
+
+[node name="Camera" type="Camera2D" parent="Player" unique_id=1216840730]
+zoom = Vector2(0.25, 0.25)
+
+[node name="Companion" type="Node2D" parent="." unique_id=1376771095]
+position = Vector2(0, 80)
+script = ExtResource("2_companion")
+dialogue_resource = ExtResource("3_dialogue")
+
+[node name="InteractArea" type="Area2D" parent="Companion" unique_id=1750933784]
+collision_layer = 0
+
+[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea" unique_id=1060371693]
+shape = SubResource("CircleShape2D_companion")
+
+[node name="Visual" type="Polygon2D" parent="Companion" unique_id=2013803066]
+color = Color(0.95, 0.8, 0.25, 1)
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[node name="TopWall" type="StaticBody2D" parent="." unique_id=1519752133]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="TopWall" unique_id=1043316196]
+color = Color(0.22, 0.24, 0.3, 1)
+polygon = PackedVector2Array(-700, -240, 1700, -240, 1700, -80, -700, -80)
+
+[node name="Collision" type="CollisionShape2D" parent="TopWall" unique_id=1602387350]
+position = Vector2(500, -160)
+shape = SubResource("Rect_top")
+
+[node name="BottomWall" type="StaticBody2D" parent="." unique_id=1479697896]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="BottomWall" unique_id=580437523]
+color = Color(0.22, 0.24, 0.3, 1)
+polygon = PackedVector2Array(-700, 20, 1700, 20, 1700, 180, -700, 180)
+
+[node name="Collision" type="CollisionShape2D" parent="BottomWall" unique_id=1299805569]
+position = Vector2(500, 100)
+shape = SubResource("Rect_bottom")
+
+[node name="SeedContainer" parent="." unique_id=659115218 instance=ExtResource("12_seed")]
+position = Vector2(-150, -20)
+burn_seeds = 3
+freeze_seeds = 2
+grow_seeds = 2
+
+[node name="WoodBundle" parent="." unique_id=1427335128 instance=ExtResource("9_wood")]
+position = Vector2(200, 0)
+
+[node name="ElementConduit" parent="." unique_id=2136048288 instance=ExtResource("11_conduit")]
+position = Vector2(340, -60)
+
+[node name="ElementValve" parent="." unique_id=473134588 instance=ExtResource("10_valve")]
+position = Vector2(500, 0)
+
+[node name="FireLouse" parent="." unique_id=621841967 instance=ExtResource("8_louse")]
+position = Vector2(750, -20)
+
+[node name="Goal" parent="." unique_id=33674348 instance=ExtResource("7_goal")]
+position = Vector2(950, 0)
+is_final = true
+
+[node name="DarkRoom" parent="." unique_id=522795198 instance=ExtResource("6_roomzone")]
+position = Vector2(800, -30)
+dark = true
+size = Vector2(640, 260)
+
+[node name="Darkness" type="Polygon2D" parent="." unique_id=1965854559]
+z_index = 4096
+material = ExtResource("5_mat")
+polygon = PackedVector2Array(-20000, -20000, 20000, -20000, 20000, 20000, -20000, 20000)
+script = ExtResource("4_darkness")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=659933328]
+script = ExtResource("13_hud")
+
+[node name="ColorLabel" type="RichTextLabel" parent="HUD" unique_id=1883383089]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 760.0
+offset_bottom = 60.0
+bbcode_enabled = true
+
+[node name="WinLabel" type="Label" parent="HUD" unique_id=2080340405]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+text = "过关！"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GrowthSeed" parent="." unique_id=297311858 instance=ExtResource("14_wa0ey")]
+position = Vector2(620, 0)
+
+[node name="GrowthSeed2" parent="." unique_id=1823307629 instance=ExtResource("14_wa0ey")]
+position = Vector2(880, 0)
+
+[node name="ElementPlate" parent="." instance=ExtResource("15_plate")]
+position = Vector2(120, 0)
+
+[node name="ElementBalance" parent="." instance=ExtResource("16_balance")]
+position = Vector2(320, 100)

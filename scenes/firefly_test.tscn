@@ -9,6 +9,10 @@
 [ext_resource type="Material" uid="uid://by7wgjc88b0vq" path="res://shaders/darkness_material.tres" id="7_mat"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="8_roomzone"]
 [ext_resource type="PackedScene" path="res://prefabs/creatures/fire_louse.tscn" id="9_h1v3v"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/wood_bundle.tscn" id="10_35gpr"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_valve.tscn" id="11_afmmx"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_conduit.tscn" id="12_65o3y"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="13_aljdd"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
 radius = 48.0
@@ -60,4 +64,18 @@ script = ExtResource("6_darkness")
 dark = true
 
 [node name="FireLouse" parent="." unique_id=1475851485 instance=ExtResource("9_h1v3v")]
-position = Vector2(-350, 0)
+position = Vector2(-641, -330)
+
+[node name="WoodBundle" parent="." unique_id=187024552 instance=ExtResource("10_35gpr")]
+position = Vector2(150, 0)
+
+[node name="ElementValve" parent="." unique_id=1723411960 instance=ExtResource("11_afmmx")]
+position = Vector2(400, 0)
+
+[node name="ElementConduit" parent="." unique_id=2127228308 instance=ExtResource("12_65o3y")]
+position = Vector2(-100, 0)
+
+[node name="SeedContainer" parent="." unique_id=1298311757 instance=ExtResource("13_aljdd")]
+position = Vector2(600, 0)
+burn_seeds = 2
+freeze_seeds = 1

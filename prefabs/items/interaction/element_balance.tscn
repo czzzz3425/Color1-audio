@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/element_balance.gd" id="1_bal"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="2_plate"]
+
+[node name="ElementBalance" type="Node2D"]
+script = ExtResource("1_bal")
+
+[node name="Left" parent="." instance=ExtResource("2_plate")]
+position = Vector2(-88, 0)
+
+[node name="Right" parent="." instance=ExtResource("2_plate")]
+position = Vector2(88, 0)

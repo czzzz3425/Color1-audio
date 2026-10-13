@@ -1,0 +1,111 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/entrance.gd" id="2_entrance"]
+[ext_resource type="Script" path="res://scripts/companion.gd" id="3_companion"]
+[ext_resource type="Resource" path="res://dialogue/companion.dialogue" id="4_dialogue"]
+[ext_resource type="Script" path="res://scripts/door.gd" id="5_door"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="6_seed"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/wood_bundle.tscn" id="7_wood"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="8_plate"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_gate.tscn" id="9_gate"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
+radius = 48.0
+
+[sub_resource type="RectangleShape2D" id="Rect_top"]
+size = Vector2(2400, 160)
+
+[sub_resource type="RectangleShape2D" id="Rect_bottom"]
+size = Vector2(2400, 160)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(64, 160)
+
+[node name="EmergentLevel1" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_room")
+room_id = "emergent_level1"
+camera_limits = Rect2(-1200, -600, 3000, 1200)
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -10
+color = Color(0.08, 0.1, 0.14, 1)
+polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
+
+[node name="spawn" type="Marker2D" parent="."]
+position = Vector2(-300, 0)
+script = ExtResource("2_entrance")
+entrance_id = "spawn"
+
+[node name="Companion" type="Node2D" parent="."]
+position = Vector2(0, 80)
+script = ExtResource("3_companion")
+dialogue_resource = ExtResource("4_dialogue")
+
+[node name="InteractArea" type="Area2D" parent="Companion"]
+collision_layer = 0
+
+[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea"]
+shape = SubResource("CircleShape2D_companion")
+
+[node name="Visual" type="Polygon2D" parent="Companion"]
+color = Color(0.95, 0.8, 0.25, 1)
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[node name="TopWall" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="TopWall"]
+color = Color(0.22, 0.24, 0.3, 1)
+polygon = PackedVector2Array(-800, -240, 1200, -240, 1200, -80, -800, -80)
+
+[node name="Collision" type="CollisionShape2D" parent="TopWall"]
+position = Vector2(200, -160)
+shape = SubResource("Rect_top")
+
+[node name="BottomWall" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Polygon2D" parent="BottomWall"]
+color = Color(0.22, 0.24, 0.3, 1)
+polygon = PackedVector2Array(-800, 20, 1200, 20, 1200, 180, -800, 180)
+
+[node name="Collision" type="CollisionShape2D" parent="BottomWall"]
+position = Vector2(200, 100)
+shape = SubResource("Rect_bottom")
+
+[node name="SeedContainer" parent="." instance=ExtResource("6_seed")]
+position = Vector2(-350, -20)
+burn_seeds = 3
+
+[node name="WoodBundle" parent="." instance=ExtResource("7_wood")]
+position = Vector2(-150, 0)
+
+[node name="ElementPlate" parent="." instance=ExtResource("8_plate")]
+position = Vector2(0, 0)
+
+[node name="ElementGate" parent="." instance=ExtResource("9_gate")]
+position = Vector2(150, 0)
+sensor_path = NodePath("../ElementPlate")
+required_element = "burn"
+
+[node name="to_level_1" type="Area2D" parent="."]
+position = Vector2(-550, 0)
+script = ExtResource("5_door")
+door_id = "to_level_1"
+target_scene = "res://scenes/level_1.tscn"
+target_entrance = "spawn"
+
+[node name="Collision" type="CollisionShape2D" parent="to_level_1"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Visual" type="Polygon2D" parent="to_level_1"]
+color = Color(0.5, 0.85, 0.5, 1)
+polygon = PackedVector2Array(-32, -80, 32, -80, 32, 80, -32, 80)
+
+[node name="RewardSeeds" parent="." instance=ExtResource("6_seed")]
+position = Vector2(400, -20)
+grow_seeds = 3

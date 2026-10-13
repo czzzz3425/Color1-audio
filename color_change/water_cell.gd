@@ -69,9 +69,15 @@ func contains_point(world_pos: Vector2) -> bool:
 	return Rect2(-cell_size * 0.5, cell_size).has_point(to_local(world_pos))
 
 
-## 被赋予颜色：目前只有「蓝」会让水结冰，其它颜色暂不处理。
-## 返回是否真的生效（已结冰或非蓝都不生效），供玩家侧判断是否该消耗种子。
+## 被赋予颜色：蓝让水结冰；红融冰（火 × 冰 = 水）。
+## 返回是否真的生效，供玩家侧判断是否该消耗种子。
 func apply_color(_c: Color, color_name: String = "", _from_pos: Vector2 = Vector2.INF) -> bool:
+	# 火 × 冰 = 水：红把结冰的水格融回水（深水重新挡路 / 浅水重新可走）。
+	if color_name == "红":
+		if not _frozen:
+			return false   # 没结冰的水，火烧不了
+		_melt()
+		return true
 	if color_name != "蓝":
 		return false
 	if not _frozen:
@@ -123,6 +129,15 @@ func _freeze(from_pos: Vector2 = Vector2.INF) -> void:
 	if _water != null:
 		_fade_out_visual(_water)
 	HeightMap.set_walkable(global_position, true)   # 冰：可站
+
+
+## 火融冰（火 × 冰 = 水）：冰融回水。与吸收蓝的融化一致，但火融化不返还蓝种子。
+func _melt() -> void:
+	_frozen = false
+	if not shallow:
+		_col.set_deferred("disabled", false)   # 深水恢复碰撞 → 重新挡路
+	_fade_to(_ice, _water)
+	HeightMap.set_walkable(global_position, shallow)   # 深水不可站、浅水可站
 
 
 ## 结冰视觉：有 ice_growth 预制体时播放「从边缘生长」效果；纯色兜底沿用淡入。
