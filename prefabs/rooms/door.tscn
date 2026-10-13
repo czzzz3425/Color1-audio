@@ -1,18 +1,20 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cpiwgahwptfg5"]
 
 [ext_resource type="Script" uid="uid://5mnsopbqo3o5" path="res://scripts/door.gd" id="1_door"]
+[ext_resource type="Texture2D" uid="uid://bqvmrxeuuahbf" path="res://art/picture_boluo/门tm.png" id="2_khowh"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(128, 256)
+size = Vector2(484.5, 565)
 
-[node name="Door" type="Area2D"]
+[node name="Door" type="Area2D" unique_id=1674744101]
 collision_layer = 0
-collision_mask = 1
 script = ExtResource("1_door")
 
-[node name="Collision" type="CollisionShape2D" parent="."]
+[node name="Collision" type="CollisionShape2D" parent="." unique_id=578382926]
+position = Vector2(-85.25, 74.5)
 shape = SubResource("RectangleShape2D_door")
 
-[node name="Visual" type="Polygon2D" parent="."]
-color = Color(0.85, 0.55, 0.2, 1)
-polygon = PackedVector2Array(-64, -128, 64, -128, 64, 128, -64, 128)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1423275904]
+position = Vector2(-72.24999, 74.50001)
+scale = Vector2(2.2285156, 2.1835938)
+texture = ExtResource("2_khowh")

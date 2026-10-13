@@ -1,16 +1,19 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://chdkxg2bd1tkv"]
 
 [ext_resource type="Script" uid="uid://d3ly0amefea5t" path="res://scripts/room_door.gd" id="1_door"]
+[ext_resource type="Texture2D" uid="uid://bqvmrxeuuahbf" path="res://art/picture_boluo/门tm.png" id="2_wxmyy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(256, 512)
+size = Vector2(1367, 1516)
 
-[node name="RoomDoor" type="StaticBody2D"]
+[node name="RoomDoor" type="StaticBody2D" unique_id=1357631850]
 script = ExtResource("1_door")
 
-[node name="Visual" type="Polygon2D" parent="."]
-color = Color(0.85, 0.55, 0.2, 1)
-polygon = PackedVector2Array(-128, -256, 128, -256, 128, 256, -128, 256)
-
-[node name="Collision" type="CollisionShape2D" parent="."]
+[node name="Collision" type="CollisionShape2D" parent="." unique_id=83457382]
+position = Vector2(-33.5, 0)
 shape = SubResource("RectangleShape2D_door")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=300107527]
+position = Vector2(3, -1)
+scale = Vector2(6.1093745, 6.46875)
+texture = ExtResource("2_wxmyy")

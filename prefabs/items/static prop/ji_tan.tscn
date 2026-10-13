@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://ccxpasjx1hhoi"]
+
+[ext_resource type="Texture2D" uid="uid://clipll4l0n51k" path="res://art/picture_boluo/祭坛tm.png" id="1_7r3ya"]
+
+[node name="JiTan" type="Node2D" unique_id=1851717179]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1290888895]
+position = Vector2(9, 14)
+scale = Vector2(7.7226563, 8.167969)
+texture = ExtResource("1_7r3ya")
