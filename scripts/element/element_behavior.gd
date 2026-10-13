@@ -105,6 +105,7 @@ func _apply_freeze() -> bool:
 		_clear_vfx()
 		_free_light()
 		_set_heat(false)
+		_refund_destroyed_elements()
 		_shatter()
 		return true
 
@@ -212,6 +213,15 @@ func _spawn_vfx(element_id: String) -> void:
 	_vfx = scene.instantiate()
 	_vfx.set("loop", false)  # 只播一次
 	_parent.add_child(_vfx)
+
+
+## 红+蓝销毁：把烧掉的红与扑灭用的蓝各返还一颗给玩家（种子守恒回流）。
+func _refund_destroyed_elements() -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or not player.has_method("refund_element"):
+		return
+	player.call("refund_element", "burn", 1)
+	player.call("refund_element", "freeze", 1)
 
 
 func _clear_vfx() -> void:

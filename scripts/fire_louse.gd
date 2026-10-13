@@ -34,6 +34,10 @@ enum State { DORMANT, CHASE, FROZEN, RETREAT }
 @export var steal_cooldown: float = 1.0       # 抢红冷却
 @export var retreat_distance: float = 400.0   # 耗竭后跑多远才转潜伏
 
+@export_group("伤害")
+## 成功抢到玩家红种子时造成的伤害（玩家有短暂无敌，不会连击秒杀）。
+@export var contact_damage: float = 0.2
+
 @export_group("冻结")
 @export var freeze_duration: float = 10.0     # 冻结持续时长（到期解冻）
 
@@ -114,6 +118,7 @@ func _chase(_delta: float) -> void:
 		if global_position.distance_to(_player.global_position) < contact_radius:
 			_steal_cd = steal_cooldown
 			if not _player.steal_element("burn", 1):
+				_player.take_damage(contact_damage)
 				_player.knockback(dir, 400.0)
 
 

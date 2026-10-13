@@ -6,7 +6,7 @@ signal color_changed(new_color: Color, color_name: String)
 ## 颜色库/选中变化时发出，供 HUD 显示整套调色盘与当前选中。
 signal inventory_changed(inventory: Dictionary, selected_element: String)
 ## 血量变化（current / max）。HUD 据此刷新红心。
-signal health_changed(health: int, max_health: int)
+signal health_changed(health: float, max_health: int)
 ## 血量归零死亡（重生由 Player 自行处理，这里只广播，供音效/演出等监听）。
 signal died
 
@@ -99,7 +99,7 @@ var _base_collision_mask := 0    # 场景里配好的碰撞掩码（含水层）
 var _in_water := false           # 是否正站在水里（不可站水格）→ 临时忽略水层碰撞以便踩水
 var _knockback_vel := Vector2.ZERO   # 被飞行物命中时的击退速度（逐帧衰减）
 var _dialogue_active := false        # 对话中禁止玩家移动
-var health := 1
+var health := 1.0
 var _invincible_until := 0
 
 @onready var sprite: AnimatedSprite2D = $Sprite
@@ -111,7 +111,7 @@ func _ready() -> void:
 	add_to_group("player")
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
-	health = max_health
+	health = float(max_health)
 	_base_collision_mask = collision_mask
 	_register_input_actions()
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -285,27 +285,28 @@ func _on_frozen_ice() -> bool:
 
 
 ## 受伤：扣血并广播 health_changed。受击后有短暂无敌，防止机关连发瞬间秒杀。
-func take_damage(amount := 1) -> void:
+func take_damage(amount: float = 1.0) -> void:
 	if amount <= 0:
 		return
 	if Time.get_ticks_msec() < _invincible_until:
 		return
 	_invincible_until = Time.get_ticks_msec() + INVINCIBLE_MS
-	health = maxi(health - amount, 0)
+	health = maxf(health - amount, 0.0)
 	health_changed.emit(health, max_health)
-	if health <= 0:
+	if health <= 0.0:
 		_die()
 
 
 ## 死亡：广播 died，然后回出生点重生（满血 + 短暂无敌）。
 func _die() -> void:
 	died.emit()
+	GameState.notice.emit("你死了")
 	_respawn()
 
 
 ## 重生：回到当前房间出生点，恢复满血并给略长一点的无敌时间。
 func _respawn() -> void:
-	health = max_health
+	health = float(max_health)
 	velocity = Vector2.ZERO
 	_knockback_vel = Vector2.ZERO
 	global_position = _spawn_position()
