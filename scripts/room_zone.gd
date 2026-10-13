@@ -83,12 +83,7 @@ func _draw() -> void:
 func _on_body_entered(body: Node) -> void:
 	if not body.is_in_group("player"):
 		return
-	_apply_camera(body)
 	_apply_lighting()
-	if room_name != "":
-		var hud := get_tree().get_first_node_in_group("hud")
-		if hud and hud.has_method("show_hint"):
-			hud.show_hint(room_name)
 
 
 ## 把相机边界锁到本房间矩形（优先 PhantomCamera2D，回退玩家身上的 Camera2D）。

@@ -12,6 +12,7 @@ size = Vector2(128, 41)
 collision_mask = 6
 script = ExtResource("1_player")
 animation_frames = ExtResource("2_frames")
+light_radius = 872.0
 
 [node name="Shadow" type="Sprite2D" parent="." unique_id=1668871434]
 texture_filter = 1

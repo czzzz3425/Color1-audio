@@ -15,7 +15,7 @@ script = ExtResource("1_game")
 
 [node name="Player" parent="." unique_id=152436479 groups=["player"] instance=ExtResource("2_player")]
 interact_range = 1024.0
-light_radius = 152.0
+light_radius = 512.0
 
 [node name="Camera" type="Camera2D" parent="Player" unique_id=1471997350]
 zoom = Vector2(0.25, 0.25)
