@@ -5,7 +5,7 @@
 [ext_resource type="Shader" uid="uid://dcqsrgo08k78j" path="res://shaders/Sun_brust.gdshader" id="3_e82cr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pickup"]
-size = Vector2(70, 96)
+size = Vector2(177, 273)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_bhunq"]
 shader = ExtResource("3_e82cr")
@@ -27,12 +27,12 @@ script = ExtResource("1_key")
 collision_layer = 0
 
 [node name="Collision" type="CollisionShape2D" parent="PickupArea" unique_id=333356965]
-position = Vector2(0, 43)
+position = Vector2(7.5, -9.5)
 shape = SubResource("RectangleShape2D_pickup")
 
 [node name="Visual" type="Sprite2D" parent="." unique_id=352462188]
-position = Vector2(-1, 44)
-scale = Vector2(0.50390625, 0.4609375)
+position = Vector2(5, -3.0000005)
+scale = Vector2(1.2719728, 1.2265625)
 texture = ExtResource("2_7xm6c")
 
 [node name="ColorRect" type="ColorRect" parent="Visual" unique_id=182176127]
