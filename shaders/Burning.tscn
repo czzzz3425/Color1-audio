@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://txoluudu8fel"]
+
+[ext_resource type="Shader" uid="uid://dnew4lnjnseej" path="res://shaders/Brun.gdshader" id="1_uq3pt"]
+[ext_resource type="Texture2D" uid="uid://i2wr7ihe6f6u" path="res://icon.svg" id="2_4b66q"]
+[ext_resource type="Script" uid="uid://damjvqyjghe5k" path="res://Burning.gd" id="3_jdwee"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bhunq"]
+shader = ExtResource("1_uq3pt")
+shader_parameter/dissolve = 0.0
+shader_parameter/noise_scale = 22.0
+shader_parameter/warp = 0.6
+shader_parameter/sweep = 0.0
+shader_parameter/sweep_angle = 1.5708
+shader_parameter/edge_width = 0.1
+shader_parameter/edge_color = Color(1, 0.5, 0.1, 1)
+shader_parameter/edge_hot = Color(1, 0.95, 0.6, 1)
+
+[node name="Node2D" type="Node2D" unique_id=932752694]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=285267389]
+material = SubResource("ShaderMaterial_bhunq")
+position = Vector2(64, 66)
+texture = ExtResource("2_4b66q")
+script = ExtResource("3_jdwee")

@@ -1,18 +1,19 @@
 [gd_scene format=3 uid="uid://be2eeohasm6ng"]
 
 [ext_resource type="Script" uid="uid://gqvrelg3yrr8" path="res://color_change/colorable_static.gd" id="1_kkhw5"]
-[ext_resource type="Shader" uid="uid://d1c66tsprtjdc" path="res://shaders/tree_shadow.gdshader" id="2_8gp4l"]
+[ext_resource type="Shader" uid="uid://dnew4lnjnseej" path="res://shaders/Brun.gdshader" id="2_kkhw5"]
 [ext_resource type="Texture2D" uid="uid://ptaqhiejxxgx" path="res://art/things/Dead_Wood.png" id="3_f3unr"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_bhunq"]
-shader = ExtResource("2_8gp4l")
-shader_parameter/tilt = -17.99999658
-shader_parameter/stretch = 0.5
-shader_parameter/shadow_shift = Vector2(-0.03, -0.165)
-shader_parameter/shadow_color = Color(0, 0, 0, 0.4)
-shader_parameter/blur_near = 2.000000095
-shader_parameter/blur_far = 0.50000002375
-shader_parameter/fade_distance = 0.250000011875
+shader = ExtResource("2_kkhw5")
+shader_parameter/dissolve = 0.0
+shader_parameter/noise_scale = 22.0
+shader_parameter/warp = 0.6
+shader_parameter/sweep = 0.0
+shader_parameter/sweep_angle = 1.5708
+shader_parameter/edge_width = 0.1
+shader_parameter/edge_color = Color(1, 0.5, 0.1, 1)
+shader_parameter/edge_hot = Color(1, 0.95, 0.6, 1)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yddip"]
 size = Vector2(803, 455)
@@ -20,6 +21,7 @@ size = Vector2(803, 455)
 [node name="Tree_dead" type="StaticBody2D" unique_id=293502526]
 collision_layer = 2
 script = ExtResource("1_kkhw5")
+burn_down = true
 
 [node name="Visual" type="Sprite2D" parent="." unique_id=401944506]
 texture_filter = 1
