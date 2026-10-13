@@ -98,6 +98,7 @@ var _freeze_preview_on := false          # 预览当前是否开启（含「手�
 var _base_collision_mask := 0    # 场景里配好的碰撞掩码（含水层）
 var _in_water := false           # 是否正站在水里（不可站水格）→ 临时忽略水层碰撞以便踩水
 var _knockback_vel := Vector2.ZERO   # 被飞行物命中时的击退速度（逐帧衰减）
+var _dialogue_active := false        # 对话中禁止玩家移动
 var health := 1
 var _invincible_until := 0
 
@@ -108,6 +109,8 @@ var _invincible_until := 0
 
 func _ready() -> void:
 	add_to_group("player")
+	DialogueManager.dialogue_started.connect(_on_dialogue_started)
+	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
 	health = max_health
 	_base_collision_mask = collision_mask
 	_register_input_actions()
@@ -128,6 +131,14 @@ func _ready() -> void:
 	_select_element("")  # 初始化 HUD + 描边 + 首次信号
 	_setup_light()
 	_setup_range_indicator()
+
+
+func _on_dialogue_started(_resource: DialogueResource) -> void:
+	_dialogue_active = true
+
+
+func _on_dialogue_ended(_resource: DialogueResource) -> void:
+	_dialogue_active = false
 
 
 ## 玩家自带微光：黑暗房间里照亮自身周围（遮罩挖洞；亮房里遮罩全透明，无影响）。
@@ -166,6 +177,8 @@ func _physics_process(delta: float) -> void:
 	z_index = DepthSort.z_for(global_position.y)
 
 	var input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	if _dialogue_active:
+		input = Vector2.ZERO
 	var running := Input.is_action_pressed("run")
 
 	if state == State.ROTATE:

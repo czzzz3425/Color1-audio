@@ -26,6 +26,7 @@ script = ExtResource("7_host")
 [node name="MainPCam" type="Node2D" parent="." groups=["main_camera"]]
 script = ExtResource("6_pcam")
 follow_mode = 2
+follow_target = NodePath("../Player")
 zoom = Vector2(0.25, 0.25)
 follow_damping = true
 tween_on_load = false
@@ -66,5 +67,5 @@ vertical_alignment = 1
 [node name="Darkness" type="Polygon2D" parent="." unique_id=1840203514]
 z_index = 4096
 material = ExtResource("5_mat")
-polygon = PackedVector2Array(-20000, -20000, 20000, -20000, 20000, 20000, -20000, 20000)
+polygon = PackedVector2Array(-200000, -200000, 200000, -200000, 200000, 200000, -200000, 200000)
 script = ExtResource("4_darkness")

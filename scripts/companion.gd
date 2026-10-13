@@ -83,7 +83,7 @@ func _ready() -> void:
 	_start_breathing()
 
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if player == null or not is_instance_valid(player):
 		return
 	if state == State.TASK:
