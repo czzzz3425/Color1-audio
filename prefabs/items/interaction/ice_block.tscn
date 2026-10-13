@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://cth270frtlesc"]
 
 [ext_resource type="Script" uid="uid://6ry3er0t2slq" path="res://color_change/ice_block.gd" id="1_ice"]
-[ext_resource type="Texture2D" uid="uid://cpc6t5th5u5fp" path="res://art/things/Ice.png" id="2_fmii6"]
+[ext_resource type="Texture2D" uid="uid://bifg8dfs6x45n" path="res://art/things/ice_2.png" id="2_fmii6"]
+[ext_resource type="Texture2D" uid="uid://dhc2cdx60ath0" path="res://art/things/Ice_small.png" id="3_al6uy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ice"]
 size = Vector2(35, 25)
@@ -16,6 +17,10 @@ shape = SubResource("RectangleShape2D_ice")
 
 [node name="Visual" type="Sprite2D" parent="." unique_id=1938576913]
 texture_filter = 1
-position = Vector2(1.0000019, 4.999998)
-scale = Vector2(0.37646487, 0.34741214)
+position = Vector2(-2, 0)
+scale = Vector2(0.08403861, 0.08459906)
 texture = ExtResource("2_fmii6")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1398584774]
+scale = Vector2(0.09156051, 0.07870373)
+texture = ExtResource("3_al6uy")
