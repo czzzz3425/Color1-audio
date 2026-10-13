@@ -6,7 +6,7 @@ extends Polygon2D
 ## 约定：polygon 顶点直接用世界坐标覆盖整个地图；喂给 shader 的光源位置用 to_local 转成
 ## 遮罩本地坐标，与 shader 里的 VERTEX 同空间，因此本节点可放在任意位置/带 transform。
 
-const MAX_LIGHTS := 16
+const MAX_LIGHTS := 32
 
 @export var dark_color := Color(0.0, 0.0, 0.0, 1.0)
 @export_range(0.0, 0.5, 0.01) var softness := 0.18
@@ -44,23 +44,35 @@ func _process(_delta: float) -> void:
 	var rad := PackedFloat32Array()
 	pos.resize(MAX_LIGHTS)
 	rad.resize(MAX_LIGHTS)
-	var count := 0
+	var lights: Array[LightSource] = []
 	for src in get_tree().get_nodes_in_group("light_source"):
-		if count >= MAX_LIGHTS:
-			break
 		if not (src is LightSource):
 			continue
 		if not _is_relevant(src):
 			continue
-		var ls := src as LightSource
-		pos[count] = to_local(ls.global_position)
-		rad[count] = ls.radius
-		count += 1
+		lights.append(src as LightSource)
+	# 玩家自带微光优先，避免光源超过上限时玩家光圈被挤掉。
+	lights.sort_custom(func(a: LightSource, b: LightSource) -> bool:
+		return _is_player_light(a) and not _is_player_light(b)
+	)
+	var count := mini(lights.size(), MAX_LIGHTS)
+	for i in count:
+		pos[i] = to_local(lights[i].global_position)
+		rad[i] = lights[i].radius
 	# Godot 4 里 set_shader_parameter("arr[i]", v) 单元素设置不会上传到 GPU（CPU 侧 readback
 	# 会变，但 shader 仍读到旧值），必须一次性把整个数组喂进去。resize 已把剩余槽位填成 0/(0,0)。
 	mat.set_shader_parameter("light_pos", pos)
 	mat.set_shader_parameter("light_radius", rad)
 	mat.set_shader_parameter("light_count", count)
+
+
+func _is_player_light(src: LightSource) -> bool:
+	var cur: Node = src.get_parent()
+	while cur != null:
+		if cur.is_in_group("player"):
+			return true
+		cur = cur.get_parent()
+	return false
 
 
 ## 光源是否参与当前关的遮罩：属于当前大场景，或是玩家自带的微光（常驻房外）。

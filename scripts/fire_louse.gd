@@ -26,7 +26,7 @@ enum State { DORMANT, CHASE, FROZEN, RETREAT }
 @export var recharge_interval: float = 30.0   # 潜伏时补 1 颗红的时长
 
 @export_group("感知 / 追击")
-@export var sense_radius: float = 500.0       # 感光半径（追这个范围内的最近光源）
+@export var sense_radius: float = 2400.0      # 感光半径（追这个范围内的最近光源）
 @export var near_radius: float = 90.0         # 近身必醒
 @export var chase_speed: float = 150.0        # 基础追击速度
 @export var speed_per_seed: float = 25.0      # 每颗红加的速度（吸红=削它）
@@ -145,13 +145,25 @@ func _nearest_light() -> Node2D:
 	var best: Node2D = null
 	var best_d := sense_radius
 	for src in get_tree().get_nodes_in_group("light_source"):
-		if src == light:
+		if not (src is LightSource):
+			continue
+		if not _is_player_light(src):
 			continue
 		var d := global_position.distance_to((src as Node2D).global_position)
 		if d < best_d:
 			best_d = d
 			best = src
 	return best
+
+
+## 只有玩家自带的微光才算追猎目标；火把/其它燃烧光不再吸引它。
+func _is_player_light(src: Node) -> bool:
+	var cur: Node = src.get_parent()
+	while cur != null:
+		if cur.is_in_group("player"):
+			return true
+		cur = cur.get_parent()
+	return false
 
 
 func _player_near() -> bool:
