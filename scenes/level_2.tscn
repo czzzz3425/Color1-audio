@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://co6ajp7px4q56" path="res://scripts/room_zone.gd" id="14_vivmo"]
 [ext_resource type="PackedScene" uid="uid://bgfnfyk13xrue" path="res://prefabs/items/static prop/tree.tscn" id="16_igmy8"]
 [ext_resource type="PackedScene" path="res://prefabs/creatures/fire_louse.tscn" id="18_7qsfm"]
+[ext_resource type="PackedScene" uid="uid://be2eeohasm6ng" path="res://prefabs/items/static prop/tree_dead.tscn" id="19_bv48q"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
 [ext_resource type="Script" uid="uid://tntuqaqnxnia" path="res://scripts/light_zone.gd" id="23_lightzone"]
 
@@ -345,14 +346,38 @@ position = Vector2(-16343, -22629)
 [node name="Firefly18" parent="Fireflies" unique_id=2003378132 instance=ExtResource("13_g2hoc")]
 position = Vector2(-13746, -25940)
 
+[node name="Firefly24" parent="Fireflies" unique_id=1869534632 instance=ExtResource("13_g2hoc")]
+position = Vector2(-8064, -24448)
+
 [node name="Firefly19" parent="Fireflies" unique_id=916695801 instance=ExtResource("13_g2hoc")]
 position = Vector2(-16194, -31579)
+
+[node name="Firefly25" parent="Fireflies" unique_id=57211635 instance=ExtResource("13_g2hoc")]
+position = Vector2(-26496, -24960)
 
 [node name="Firefly20" parent="Fireflies" unique_id=1467740996 instance=ExtResource("13_g2hoc")]
 position = Vector2(-9910, -28389)
 
+[node name="Firefly26" parent="Fireflies" unique_id=1285771958 instance=ExtResource("13_g2hoc")]
+position = Vector2(-17280, -25856)
+
+[node name="Firefly27" parent="Fireflies" unique_id=803247965 instance=ExtResource("13_g2hoc")]
+position = Vector2(-7455, -19826)
+
 [node name="Firefly21" parent="Fireflies" unique_id=1935470928 instance=ExtResource("13_g2hoc")]
 position = Vector2(-24388, -30341)
+
+[node name="Firefly28" parent="Fireflies" unique_id=1746587681 instance=ExtResource("13_g2hoc")]
+position = Vector2(-21396, -28678)
+
+[node name="Firefly29" parent="Fireflies" unique_id=1195021592 instance=ExtResource("13_g2hoc")]
+position = Vector2(-12919, -18639)
+
+[node name="Firefly23" parent="Fireflies" unique_id=1739145714 instance=ExtResource("13_g2hoc")]
+position = Vector2(-20352, -25984)
+
+[node name="Firefly30" parent="Fireflies" unique_id=2098101739 instance=ExtResource("13_g2hoc")]
+position = Vector2(-22259, -17321)
 
 [node name="Trees" type="Node2D" parent="." unique_id=1462081226]
 y_sort_enabled = true
@@ -393,6 +418,42 @@ position = Vector2(-19634, -20048)
 [node name="Tree12" parent="Trees" unique_id=1994050004 instance=ExtResource("16_igmy8")]
 position = Vector2(-5972, -20041)
 
+[node name="Tree14" parent="Trees" unique_id=1015310060 instance=ExtResource("16_igmy8")]
+position = Vector2(-8728, -28032)
+
+[node name="Tree15" parent="Trees" unique_id=1981963799 instance=ExtResource("16_igmy8")]
+position = Vector2(-14335, -30737)
+
+[node name="Tree16" parent="Trees" unique_id=846706225 instance=ExtResource("16_igmy8")]
+position = Vector2(-7628, -16903)
+
+[node name="Tree13" parent="Trees" unique_id=1554549399 instance=ExtResource("16_igmy8")]
+position = Vector2(-13273, -21094)
+
+[node name="Tree17" parent="Trees" unique_id=619238123 instance=ExtResource("16_igmy8")]
+position = Vector2(-13206, -16949)
+
+[node name="Tree20" parent="Trees" unique_id=126612972 instance=ExtResource("16_igmy8")]
+position = Vector2(-21250, -23589)
+
+[node name="Tree19" parent="Trees" unique_id=1790374950 instance=ExtResource("16_igmy8")]
+position = Vector2(-28231, -19663)
+
+[node name="Tree21" parent="Trees" unique_id=1407680290 instance=ExtResource("16_igmy8")]
+position = Vector2(-24527, -28449)
+
+[node name="Tree18" parent="Trees" unique_id=1541313080 instance=ExtResource("16_igmy8")]
+position = Vector2(-21003, -16925)
+
+[node name="Tree22" parent="Trees" unique_id=2116825007 instance=ExtResource("16_igmy8")]
+position = Vector2(-21619, -31009)
+
+[node name="Tree23" parent="Trees" unique_id=1768031305 instance=ExtResource("16_igmy8")]
+position = Vector2(-6022, -33402)
+
+[node name="Tree24" parent="Trees" unique_id=492403707 instance=ExtResource("16_igmy8")]
+position = Vector2(-10559, -25237)
+
 [node name="DarkRoom" type="Area2D" parent="." unique_id=312246431]
 script = ExtResource("14_vivmo")
 dark = true
@@ -420,3 +481,30 @@ scale = Vector2(15.320002, 1)
 shape = SubResource("RectangleShape2D_riqys")
 
 [node name="FireLouse" parent="." unique_id=770378838 instance=ExtResource("18_7qsfm")]
+
+[node name="Tree_dead" parent="." unique_id=612309137 instance=ExtResource("19_bv48q")]
+position = Vector2(782, -12773)
+
+[node name="Tree_dead2" parent="Tree_dead" unique_id=1286570193 instance=ExtResource("19_bv48q")]
+position = Vector2(119, -688)
+
+[node name="Tree_dead3" parent="Tree_dead" unique_id=1148110007 instance=ExtResource("19_bv48q")]
+position = Vector2(317, -1048)
+
+[node name="Tree_dead4" parent="Tree_dead" unique_id=242513323 instance=ExtResource("19_bv48q")]
+position = Vector2(-653, 11500)
+
+[node name="Tree_dead5" parent="Tree_dead" unique_id=843252465 instance=ExtResource("19_bv48q")]
+position = Vector2(483, -4038)
+
+[node name="Tree_dead6" parent="Tree_dead" unique_id=2067649518 instance=ExtResource("19_bv48q")]
+position = Vector2(-240, -3972)
+
+[node name="Tree_dead7" parent="Tree_dead" unique_id=1134472125 instance=ExtResource("19_bv48q")]
+position = Vector2(-8208, -16503)
+
+[node name="Tree_dead8" parent="Tree_dead" unique_id=1602459552 instance=ExtResource("19_bv48q")]
+position = Vector2(-17711, -11437)
+
+[node name="Tree_dead9" parent="Tree_dead" unique_id=936884039 instance=ExtResource("19_bv48q")]
+position = Vector2(-25599, -6137)

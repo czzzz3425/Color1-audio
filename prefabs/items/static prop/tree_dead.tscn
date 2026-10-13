@@ -22,6 +22,7 @@ size = Vector2(803, 455)
 collision_layer = 2
 script = ExtResource("1_kkhw5")
 burn_down = true
+light_radius = 920.0
 
 [node name="Visual" type="Sprite2D" parent="." unique_id=401944506]
 texture_filter = 1

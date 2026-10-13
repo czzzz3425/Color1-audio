@@ -200,11 +200,11 @@ func _make_hearts() -> void:
 	add_child(hearts)
 
 
-func _on_health_changed(health: int, max_health: int) -> void:
+func _on_health_changed(health: float, max_health: int) -> void:
 	_rebuild_hearts(health, max_health)
 
 
-func _rebuild_hearts(health: int, max_health: int) -> void:
+func _rebuild_hearts(health: float, max_health: int) -> void:
 	for c in hearts.get_children():
 		c.queue_free()
 	for i in max_health:
