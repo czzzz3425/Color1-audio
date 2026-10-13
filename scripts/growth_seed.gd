@@ -44,6 +44,7 @@ var vine_collision: CollisionShape2D
 var _grown := false
 var _frozen := false
 var _vine_cells: Array = []   # 藤蔓覆盖的格子快照（{pos, walkable, flow}），收回时恢复
+var _bridged_water: Array = []   # 被藤桥覆盖的深水 WaterCell（临时禁用碰撞），收回时恢复
 
 
 func _ready() -> void:
@@ -171,6 +172,30 @@ func _capture_vine_cells() -> void:
 		})
 		HeightMap.set_walkable(p, true)
 		HeightMap.set_flow(p, 0)
+	_bridge_water()
+
+
+## 藤桥跨水：禁用脚下深水 WaterCell 的碰撞。「成桥跨水」的关键——光改 HeightMap
+## 通行性不够，深水的物理碰撞（layer 2）还在挡路；得像结冰那样把碰撞也关掉。
+## 只覆盖未结冰的深水（set_bridged 内部会跳过浅水/冰）。沿藤桥中心线采样命中判断。
+func _bridge_water() -> void:
+	_bridged_water.clear()
+	var start := global_position
+	var end := global_position + grow_dir * vine_length
+	var steps := maxi(1, int(vine_length / (HeightMap.CELL * 0.5)))
+	for obj in get_tree().get_nodes_in_group("colorable"):
+		if not is_instance_valid(obj):
+			continue
+		if not obj.has_method("set_bridged") or not obj.has_method("contains_point"):
+			continue
+		var hit := false
+		for i in range(steps + 1):
+			if bool(obj.call("contains_point", start.lerp(end, float(i) / float(steps)))):
+				hit = true
+				break
+		if hit:
+			obj.call("set_bridged", true)
+			_bridged_water.append(obj)
 
 
 ## 恢复藤蔓覆盖格子的原通行性（收回/烧掉藤蔓后，深水重新挡路）。
@@ -183,6 +208,10 @@ func _restore_vine_cells() -> void:
 		HeightMap.set_walkable(world, walkable)
 		HeightMap.set_flow(world, flow)
 	_vine_cells.clear()
+	for w in _bridged_water:
+		if is_instance_valid(w):
+			w.call("set_bridged", false)
+	_bridged_water.clear()
 
 
 # —— colorable 契约 ——

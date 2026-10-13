@@ -95,6 +95,16 @@ func is_frozen() -> bool:
 	return _frozen
 
 
+## 藤桥覆盖（绿「成桥跨水」）：临时禁用深水碰撞，让藤桥真正可通行。
+## 不改 _frozen 状态（是「桥」不是「冰」）；浅水本就可走、冰已可走，都无需覆盖。
+## 藤桥收回/烧掉时 set_bridged(false) 恢复挡路。
+func set_bridged(on: bool) -> void:
+	if shallow or _frozen:
+		return
+	_col.set_deferred("disabled", on)
+	HeightMap.set_walkable(global_position, on)
+
+
 ## 是否当前带色：结冰 = 带蓝（可被吸收）。
 func has_color() -> bool:
 	return _frozen
