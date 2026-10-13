@@ -16,6 +16,8 @@ const ASH := preload("res://scripts/ash.gd")
 ## 燃烧光斑中心偏移（世界像素，相对视觉中心 visual_center；Y 向下为正，往上移用负 Y）。
 ## 默认 ZERO；物体贴图视觉中心与根原点不一致时，在物品脚本的 Inspector 里微调此值。
 @export var light_offset := Vector2.ZERO
+## 燃烧时是否播放火焰 VFX（fire.tscn）。溶解烧毁类燃料（枯木等）用溶解 shader 取代火焰，宿主装配时关掉。
+@export var play_burn_vfx := true
 
 var _burning := false
 var _frozen := false
@@ -87,7 +89,8 @@ func _apply_burn() -> bool:
 
 	_burning = true
 	_element = "burn"
-	_spawn_vfx("burn")
+	if play_burn_vfx:
+		_spawn_vfx("burn")
 	_spawn_light()
 	_set_heat(true)
 	_schedule_spread("burn")
