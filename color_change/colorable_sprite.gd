@@ -18,6 +18,10 @@ const DepthSort := preload("res://scripts/depth_sort.gd")
 @export var cyan_move_dir := Vector2.RIGHT
 @export_range(0.0, 4096.0, 8.0) var cyan_move_distance := 768.0
 @export_range(0.05, 5.0, 0.05) var cyan_move_duration := 0.5
+## 黄（红×绿混合）态：是否开启子弹反射与反射参数。转发给 ElementBehavior。
+@export var reflect_bullets := true
+@export_range(8.0, 2048.0, 1.0) var reflect_radius := 176.0
+@export var reflect_faction := "player"
 
 var _mat: ShaderMaterial
 var _tween: Tween
@@ -48,6 +52,9 @@ func _ready() -> void:
 	_behavior.cyan_move_dir = cyan_move_dir
 	_behavior.cyan_move_distance = cyan_move_distance
 	_behavior.cyan_move_duration = cyan_move_duration
+	_behavior.reflect_bullets = reflect_bullets
+	_behavior.reflect_radius = reflect_radius
+	_behavior.reflect_faction = reflect_faction
 	_behavior.shatter_target = self
 	add_child(_behavior)
 	_seed_initial_color()
@@ -60,8 +67,9 @@ func apply_color(c: Color, color_name: String = "", from_pos: Vector2 = Vector2.
 	if not _behavior.apply(element, from_pos):
 		return false
 	var show := c
-	if _behavior.current_element() == "cyan":
-		show = Rules.config("cyan")["color"]
+	var cur := _behavior.current_element()
+	if cur == "cyan" or cur == "yellow":
+		show = Rules.config(cur)["color"]
 	var origin := global_position if from_pos == Vector2.INF else from_pos
 	_start_fill(show, origin)
 	return true
