@@ -376,4 +376,3 @@ func _shatter() -> void:
 		var t := create_tween()
 		t.tween_property(_parent, "modulate:a", 0.0, 0.5)
 		t.tween_callback(_parent.queue_free)
-
