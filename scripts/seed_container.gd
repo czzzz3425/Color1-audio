@@ -142,8 +142,11 @@ func save_state() -> Dictionary:
 
 
 func restore_state(data: Dictionary) -> void:
-	_store = {}
-	for el in data.get("store", {}):
-		_store[el] = int(data["store"][el])
+	# 只有存在存档数据时才覆盖 store。第一次进房 room.restore_state 传的是空 {}，
+	# 若不加判断会把 _ready 里刚按 grow_seeds/burn_seeds/freeze_seeds 初始化的种子清空。
+	if data.has("store"):
+		_store = {}
+		for el in data["store"]:
+			_store[el] = int(data["store"][el])
 	_frozen = data.get("frozen", false)
 	_update_visual()

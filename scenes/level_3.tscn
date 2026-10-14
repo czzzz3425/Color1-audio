@@ -1,17 +1,18 @@
-[gd_scene format=3]
+[gd_scene format=4 uid="uid://btjr1fwwnjdeh"]
 
-[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
-[ext_resource type="Script" path="res://scripts/entrance.gd" id="2_entrance"]
-[ext_resource type="Script" path="res://scripts/door.gd" id="3_door"]
+[ext_resource type="Script" uid="uid://darjnda0vdwpq" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="Script" uid="uid://dru8kg3d2ewcb" path="res://scripts/entrance.gd" id="2_entrance"]
+[ext_resource type="Script" uid="uid://5mnsopbqo3o5" path="res://scripts/door.gd" id="3_door"]
 [ext_resource type="Texture2D" uid="uid://cnygc4osqxh02" path="res://art/picture_boluo/土墙块（湖水过渡）1.png" id="3_tr1x6"]
 [ext_resource type="Texture2D" uid="uid://cyegdl1jno3wu" path="res://art/picture_boluo/土墙块（湖水过渡）2.png" id="4_wbtxt"]
 [ext_resource type="Texture2D" uid="uid://v05473rse7id" path="res://art/picture_boluo/湖水.png" id="5_isj1j"]
 [ext_resource type="Texture2D" uid="uid://jxl8cetg4nil" path="res://art/picture_boluo/土墙块（湖水过渡）3.png" id="5_x2fux"]
 [ext_resource type="Texture2D" uid="uid://cpp75f0guxi8q" path="res://art/picture_boluo/地块1tm.png" id="6_s7g0b"]
-[ext_resource type="Texture2D" uid="uid://dos3ufdok4ldo" path="res://art/picture_boluo/冰块.png" id="7_d5akn"]
 [ext_resource type="Texture2D" uid="uid://dq1mvc7v72pfr" path="res://art/picture_boluo/湖水（深水）.png" id="8_nossa"]
 [ext_resource type="Script" uid="uid://b1mxwxqbqny2x" path="res://color_change/water_spawner.gd" id="12_spawn"]
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/growth_seed.tscn" id="13_p3r0x"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="14_5xqnf"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
@@ -172,55 +173,66 @@ sources/1 = SubResource("TileSetAtlasSource_hjqri")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(64, 96)
 
-[node name="Level3" type="Node2D"]
+[node name="Level3" type="Node2D" unique_id=2128445411]
 script = ExtResource("1_room")
 room_id = "level_3"
 
-[node name="Ground" type="TileMapLayer" parent="."]
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1788147472]
 z_index = -2
 texture_filter = 1
+tile_map_data = PackedByteArray("AAD8////AAABAAIAAAD9////AAACAAIAAAD+////AAABAAIAAAD/////AAACAAIAAAD+/wAAAAABAAEAAAD+/wEAAAABAAIAAAD//wAAAAACAAEAAAD//wEAAAACAAIAAAAAAAAAAAABAAEAAAAAAAEAAAABAAIAAAABAAAAAAACAAEAAAABAAEAAAACAAIAAAACAAAAAAABAAEAAAACAAEAAAABAAIAAAADAAAAAAACAAEAAAADAAEAAAACAAIAAAACAAIAAAABAAEAAAACAAMAAAABAAIAAAADAAIAAAACAAEAAAADAAMAAAACAAIAAAAEAAIAAAABAAEAAAAEAAMAAAABAAIAAAAEAAQAAAABAAEAAAD2//n/AAABAAIAAAD2//r/AAABAAEAAAD3//n/AAACAAIAAAD3//r/AAACAAEAAAD2//v/AAABAAIAAAD3//v/AAACAAIAAAD2////AAABAAIAAAD2/wAAAAABAAEAAAD3////AAACAAIAAAD3/wAAAAACAAEAAAD2/wEAAAABAAIAAAD2/wIAAAABAAEAAAD3/wEAAAACAAIAAAD3/wIAAAACAAEAAAD2/wMAAAABAAIAAAD2/wQAAAABAAEAAAD3/wMAAAACAAIAAAD3/wQAAAACAAEAAAD4//n/AAABAAIAAAD4//r/AAABAAEAAAD5//n/AAACAAIAAAD5//r/AAACAAEAAAD4//v/AAABAAIAAAD5//v/AAACAAIAAAD4////AAABAAIAAAD4/wAAAAABAAEAAAD5////AAACAAIAAAD5/wAAAAACAAEAAAD4/wEAAAABAAIAAAD4/wIAAAABAAEAAAD5/wEAAAACAAIAAAD5/wIAAAACAAEAAAD4/wMAAAABAAIAAAD4/wQAAAABAAEAAAD5/wMAAAACAAIAAAD5/wQAAAACAAEAAAD6//n/AAABAAIAAAD6//r/AAABAAEAAAD7//n/AAACAAIAAAD7//r/AAACAAEAAAD6//v/AAABAAIAAAD7//v/AAACAAIAAAD6////AAABAAIAAAD6/wAAAAABAAEAAAD7////AAACAAIAAAD7/wAAAAACAAEAAAD6/wEAAAABAAIAAAD6/wIAAAABAAEAAAD7/wEAAAACAAIAAAD7/wIAAAACAAEAAAD6/wMAAAABAAIAAAD6/wQAAAABAAEAAAD7/wMAAAACAAIAAAD7/wQAAAACAAEAAAD8//n/AAABAAIAAAD8//r/AAABAAEAAAD9//n/AAACAAIAAAD9//r/AAACAAEAAAD8//v/AAABAAIAAAD9//v/AAACAAIAAAD8/wAAAAABAAEAAAD9/wAAAAACAAEAAAD8/wEAAAABAAIAAAD8/wIAAAABAAEAAAD9/wEAAAACAAIAAAD9/wIAAAACAAEAAAD8/wMAAAABAAIAAAD8/wQAAAABAAEAAAD9/wMAAAACAAIAAAD9/wQAAAACAAEAAAD+//n/AAABAAIAAAD+//r/AAABAAEAAAD///n/AAACAAIAAAD///r/AAACAAEAAAD+//v/AAABAAIAAAD///v/AAACAAIAAAD+/wIAAAABAAEAAAD//wIAAAACAAEAAAD+/wMAAAABAAIAAAD+/wQAAAABAAEAAAD//wMAAAACAAIAAAD//wQAAAACAAEAAAAAAPn/AAABAAIAAAAAAPr/AAABAAEAAAABAPn/AAACAAIAAAABAPr/AAACAAEAAAAAAPv/AAABAAIAAAABAPv/AAACAAIAAAAAAP//AAABAAIAAAABAP//AAACAAIAAAAAAAIAAAABAAEAAAABAAIAAAACAAEAAAAAAAMAAAABAAIAAAAAAAQAAAABAAEAAAABAAMAAAACAAIAAAABAAQAAAACAAEAAAACAPn/AAABAAIAAAACAPr/AAABAAEAAAADAPn/AAACAAIAAAADAPr/AAACAAEAAAACAPv/AAABAAIAAAADAPv/AAACAAIAAAACAP//AAABAAIAAAADAP//AAACAAIAAAACAAQAAAABAAEAAAADAAQAAAACAAEAAAAEAPn/AAABAAIAAAAEAPr/AAABAAEAAAAEAPv/AAABAAIAAAAEAP//AAABAAIAAAAEAAAAAAABAAEAAAAEAAEAAAABAAIAAAD0//T/AAABAAEAAAD0//X/AAABAAIAAAD1//T/AAACAAEAAAD1//X/AAACAAIAAAD0//b/AAABAAEAAAD0//f/AAABAAIAAAD1//b/AAACAAEAAAD1//f/AAACAAIAAAD0//j/AAABAAEAAAD0//n/AAABAAIAAAD1//j/AAACAAEAAAD1//n/AAACAAIAAAD0//r/AAABAAEAAAD0//v/AAABAAIAAAD1//r/AAACAAEAAAD1//v/AAACAAIAAAD0////AAABAAIAAAD1////AAACAAIAAAD0/wAAAAABAAEAAAD0/wEAAAABAAIAAAD1/wAAAAACAAEAAAD1/wEAAAACAAIAAAD0/wIAAAABAAEAAAD0/wMAAAABAAIAAAD1/wIAAAACAAEAAAD1/wMAAAACAAIAAAD0/wQAAAABAAEAAAD1/wQAAAACAAEAAAD2//T/AAABAAEAAAD2//X/AAABAAIAAAD3//T/AAACAAEAAAD3//X/AAACAAIAAAD2//b/AAABAAEAAAD2//f/AAABAAIAAAD3//b/AAACAAEAAAD3//f/AAACAAIAAAD2//j/AAABAAEAAAD3//j/AAACAAEAAAD4//T/AAABAAEAAAD4//X/AAABAAIAAAD5//T/AAACAAEAAAD5//X/AAACAAIAAAD4//b/AAABAAEAAAD4//f/AAABAAIAAAD5//b/AAACAAEAAAD5//f/AAACAAIAAAD4//j/AAABAAEAAAD5//j/AAACAAEAAAD6//T/AAABAAEAAAD6//X/AAABAAIAAAD7//T/AAACAAEAAAD7//X/AAACAAIAAAD6//b/AAABAAEAAAD6//f/AAABAAIAAAD7//b/AAACAAEAAAD7//f/AAACAAIAAAD6//j/AAABAAEAAAD7//j/AAACAAEAAAD8//T/AAABAAEAAAD8//X/AAABAAIAAAD9//T/AAACAAEAAAD9//X/AAACAAIAAAD8//b/AAABAAEAAAD8//f/AAABAAIAAAD9//b/AAACAAEAAAD9//f/AAACAAIAAAD8//j/AAABAAEAAAD9//j/AAACAAEAAAD+//T/AAABAAEAAAD+//X/AAABAAIAAAD///T/AAACAAEAAAD///X/AAACAAIAAAD+//b/AAABAAEAAAD+//f/AAABAAIAAAD///b/AAACAAEAAAD///f/AAACAAIAAAD+//j/AAABAAEAAAD///j/AAACAAEAAAAAAPT/AAABAAEAAAAAAPX/AAABAAIAAAABAPT/AAACAAEAAAABAPX/AAACAAIAAAAAAPb/AAABAAEAAAAAAPf/AAABAAIAAAABAPb/AAACAAEAAAABAPf/AAACAAIAAAAAAPj/AAABAAEAAAABAPj/AAACAAEAAAACAPT/AAABAAEAAAACAPX/AAABAAIAAAADAPT/AAACAAEAAAADAPX/AAACAAIAAAACAPb/AAABAAEAAAACAPf/AAABAAIAAAADAPb/AAACAAEAAAADAPf/AAACAAIAAAACAPj/AAABAAEAAAADAPj/AAACAAEAAAAEAPT/AAABAAEAAAAEAPX/AAABAAIAAAAEAPb/AAABAAEAAAAEAPf/AAABAAIAAAAEAPj/AAABAAEAAAA=")
 tile_set = SubResource("TileSet_co6qv")
 
-[node name="AirWall" type="TileMapLayer" parent="."]
+[node name="AirWall" type="TileMapLayer" parent="." unique_id=853820967]
 z_index = 100
 tile_set = SubResource("TileSet_water")
 script = ExtResource("22_airwall")
 
-[node name="Water" type="TileMapLayer" parent="."]
+[node name="Water" type="TileMapLayer" parent="." unique_id=1815310545]
 z_index = -3
 texture_filter = 1
+tile_map_data = PackedByteArray("AAD0//z/AAABAAEAAAD0//3/AAABAAIAAAD1//z/AAACAAEAAAD1//3/AAACAAIAAAD0//7/AAABAAEAAAD1//7/AAACAAEAAAD2//z/AAABAAEAAAD2//3/AAABAAIAAAD3//z/AAACAAEAAAD3//3/AAACAAIAAAD2//7/AAABAAEAAAD3//7/AAACAAEAAAD4//z/AAABAAEAAAD4//3/AAABAAIAAAD5//z/AAACAAEAAAD5//3/AAACAAIAAAD4//7/AAABAAEAAAD5//7/AAACAAEAAAD6//z/AAABAAEAAAD6//3/AAABAAIAAAD7//z/AAACAAEAAAD7//3/AAACAAIAAAD6//7/AAABAAEAAAD7//7/AAACAAEAAAD8//z/AAABAAEAAAD8//3/AAABAAIAAAD9//z/AAACAAEAAAD9//3/AAACAAIAAAD8//7/AAABAAEAAAD9//7/AAACAAEAAAD+//z/AAABAAEAAAD+//3/AAABAAIAAAD///z/AAACAAEAAAD///3/AAACAAIAAAD+//7/AAABAAEAAAD///7/AAACAAEAAAAAAPz/AAABAAEAAAAAAP3/AAABAAIAAAABAPz/AAACAAEAAAABAP3/AAACAAIAAAAAAP7/AAABAAEAAAABAP7/AAACAAEAAAACAPz/AAABAAEAAAACAP3/AAABAAIAAAADAPz/AAACAAEAAAADAP3/AAACAAIAAAACAP7/AAABAAEAAAADAP7/AAACAAEAAAAEAPz/AAABAAEAAAAEAP3/AAABAAIAAAAEAP7/AAABAAEAAAA=")
 tile_set = SubResource("TileSet_water")
-ice_texture = ExtResource("7_d5akn")
 script = ExtResource("12_spawn")
 
-[node name="WaterVisual" type="TileMapLayer" parent="."]
+[node name="WaterVisual" type="TileMapLayer" parent="." unique_id=357081693]
 z_index = -4
 texture_filter = 1
 tile_set = SubResource("TileSet_water")
 
-[node name="WaterShallow" type="TileMapLayer" parent="."]
+[node name="WaterShallow" type="TileMapLayer" parent="." unique_id=2000884848]
 z_index = -1
 texture_filter = 1
 tile_set = SubResource("TileSet_water")
-ice_texture = ExtResource("7_d5akn")
 script = ExtResource("12_spawn")
 shallow = true
 
-[node name="spawn" type="Marker2D" parent="."]
+[node name="spawn" type="Marker2D" parent="." unique_id=867055179]
 script = ExtResource("2_entrance")
 entrance_id = "spawn"
 
-[node name="to_level_4" type="Area2D" parent="."]
+[node name="to_level_4" type="Area2D" parent="." unique_id=348229012]
 position = Vector2(300, 0)
 script = ExtResource("3_door")
 door_id = "to_level_4"
 target_scene = "res://scenes/level_4.tscn"
 target_entrance = "spawn"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_4"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_4" unique_id=1705269447]
 shape = SubResource("RectangleShape2D_door")
 
-[node name="Visual" type="Polygon2D" parent="to_level_4"]
+[node name="Visual" type="Polygon2D" parent="to_level_4" unique_id=870232651]
 z_index = 5
 color = Color(0.5, 0.85, 0.5, 1)
 polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+
+[node name="GrowthSeed" parent="." unique_id=1002088840 instance=ExtResource("13_p3r0x")]
+position = Vector2(-1145, -210)
+grow_dir = Vector2(0, -1)
+vine_length = 1024.0
+vine_thickness = 128.0
+chain_radius = 512.0
+
+[node name="SeedContainer" parent="." unique_id=925701892 instance=ExtResource("14_5xqnf")]
+position = Vector2(-1845, -25)
+grow_seeds = 2

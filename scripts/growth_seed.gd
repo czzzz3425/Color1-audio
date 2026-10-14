@@ -64,7 +64,10 @@ func _ready() -> void:
 		vine_collision = vine.get_node_or_null("VineCollision") as CollisionShape2D
 		vine.position = Vector2.ZERO
 		vine.rotation = 0.0
-		vine.collision_layer = 2   # 障碍：玩家（mask 6）能站在上面
+		# 藤桥跨水/坑时不设物理碰撞：通行性由 set_bridged + HeightMap 接管，
+		# 否则这层 layer 2 会横在桥中段挡住玩家（只能走第一格）。
+		# 桥两侧的深水碰撞仍在，玩家不会从侧面掉出去。
+		vine.collision_layer = 0
 		vine.collision_mask = 0
 		if vine_collision != null:
 			vine_collision.position = Vector2(vine_length * 0.5, 0.0)
