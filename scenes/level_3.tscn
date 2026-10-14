@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/growth_seed.tscn" id="13_p3r0x"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="14_5xqnf"]
+[ext_resource type="PackedScene" uid="uid://bgfnfyk13xrue" path="res://prefabs/items/static prop/tree.tscn" id="14_una4e"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
@@ -232,6 +233,8 @@ grow_dir = Vector2(0, -1)
 vine_length = 1024.0
 vine_thickness = 128.0
 chain_radius = 512.0
+
+[node name="Tree" parent="." unique_id=293502526 instance=ExtResource("14_una4e")]
 
 [node name="SeedContainer" parent="." unique_id=925701892 instance=ExtResource("14_5xqnf")]
 position = Vector2(-1845, -25)

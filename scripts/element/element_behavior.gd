@@ -18,10 +18,17 @@ const ASH := preload("res://scripts/ash.gd")
 @export var light_offset := Vector2.ZERO
 ## 燃烧时是否播放火焰 VFX（fire.tscn）。溶解烧毁类燃料（枯木等）用溶解 shader 取代火焰，宿主装配时关掉。
 @export var play_burn_vfx := true
+## 青（蓝×绿混合）态：物体朝哪个方向移动（单位向量；拿不到赋予来源时用此兜底方向）。
+@export var cyan_move_dir := Vector2.RIGHT
+## 青态移动距离（世界像素，256 = 一格）。
+@export var cyan_move_distance := 768.0
+## 青态移动时长（秒）。
+@export var cyan_move_duration := 0.5
 
 var _burning := false
 var _frozen := false
 var _grown := false
+var _cyan := false
 var _element := ""
 
 var _parent: Node2D
@@ -38,16 +45,17 @@ func _ready() -> void:
 
 
 ## 入口：对父物体应用一个元素（由 colorable_* 的 apply_color 调用）。
+## from_pos = 赋予来源位置（跟班落点），用于决定青态的移动方向（物体被推向远离来源的一侧）。
 ## 返回是否真的改变了状态（false = 与当前元素相同，调用方据此避免消耗种子）。
-func apply(element_id: String) -> bool:
+func apply(element_id: String, from_pos: Vector2 = Vector2.INF) -> bool:
 	if not Rules.has(element_id):
 		return false
 	if element_id == "burn":
 		return _apply_burn()
 	elif element_id == "freeze":
-		return _apply_freeze()
+		return _apply_freeze(from_pos)
 	elif element_id == "grow":
-		return _apply_grow()
+		return _apply_grow(from_pos)
 	return false
 
 
@@ -59,11 +67,24 @@ func current_element() -> String:
 	return _element
 
 
+## 吸收：清空状态并返回应返还给玩家的元素 id 列表。
+## 单元素返回 [el]；青色返回 ["freeze", "grow"]（蓝绿各返一颗）。
+func absorb() -> Array:
+	var result: Array = []
+	if _cyan:
+		result = ["freeze", "grow"]
+	elif _element != "":
+		result = [_element]
+	clear()
+	return result
+
+
 ## 抽走元素：解除冻结 / 熄灭火焰，清除 VFX。由 colorable_* 的 absorb_color 调用。
 func clear() -> void:
 	_burning = false
 	_frozen = false
 	_grown = false
+	_cyan = false
 	_element = ""
 	_clear_vfx()
 	_free_light()
@@ -73,6 +94,9 @@ func clear() -> void:
 
 func _apply_burn() -> bool:
 	if _burning:
+		return false
+	# 青是蓝绿混合态，红暂不参与（可后续定义「红破坏青」等交互）。
+	if _cyan:
 		return false
 	# 点燃冻结中的物体 = 解冻后再燃烧。
 	if _frozen:
@@ -97,7 +121,7 @@ func _apply_burn() -> bool:
 	return true
 
 
-func _apply_freeze() -> bool:
+func _apply_freeze(from_pos: Vector2) -> bool:
 	# 冻结正在燃烧的物体 = 熄灭并摧毁（交互：freeze × burn → 销毁）。
 	if _burning:
 		_burning = false
@@ -109,11 +133,13 @@ func _apply_freeze() -> bool:
 		_shatter()
 		return true
 
-	# 冰封藤蔓：冻结覆盖生长，不碎裂（藤是活的）。
+	# 蓝 × 绿 = 青：冻结缠藤物 → 混合成青并移动。
 	if _grown:
 		_grown = false
-		_clear_vfx()
-		_set_growth(false)
+		_enter_cyan(from_pos)
+		return true
+	if _cyan:
+		return false
 	if _frozen:
 		return false
 	_frozen = true
@@ -124,8 +150,15 @@ func _apply_freeze() -> bool:
 
 
 ## 生长（绿）：让有机物体「发芽缠藤」，登记为生长源。
-## 生长需要温和环境——已有任何元素（燃烧/冻结/已生长）都长不出来（返回 false 不耗种子）。
-func _apply_grow() -> bool:
+## 绿 × 蓝 = 青：已冻结物体被赋予绿 → 混合成青并移动。
+## 其余情况：已有任何元素（燃烧/已生长/已混合）都长不出来（返回 false 不耗种子）。
+func _apply_grow(from_pos: Vector2) -> bool:
+	if _cyan:
+		return false
+	if _frozen:
+		_frozen = false
+		_enter_cyan(from_pos)
+		return true
 	if _element != "":
 		return false
 	_grown = true
@@ -134,6 +167,26 @@ func _apply_grow() -> bool:
 	_schedule_spread("grow")
 	_set_growth(true)
 	return true
+
+
+## 进入青色混合态：蓝 × 绿 = 青。清除旧的蓝/绿视觉状态，登记为混合态，并让物体
+## 朝「远离赋予来源」的方向移动一段距离（来源无效时退回 cyan_move_dir）。
+func _enter_cyan(from_pos: Vector2) -> void:
+	_clear_vfx()
+	_set_growth(false)
+	_cyan = true
+	_element = "cyan"
+	if _parent == null or not is_instance_valid(_parent):
+		return
+	var dir := cyan_move_dir.normalized()
+	if dir == Vector2.ZERO:
+		dir = Vector2.RIGHT
+	if from_pos != Vector2.INF:
+		var away := _parent.global_position - from_pos
+		if away.length() > 1.0:
+			dir = away.normalized()
+	var tween := create_tween()
+	tween.tween_property(_parent, "global_position", _parent.global_position + dir * cyan_move_distance, cyan_move_duration)
 
 
 func _schedule_spread(element_id: String) -> void:

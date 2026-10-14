@@ -12,6 +12,10 @@ const DepthSort := preload("res://scripts/depth_sort.gd")
 @export_range(16.0, 2048.0, 8.0) var light_radius := 352.0
 ## 燃烧光斑中心偏移（世界像素，相对视觉中心，Y 向下为正）。转发给 ElementBehavior。
 @export var light_offset := Vector2.ZERO
+## 青（蓝×绿混合）态：移动方向与距离。转发给 ElementBehavior，策划在此逐物体调节。
+@export var cyan_move_dir := Vector2.RIGHT
+@export_range(0.0, 4096.0, 8.0) var cyan_move_distance := 768.0
+@export_range(0.05, 5.0, 0.05) var cyan_move_duration := 0.5
 ## 初始颜色名：非空时开局直接以该颜色/元素起手（如 "red" = 预置燃烧）。
 @export var initial_color_name := ""
 
@@ -31,6 +35,9 @@ func _setup_behavior() -> void:
 	_behavior.name = "ElementBehavior"
 	_behavior.light_radius = light_radius
 	_behavior.light_offset = light_offset
+	_behavior.cyan_move_dir = cyan_move_dir
+	_behavior.cyan_move_distance = cyan_move_distance
+	_behavior.cyan_move_duration = cyan_move_duration
 	_configure_behavior(_behavior)
 	add_child(_behavior)
 
@@ -46,10 +53,13 @@ func apply_color(c: Color, color_name: String = "", from_pos: Vector2 = Vector2.
 	var element := Rules.element_for_color_name(color_name)
 	if element == "":
 		return false
-	if not _behavior.apply(element):
+	if not _behavior.apply(element, from_pos):
 		return false
+	var show := c
+	if _behavior.current_element() == "cyan":
+		show = Rules.config("cyan")["color"]
 	var origin := global_position if from_pos == Vector2.INF else from_pos
-	_apply_visual(c, origin)
+	_apply_visual(show, origin)
 	return true
 
 
@@ -69,15 +79,33 @@ func contains_point(_world_pos: Vector2) -> bool:
 
 ## 抽走当前颜色/元素：返回颜色信息，并让子类把物体还原成初始色。
 func absorb_color() -> Dictionary:
-	var el := _behavior.current_element()
-	_behavior.clear()
+	var els: Array = _behavior.absorb()
 	_reset_visual()
-	var cfg := Rules.config(el)
+	if els.size() == 1 and els[0] != "":
+		var el: String = els[0]
+		var cfg := Rules.config(el)
+		return {
+			"element": el,
+			"color": cfg.get("color", Color.WHITE),
+			"color_name": cfg.get("color_name", ""),
+		}
+	# 多元素返还（青 → 蓝+绿）：直接退给玩家，跟班不再带回。
+	_refund_elements(els)
 	return {
-		"element": el,
-		"color": cfg.get("color", Color.WHITE),
-		"color_name": cfg.get("color_name", ""),
+		"element": "",
+		"color": Color.WHITE,
+		"color_name": "",
 	}
+
+
+## 把吸收得到的元素种子直接退还给玩家（青色返还蓝+绿时用）。
+func _refund_elements(els: Array) -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or not player.has_method("refund_element"):
+		return
+	for el in els:
+		if el != "":
+			player.call("refund_element", el, 1)
 
 
 ## 开局种子：若在编辑器中设了 initial_color_name，则物体直接以该颜色/元素起手。

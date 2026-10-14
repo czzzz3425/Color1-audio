@@ -14,6 +14,10 @@ const DepthSort := preload("res://scripts/depth_sort.gd")
 @export var initial_color_name := ""
 ## 燃烧光斑中心偏移（世界像素，相对贴图中心，Y 向下为正）。转发给 ElementBehavior。
 @export var light_offset := Vector2.ZERO
+## 青（蓝×绿混合）态：移动方向与距离。转发给 ElementBehavior，策划在此逐物体调节。
+@export var cyan_move_dir := Vector2.RIGHT
+@export_range(0.0, 4096.0, 8.0) var cyan_move_distance := 768.0
+@export_range(0.05, 5.0, 0.05) var cyan_move_duration := 0.5
 
 var _mat: ShaderMaterial
 var _tween: Tween
@@ -41,6 +45,9 @@ func _ready() -> void:
 	_behavior = Behavior.new()
 	_behavior.name = "ElementBehavior"
 	_behavior.light_offset = light_offset
+	_behavior.cyan_move_dir = cyan_move_dir
+	_behavior.cyan_move_distance = cyan_move_distance
+	_behavior.cyan_move_duration = cyan_move_duration
 	_behavior.shatter_target = self
 	add_child(_behavior)
 	_seed_initial_color()
@@ -50,10 +57,13 @@ func apply_color(c: Color, color_name: String = "", from_pos: Vector2 = Vector2.
 	var element := Rules.element_for_color_name(color_name)
 	if element == "":
 		return false
-	if not _behavior.apply(element):
+	if not _behavior.apply(element, from_pos):
 		return false
+	var show := c
+	if _behavior.current_element() == "cyan":
+		show = Rules.config("cyan")["color"]
 	var origin := global_position if from_pos == Vector2.INF else from_pos
-	_start_fill(c, origin)
+	_start_fill(show, origin)
 	return true
 
 
@@ -73,14 +83,25 @@ func contains_point(world_pos: Vector2) -> bool:
 
 ## 抽走当前颜色/元素：返回颜色信息，并把物体还原成初始色。
 func absorb_color() -> Dictionary:
-	var el := _behavior.current_element()
-	_behavior.clear()
+	var els: Array = _behavior.absorb()
 	_reset_visual()
-	var cfg := Rules.config(el)
+	if els.size() == 1 and els[0] != "":
+		var el: String = els[0]
+		var cfg := Rules.config(el)
+		return {
+			"element": el,
+			"color": cfg.get("color", Color.WHITE),
+			"color_name": cfg.get("color_name", ""),
+		}
+	# 多元素返还（青 → 蓝+绿）：直接退给玩家，跟班不再带回。
+	var player := get_tree().get_first_node_in_group("player")
+	for el in els:
+		if el != "" and player != null and player.has_method("refund_element"):
+			player.call("refund_element", el, 1)
 	return {
-		"element": el,
-		"color": cfg.get("color", Color.WHITE),
-		"color_name": cfg.get("color_name", ""),
+		"element": "",
+		"color": Color.WHITE,
+		"color_name": "",
 	}
 
 
