@@ -36,6 +36,15 @@ const ELEMENTS := {
 		"spread_radius": 512.0,
 		"spread_delay": 1.0,
 	},
+	# 青 = 蓝 × 绿 的混合态：不是玩家可直接持有的种子，只作为混合结果存在。
+	"cyan": {
+		"color_name": "青",
+		"color": Color(0.3, 0.9, 0.95),
+		"vfx": "",
+		"spreads": false,
+		"spread_radius": 512.0,
+		"spread_delay": 1.0,
+	},
 }
 
 

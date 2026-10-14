@@ -23,6 +23,10 @@ const DepthSort := preload("res://scripts/depth_sort.gd")
 @export_group("发光")
 @export_range(16.0, 2048.0, 8.0) var light_radius := 352.0
 @export var light_offset := Vector2.ZERO
+@export_group("青（蓝×绿）")
+@export var cyan_move_dir := Vector2.RIGHT
+@export_range(0.0, 4096.0, 8.0) var cyan_move_distance := 768.0
+@export_range(0.05, 5.0, 0.05) var cyan_move_duration := 0.5
 
 @export_group("状态")
 @export var state_id: String = ""
@@ -56,6 +60,9 @@ func _setup_behavior() -> void:
 	_behavior.name = "ElementBehavior"
 	_behavior.light_radius = light_radius
 	_behavior.light_offset = light_offset
+	_behavior.cyan_move_dir = cyan_move_dir
+	_behavior.cyan_move_distance = cyan_move_distance
+	_behavior.cyan_move_duration = cyan_move_duration
 	if visual != null:
 		_behavior.visual_center = visual.position
 		_behavior.shatter_target = visual
@@ -72,14 +79,14 @@ func push(dir: Vector2, delta: float) -> void:
 
 
 # —— colorable 契约 ——
-func apply_color(_c: Color, color_name: String = "", _from_pos: Vector2 = Vector2.INF) -> bool:
+func apply_color(_c: Color, color_name: String = "", from_pos: Vector2 = Vector2.INF) -> bool:
 	var element := Rules.element_for_color_name(color_name)
 	if element == "":
 		return false
 	# 冻结的木束不可点燃（firebreak）：红撞到冻结 → 无效，不消耗种子。
 	if element == "burn" and _behavior.current_element() == "freeze":
 		return false
-	return _behavior.apply(element)
+	return _behavior.apply(element, from_pos)
 
 
 func has_color() -> bool:
@@ -92,13 +99,23 @@ func current_element() -> String:
 
 
 func absorb_color() -> Dictionary:
-	var el := _behavior.current_element()
-	_behavior.clear()
-	var cfg := Rules.config(el)
+	var els: Array = _behavior.absorb()
+	if els.size() == 1 and els[0] != "":
+		var cfg := Rules.config(els[0])
+		return {
+			"element": els[0],
+			"color": cfg.get("color", Color.WHITE),
+			"color_name": cfg.get("color_name", ""),
+		}
+	# 青 → 蓝+绿：直接退给玩家。
+	var player := get_tree().get_first_node_in_group("player")
+	for el in els:
+		if el != "" and player != null and player.has_method("refund_element"):
+			player.call("refund_element", el, 1)
 	return {
-		"element": el,
-		"color": cfg.get("color", Color.WHITE),
-		"color_name": cfg.get("color_name", ""),
+		"element": "",
+		"color": Color.WHITE,
+		"color_name": "",
 	}
 
 
