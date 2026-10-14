@@ -37,7 +37,6 @@ const ELEMENTS := {
 		"spread_radius": 512.0,
 		"spread_delay": 1.0,
 	},
-<<<<<<< Updated upstream
 	# 青 = 蓝 × 绿 的混合态：不是玩家可直接持有的种子，只作为混合结果存在。
 	"cyan": {
 		"color_name": "青",
@@ -46,7 +45,7 @@ const ELEMENTS := {
 		"spreads": false,
 		"spread_radius": 512.0,
 		"spread_delay": 1.0,
-=======
+	},
 	# 黄：并非独立种子，而是「红+绿」的混合产物（见 scripts/mechanics/color_combo.gd）。
 	# 这里只登记颜色/名称，供 YellowObject 取色与外部按名查询。
 	"yellow": {
@@ -56,7 +55,6 @@ const ELEMENTS := {
 		"spreads": false,
 		"spread_radius": 0.0,
 		"spread_delay": 0.0,
->>>>>>> Stashed changes
 	},
 }
 

@@ -1,5 +1,29 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://ovwahcmis1mw"]
 
+[ext_resource type="Texture2D" uid="uid://bescjg2gpny4w" path="res://art/player/左侧受击/左侧受击-1.png" id="1_61x3k"]
+[ext_resource type="Texture2D" uid="uid://dru016y2dopbp" path="res://art/player/左侧受击/左侧受击-2.png" id="2_soy3b"]
+[ext_resource type="Texture2D" uid="uid://oeru1b5i80u0" path="res://art/player/左侧受击/左侧受击-3.png" id="3_rjyco"]
+[ext_resource type="Texture2D" uid="uid://dsg2ivbvptjie" path="res://art/player/左侧受击/左侧受击-4.png" id="4_exsa7"]
+[ext_resource type="Texture2D" uid="uid://dis5klh1qc6ef" path="res://art/player/左侧受击/左侧受击-5.png" id="5_m8nb3"]
+[ext_resource type="Texture2D" uid="uid://cjhsy80hy3a4" path="res://art/player/左侧受击/左侧受击-6.png" id="6_g8miq"]
+[ext_resource type="Texture2D" uid="uid://bc6jfwbaopn" path="res://art/player/左侧受击/左侧受击-7.png" id="7_snqwi"]
+[ext_resource type="Texture2D" uid="uid://bu0df4fcbbjm1" path="res://art/player/左侧受击/左侧受击-8.png" id="8_i4l6r"]
+[ext_resource type="Texture2D" uid="uid://c4e25wn36cymj" path="res://art/player/左侧受击/左侧受击-9.png" id="9_8b8pl"]
+[ext_resource type="Texture2D" uid="uid://dnteb1qlbkllv" path="res://art/player/左侧受击/左侧受击-10.png" id="10_nbmm0"]
+[ext_resource type="Texture2D" uid="uid://bt86ty28l8x0u" path="res://art/player/左侧受击/左侧受击-11.png" id="11_b13ro"]
+[ext_resource type="Texture2D" uid="uid://de0h0fpydy13" path="res://art/player/左侧受击/左侧受击-12.png" id="12_bmhaf"]
+[ext_resource type="Texture2D" uid="uid://e4far0k7d08i" path="res://art/player/受击右边/受击-1.png" id="13_la8tl"]
+[ext_resource type="Texture2D" uid="uid://bj4prbm31ba7s" path="res://art/player/受击右边/受击-2.png" id="14_wx3ke"]
+[ext_resource type="Texture2D" uid="uid://dx4v4dve8owpg" path="res://art/player/受击右边/受击-3.png" id="15_xvl3m"]
+[ext_resource type="Texture2D" uid="uid://dsr7050qsdtp1" path="res://art/player/受击右边/受击-4.png" id="16_0nvdn"]
+[ext_resource type="Texture2D" uid="uid://cfjhkdt2mcooa" path="res://art/player/受击右边/受击-5.png" id="17_fbwf2"]
+[ext_resource type="Texture2D" uid="uid://dk8pvv1rq700f" path="res://art/player/受击右边/受击-6.png" id="18_5dbtx"]
+[ext_resource type="Texture2D" uid="uid://xjer8rouhrb1" path="res://art/player/受击右边/受击-7.png" id="19_i5r2k"]
+[ext_resource type="Texture2D" uid="uid://chpeucxk6oskf" path="res://art/player/受击右边/受击-8.png" id="20_0ouba"]
+[ext_resource type="Texture2D" uid="uid://c83x8glwdu6ra" path="res://art/player/受击右边/受击-9.png" id="21_lu5sy"]
+[ext_resource type="Texture2D" uid="uid://26kcl1h8q651" path="res://art/player/受击右边/受击-10.png" id="22_h861q"]
+[ext_resource type="Texture2D" uid="uid://cv3rkabj1dsbv" path="res://art/player/受击右边/受击-11.png" id="23_4wvu6"]
+[ext_resource type="Texture2D" uid="uid://ds5b6kotu6txg" path="res://art/player/受击右边/受击-12.png" id="24_p8l5u"]
 [ext_resource type="Texture2D" uid="uid://cc3n7ouneov2l" path="res://art/player/down/1.png" id="down_1"]
 [ext_resource type="Texture2D" uid="uid://cj7lnu4k74cru" path="res://art/player/down/2.png" id="down_2"]
 [ext_resource type="Texture2D" uid="uid://b6d8ymg70y0s4" path="res://art/player/down/3.png" id="down_3"]
@@ -23,6 +47,88 @@
 
 [resource]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_61x3k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_soy3b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_rjyco")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_exsa7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_m8nb3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_g8miq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_snqwi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_i4l6r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_8b8pl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_nbmm0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_b13ro")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_bmhaf")
+}],
+"loop": 1,
+"name": &"hit_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("13_la8tl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_wx3ke")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_xvl3m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_0nvdn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_fbwf2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_5dbtx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_i5r2k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_0ouba")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_lu5sy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_h861q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_4wvu6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_p8l5u")
+}],
+"loop": 1,
+"name": &"hit_right",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("idle_1")
