@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="2_companion"]
-[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/companion.dialogue" id="3_dialogue"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/dia/companion.dialogue" id="3_dialogue"]
 [ext_resource type="Script" uid="uid://bwht6afqxmfus" path="res://scripts/darkness_overlay.gd" id="4_darkness"]
 [ext_resource type="Material" uid="uid://by7wgjc88b0vq" path="res://shaders/darkness_material.tres" id="5_mat"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="6_roomzone"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/growth_seed.tscn" id="14_wa0ey"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="15_plate"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_balance.tscn" id="16_balance"]
+
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
 radius = 48.0

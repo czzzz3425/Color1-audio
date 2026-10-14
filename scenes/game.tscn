@@ -4,9 +4,13 @@
 [ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="2_player"]
 [ext_resource type="Script" uid="uid://c72jfj8on1i3d" path="res://color_change/hud.gd" id="3_hud"]
 [ext_resource type="Script" uid="uid://bwht6afqxmfus" path="res://scripts/darkness_overlay.gd" id="4_darkness"]
+[ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="5_gee14"]
 [ext_resource type="Material" uid="uid://by7wgjc88b0vq" path="res://shaders/darkness_material.tres" id="5_mat"]
 [ext_resource type="Script" uid="uid://bhexx6mj1xv3q" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="6_pcam"]
 [ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="7_host"]
+
+[sub_resource type="Resource" id="Resource_0tnpc"]
+script = ExtResource("5_gee14")
 
 [node name="Game" type="Node2D" unique_id=594129523]
 script = ExtResource("1_game")
@@ -14,23 +18,26 @@ script = ExtResource("1_game")
 [node name="RoomContainer" type="Node2D" parent="." unique_id=1196933740]
 
 [node name="Player" parent="." unique_id=152436479 groups=["player"] instance=ExtResource("2_player")]
-interact_range = 1024.0
 light_radius = 512.0
 
 [node name="Camera" type="Camera2D" parent="Player" unique_id=1471997350]
+top_level = true
 zoom = Vector2(0.25, 0.25)
 
-[node name="PhantomCameraHost" type="Node" parent="Player/Camera"]
+[node name="PhantomCameraHost" type="Node" parent="Player/Camera" unique_id=2139049872]
+process_priority = 300
+process_physics_priority = 300
 script = ExtResource("7_host")
 
-[node name="MainPCam" type="Node2D" parent="." groups=["main_camera"]]
+[node name="MainPCam" type="Node2D" parent="." unique_id=290618851 groups=["main_camera"]]
+top_level = true
 script = ExtResource("6_pcam")
-follow_mode = 2
-follow_target = NodePath("../Player")
-zoom = Vector2(0.25, 0.25)
-follow_damping = true
-tween_on_load = false
 priority = 10
+follow_mode = 2
+zoom = Vector2(0.25, 0.25)
+tween_resource = SubResource("Resource_0tnpc")
+tween_on_load = false
+follow_damping = true
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1261757595]
 script = ExtResource("3_hud")

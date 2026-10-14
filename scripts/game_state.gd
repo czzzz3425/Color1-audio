@@ -26,6 +26,8 @@ var props: Dictionary = {}        # prop_id -> true（关键道具背包）
 var elements: Dictionary = {}     # element_id -> count（由玩家 inventory 同步，供元素门）
 ## 已解锁的出口门（door_id -> true）。用于「锁定门解锁后重进此关仍保持开启」，避免重复触发。
 var opened_gates: Dictionary = {}
+## 本次游戏已开始播放的剧情，切关保留，reset 后清空。
+var played_story: Dictionary = {}
 
 var current_room_id: String = ""
 var current_room: Node = null
@@ -43,6 +45,7 @@ func reset() -> void:
 	props.clear()
 	elements.clear()
 	opened_gates.clear()
+	played_story.clear()
 	current_room_id = ""
 	current_room = null
 

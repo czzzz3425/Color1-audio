@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://btb78t5n1x3g7"]
+
+[ext_resource type="Script" uid="uid://bsesqduu4fs8m" path="res://scripts/companion_hint.gd" id="1_hint"]
+
+[node name="CompanionHint" type="Node2D" unique_id=1783069449]
+script = ExtResource("1_hint")
+cue = "hint_start"
+radius = 256.0

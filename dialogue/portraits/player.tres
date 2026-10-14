@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CharacterPortrait" format=3 uid="uid://bodxmlpb1ux76"]
+
+[ext_resource type="Texture2D" uid="uid://b62x000t1822f" path="res://art/立绘/bai_yufeng.png" id="1_2wukm"]
+[ext_resource type="Script" uid="uid://xc1xxfix5qkp" path="res://dialogue/character_portrait.gd" id="1_81x2f"]
+
+[resource]
+script = ExtResource("1_81x2f")
+character_name = "予风"
+portrait = ExtResource("1_2wukm")
+size_multiplier = 1.25
+flip_h = null
+position_offset = Vector2(0, 100)
+metadata/_custom_type_script = "uid://xc1xxfix5qkp"

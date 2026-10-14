@@ -1,14 +1,15 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
-[ext_resource type="Script" path="res://scripts/entrance.gd" id="2_entrance"]
-[ext_resource type="Script" path="res://scripts/companion.gd" id="3_companion"]
-[ext_resource type="Resource" path="res://dialogue/companion.dialogue" id="4_dialogue"]
-[ext_resource type="Script" path="res://scripts/door.gd" id="5_door"]
+[ext_resource type="Script" uid="uid://darjnda0vdwpq" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="Script" uid="uid://dru8kg3d2ewcb" path="res://scripts/entrance.gd" id="2_entrance"]
+[ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="3_companion"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/dia/companion.dialogue" id="4_dialogue"]
+[ext_resource type="Script" uid="uid://5mnsopbqo3o5" path="res://scripts/door.gd" id="5_door"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="6_seed"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/wood_bundle.tscn" id="7_wood"]
 [ext_resource type="PackedScene" path="res://prefabs/creatures/cold_wisp.tscn" id="8_wisp"]
-[ext_resource type="Script" path="res://color_change/water_cell.gd" id="9_water"]
+[ext_resource type="Script" uid="uid://bp8yyikd4ftsa" path="res://color_change/water_cell.gd" id="9_water"]
+
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
 radius = 48.0

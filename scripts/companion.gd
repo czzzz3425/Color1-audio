@@ -77,7 +77,6 @@ func _ready() -> void:
 	_area = $InteractArea as Area2D
 	_visual = $Visual as Node2D
 	_area.body_entered.connect(_on_body_entered)
-	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
 	if player != null:
 		_idle_ref_pos = player.global_position
 	_start_breathing()
@@ -282,14 +281,16 @@ func _on_body_entered(body: Node) -> void:
 	_play_dialogue(start_cue)
 
 
-func _play_dialogue(cue: String) -> void:
-	if dialogue_resource == null:
+func _play_dialogue(cue: String, resource: DialogueResource = null) -> void:
+	var source := resource if resource != null else dialogue_resource
+	if source == null:
 		return
 	_talking = true
-	DialogueManager.show_dialogue_balloon(dialogue_resource, cue)
+	if not StoryDirector.request(self, source, cue, Callable(), _on_own_dialogue_finished, _on_own_dialogue_cancelled):
+		_talking = false
 
 
-func _on_dialogue_ended(_resource: DialogueResource) -> void:
+func _on_own_dialogue_finished() -> void:
 	if not _talking:
 		return
 	_talking = false
@@ -299,7 +300,13 @@ func _on_dialogue_ended(_resource: DialogueResource) -> void:
 			_idle_ref_pos = player.global_position
 
 
+func _on_own_dialogue_cancelled() -> void:
+	_talking = false
+
+
 func _check_reminders(delta: float) -> void:
+	if StoryDirector.is_busy():
+		return
 	# 1. 位置标记提醒
 	for hint in get_tree().get_nodes_in_group("companion_hint"):
 		if not GameState.is_in_current_scene(hint):
@@ -308,7 +315,7 @@ func _check_reminders(delta: float) -> void:
 		if h == null or not h.can_trigger():
 			continue
 		if player.global_position.distance_to(h.global_position) <= h.radius:
-			_play_dialogue(h.trigger())
+			_play_dialogue(h.trigger(), h.dialogue_resource)
 			return
 
 	# 2. 卡住超时提醒

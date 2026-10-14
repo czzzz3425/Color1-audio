@@ -1,13 +1,13 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3 uid="uid://d1t1x2nslcccq"]
 
 [ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="2_companion"]
-[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/companion.dialogue" id="3_dialogue"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/dia/companion.dialogue" id="3_dialogue"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/goal.tscn" id="4_goal"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="5_seed"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/growth_seed.tscn" id="6_grow"]
 [ext_resource type="Script" uid="uid://c72jfj8on1i3d" path="res://color_change/hud.gd" id="7_hud"]
-[ext_resource type="Script" path="res://color_change/water_cell.gd" id="8_water"]
+[ext_resource type="Script" uid="uid://bp8yyikd4ftsa" path="res://color_change/water_cell.gd" id="8_water"]
 [ext_resource type="PackedScene" path="res://prefabs/creatures/cold_wisp.tscn" id="9_wisp"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
@@ -19,87 +19,87 @@ size = Vector2(1600, 160)
 [sub_resource type="RectangleShape2D" id="Rect_bottom"]
 size = Vector2(1600, 160)
 
-[node name="GreenBridgeTest" type="Node2D"]
+[node name="GreenBridgeTest" type="Node2D" unique_id=1859210056]
 
-[node name="Background" type="Polygon2D" parent="."]
+[node name="Background" type="Polygon2D" parent="." unique_id=1379872515]
 z_index = -10
 color = Color(0.08, 0.1, 0.14, 1)
 polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
 
-[node name="Player" parent="." groups=["player"] instance=ExtResource("1_player")]
+[node name="Player" parent="." unique_id=2012930615 groups=["player"] instance=ExtResource("1_player")]
 
-[node name="Camera" type="Camera2D" parent="Player"]
+[node name="Camera" type="Camera2D" parent="Player" unique_id=1144203253]
 zoom = Vector2(0.25, 0.25)
 
-[node name="Companion" type="Node2D" parent="."]
+[node name="Companion" type="Node2D" parent="." unique_id=617908986]
 position = Vector2(0, 80)
 script = ExtResource("2_companion")
 dialogue_resource = ExtResource("3_dialogue")
 
-[node name="InteractArea" type="Area2D" parent="Companion"]
+[node name="InteractArea" type="Area2D" parent="Companion" unique_id=520626965]
 collision_layer = 0
 
-[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea"]
+[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea" unique_id=955516908]
 shape = SubResource("CircleShape2D_companion")
 
-[node name="Visual" type="Polygon2D" parent="Companion"]
+[node name="Visual" type="Polygon2D" parent="Companion" unique_id=2140736975]
 color = Color(0.95, 0.8, 0.25, 1)
 polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 
-[node name="TopWall" type="StaticBody2D" parent="."]
+[node name="TopWall" type="StaticBody2D" parent="." unique_id=399469643]
 collision_layer = 2
 collision_mask = 0
 
-[node name="Visual" type="Polygon2D" parent="TopWall"]
+[node name="Visual" type="Polygon2D" parent="TopWall" unique_id=555092695]
 color = Color(0.22, 0.24, 0.3, 1)
 polygon = PackedVector2Array(-400, -240, 1200, -240, 1200, -80, -400, -80)
 
-[node name="Collision" type="CollisionShape2D" parent="TopWall"]
+[node name="Collision" type="CollisionShape2D" parent="TopWall" unique_id=1988724648]
 position = Vector2(400, -160)
 shape = SubResource("Rect_top")
 
-[node name="BottomWall" type="StaticBody2D" parent="."]
+[node name="BottomWall" type="StaticBody2D" parent="." unique_id=1259003706]
 collision_layer = 2
 collision_mask = 0
 
-[node name="Visual" type="Polygon2D" parent="BottomWall"]
+[node name="Visual" type="Polygon2D" parent="BottomWall" unique_id=1760603650]
 color = Color(0.22, 0.24, 0.3, 1)
 polygon = PackedVector2Array(-400, 20, 1200, 20, 1200, 180, -400, 180)
 
-[node name="Collision" type="CollisionShape2D" parent="BottomWall"]
+[node name="Collision" type="CollisionShape2D" parent="BottomWall" unique_id=623577635]
 position = Vector2(400, 100)
 shape = SubResource("Rect_bottom")
 
-[node name="SeedContainer" parent="." instance=ExtResource("5_seed")]
+[node name="SeedContainer" parent="." unique_id=1155618642 instance=ExtResource("5_seed")]
 position = Vector2(-150, -20)
 grow_seeds = 1
 
-[node name="WaterPit" type="StaticBody2D" parent="."]
+[node name="WaterPit" type="StaticBody2D" parent="." unique_id=890680766]
 position = Vector2(400, -30)
 script = ExtResource("8_water")
 
-[node name="ColdWisp" parent="." instance=ExtResource("9_wisp")]
+[node name="ColdWisp" parent="." unique_id=381236240 instance=ExtResource("9_wisp")]
 position = Vector2(400, -30)
 
-[node name="GrowthSeed" parent="." instance=ExtResource("6_grow")]
+[node name="GrowthSeed" parent="." unique_id=1978679522 instance=ExtResource("6_grow")]
 position = Vector2(256, -30)
 vine_length = 320.0
 
-[node name="Goal" parent="." instance=ExtResource("4_goal")]
+[node name="Goal" parent="." unique_id=1756828 instance=ExtResource("4_goal")]
 position = Vector2(600, 0)
 is_final = true
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=456168633]
 script = ExtResource("7_hud")
 
-[node name="ColorLabel" type="RichTextLabel" parent="HUD"]
+[node name="ColorLabel" type="RichTextLabel" parent="HUD" unique_id=1369053494]
 offset_left = 12.0
 offset_top = 12.0
 offset_right = 760.0
 offset_bottom = 60.0
 bbcode_enabled = true
 
-[node name="WinLabel" type="Label" parent="HUD"]
+[node name="WinLabel" type="Label" parent="HUD" unique_id=2021305862]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

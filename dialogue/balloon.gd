@@ -20,6 +20,14 @@ extends CanvasLayer
 ## The action to use to skip typing the dialogue
 @export var skip_action: StringName = &"ui_cancel"
 
+@export_group("角色立绘")
+## 为每个角色添加一份配置。按文案原始角色名匹配，不受姓名翻译影响。
+@export var character_portraits: Array[CharacterPortrait] = []
+
+@onready var portrait_stage: Control = %PortraitStage
+@onready var dialogue_panel_margin: MarginContainer = $Balloon/MarginContainer
+var _closing := false
+
 ## A sound player for voice lines (if they exist).
 @onready var audio_stream_player: AudioStreamPlayer = %AudioStreamPlayer
 
@@ -45,10 +53,7 @@ var dialogue_line: DialogueLine:
 			apply_dialogue_line()
 		else:
 			# The dialogue has finished so close the balloon
-			if owner == null:
-				queue_free()
-			else:
-				hide()
+			_close_balloon()
 	get:
 		return dialogue_line
 
@@ -72,7 +77,11 @@ var mutation_cooldown: Timer = Timer.new()
 
 
 func _ready() -> void:
+	add_to_group("dialogue_balloon")
 	balloon.hide()
+	dialogue_panel_margin.resized.connect(_layout_portrait_stage)
+	balloon.resized.connect(_layout_portrait_stage)
+	_layout_portrait_stage.call_deferred()
 	Engine.get_singleton("DialogueManager").mutated.connect(_on_mutated)
 
 	# If the responses menu doesn't have a next action set, use this one
@@ -112,6 +121,9 @@ func _notification(what: int) -> void:
 
 ## Start some dialogue
 func start(with_dialogue_resource: DialogueResource = null, cue: String = "", extra_game_states: Array = []) -> void:
+	# 首次入树时容器尚未完成布局，先确定舞台尺寸再启动滑入。
+	await get_tree().process_frame
+	_layout_portrait_stage()
 	temporary_game_states = [self] + extra_game_states
 	is_waiting_for_input = false
 	if is_instance_valid(with_dialogue_resource):
@@ -133,6 +145,7 @@ func apply_dialogue_line() -> void:
 
 	character_label.visible = not dialogue_line.character.is_empty()
 	character_label.text = tr(dialogue_line.character, "dialogue")
+	_update_portrait(dialogue_line.character)
 
 	dialogue_label.hide()
 	dialogue_label.dialogue_line = dialogue_line
@@ -166,6 +179,35 @@ func apply_dialogue_line() -> void:
 		is_waiting_for_input = true
 		balloon.focus_mode = Control.FOCUS_ALL
 		balloon.grab_focus()
+
+
+## 按当前角色名更新舞台，立绘与台词面板使用独立布局。
+func _update_portrait(character_name: String) -> void:
+	var selected: CharacterPortrait = null
+	if not character_name.is_empty():
+		for config in character_portraits:
+			if config != null and config.character_name == character_name:
+				selected = config
+				break
+	portrait_stage.show_character(selected)
+
+
+func _layout_portrait_stage() -> void:
+	portrait_stage.size = Vector2(balloon.size.x, maxf(0.0, dialogue_panel_margin.position.y - 8.0))
+
+
+func _close_balloon() -> void:
+	if _closing:
+		return
+	_closing = true
+	is_waiting_for_input = false
+	responses_menu.hide()
+	await portrait_stage.dismiss()
+	if owner == null:
+		queue_free()
+	else:
+		hide()
+		_closing = false
 
 
 ## Go to the next line

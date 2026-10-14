@@ -1,12 +1,12 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene format=3 uid="uid://bejncghbpxygs"]
 
-[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
-[ext_resource type="Script" path="res://scripts/entrance.gd" id="2_entrance"]
-[ext_resource type="Script" path="res://scripts/companion.gd" id="3_companion"]
-[ext_resource type="Resource" path="res://dialogue/companion.dialogue" id="4_dialogue"]
-[ext_resource type="Script" path="res://scripts/door.gd" id="5_door"]
+[ext_resource type="Script" uid="uid://darjnda0vdwpq" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="Script" uid="uid://dru8kg3d2ewcb" path="res://scripts/entrance.gd" id="2_entrance"]
+[ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="3_companion"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/dia/companion.dialogue" id="4_dialogue"]
+[ext_resource type="Script" uid="uid://5mnsopbqo3o5" path="res://scripts/door.gd" id="5_door"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="6_seed"]
-[ext_resource type="Script" path="res://color_change/water_cell.gd" id="7_water"]
+[ext_resource type="Script" uid="uid://bp8yyikd4ftsa" path="res://color_change/water_cell.gd" id="7_water"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/growth_seed.tscn" id="8_grow"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
@@ -21,92 +21,91 @@ size = Vector2(2400, 160)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(64, 96)
 
-[node name="EmergentLevel3" type="Node2D"]
+[node name="EmergentLevel3" type="Node2D" unique_id=230718949]
 y_sort_enabled = true
 script = ExtResource("1_room")
 room_id = "emergent_level3"
 camera_limits = Rect2(-1200, -600, 3000, 1200)
 
-[node name="Background" type="Polygon2D" parent="."]
+[node name="Background" type="Polygon2D" parent="." unique_id=1719703328]
 z_index = -10
 color = Color(0.06, 0.11, 0.08, 1)
 polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
 
-[node name="spawn" type="Marker2D" parent="."]
+[node name="spawn" type="Marker2D" parent="." unique_id=759516373]
 position = Vector2(-300, 0)
 script = ExtResource("2_entrance")
 entrance_id = "spawn"
 
-[node name="Companion" type="Node2D" parent="."]
+[node name="Companion" type="Node2D" parent="." unique_id=455943761]
 position = Vector2(0, 80)
 script = ExtResource("3_companion")
 dialogue_resource = ExtResource("4_dialogue")
 
-[node name="InteractArea" type="Area2D" parent="Companion"]
+[node name="InteractArea" type="Area2D" parent="Companion" unique_id=10786629]
 collision_layer = 0
 
-[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea"]
+[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea" unique_id=491677847]
 shape = SubResource("CircleShape2D_companion")
 
-[node name="Visual" type="Polygon2D" parent="Companion"]
+[node name="Visual" type="Polygon2D" parent="Companion" unique_id=908219765]
 color = Color(0.95, 0.8, 0.25, 1)
 polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 
-[node name="TopWall" type="StaticBody2D" parent="."]
+[node name="TopWall" type="StaticBody2D" parent="." unique_id=1115586585]
 collision_layer = 2
 collision_mask = 0
 
-[node name="Visual" type="Polygon2D" parent="TopWall"]
+[node name="Visual" type="Polygon2D" parent="TopWall" unique_id=2138120855]
 color = Color(0.2, 0.22, 0.3, 1)
 polygon = PackedVector2Array(-800, -240, 1200, -240, 1200, -80, -800, -80)
 
-[node name="Collision" type="CollisionShape2D" parent="TopWall"]
+[node name="Collision" type="CollisionShape2D" parent="TopWall" unique_id=1541666238]
 position = Vector2(200, -160)
 shape = SubResource("Rect_top")
 
-[node name="BottomWall" type="StaticBody2D" parent="."]
+[node name="BottomWall" type="StaticBody2D" parent="." unique_id=173786375]
 collision_layer = 2
 collision_mask = 0
 
-[node name="Visual" type="Polygon2D" parent="BottomWall"]
+[node name="Visual" type="Polygon2D" parent="BottomWall" unique_id=1879175554]
 color = Color(0.2, 0.22, 0.3, 1)
 polygon = PackedVector2Array(-800, 20, 1200, 20, 1200, 180, -800, 180)
 
-[node name="Collision" type="CollisionShape2D" parent="BottomWall"]
+[node name="Collision" type="CollisionShape2D" parent="BottomWall" unique_id=1510132517]
 position = Vector2(200, 100)
 shape = SubResource("Rect_bottom")
 
-[node name="SeedContainer" parent="." instance=ExtResource("6_seed")]
+[node name="SeedContainer" parent="." unique_id=1183581319 instance=ExtResource("6_seed")]
 position = Vector2(-350, -20)
 grow_seeds = 3
 
-[node name="WaterA" type="StaticBody2D" parent="."]
+[node name="WaterA" type="StaticBody2D" parent="." unique_id=357253160]
 position = Vector2(128, 0)
 script = ExtResource("7_water")
 
-[node name="WaterB" type="StaticBody2D" parent="."]
+[node name="WaterB" type="StaticBody2D" parent="." unique_id=1895230068]
 position = Vector2(384, 0)
 script = ExtResource("7_water")
 
-[node name="GrowthSeed" parent="." instance=ExtResource("8_grow")]
-position = Vector2(0, 0)
+[node name="GrowthSeed" parent="." unique_id=1287717373 instance=ExtResource("8_grow")]
 vine_length = 512.0
 
-[node name="RewardSeeds" parent="." instance=ExtResource("6_seed")]
+[node name="RewardSeeds" parent="." unique_id=2131589875 instance=ExtResource("6_seed")]
 position = Vector2(600, -20)
 burn_seeds = 2
 freeze_seeds = 2
 
-[node name="to_level_1" type="Area2D" parent="."]
+[node name="to_level_1" type="Area2D" parent="." unique_id=845082631]
 position = Vector2(-550, 0)
 script = ExtResource("5_door")
 door_id = "to_level_1"
 target_scene = "res://scenes/level_1.tscn"
 target_entrance = "spawn"
 
-[node name="Collision" type="CollisionShape2D" parent="to_level_1"]
+[node name="Collision" type="CollisionShape2D" parent="to_level_1" unique_id=990699434]
 shape = SubResource("RectangleShape2D_door")
 
-[node name="Visual" type="Polygon2D" parent="to_level_1"]
+[node name="Visual" type="Polygon2D" parent="to_level_1" unique_id=1735579347]
 color = Color(0.5, 0.85, 0.5, 1)
 polygon = PackedVector2Array(-32, -80, 32, -80, 32, 80, -32, 80)

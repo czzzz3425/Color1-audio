@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bd407jao4ex8d"]
+
+[ext_resource type="Script" uid="uid://bninsmagv0ixe" path="res://scripts/dialogue_trigger.gd" id="1_trigger"]
+
+[node name="DialogueTrigger" type="Node2D" unique_id=1194824880]
+z_index = 4095
+script = ExtResource("1_trigger")
+cue = "hint_start"
+radius = 256.0

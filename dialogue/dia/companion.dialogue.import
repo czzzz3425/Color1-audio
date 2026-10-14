@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://cs4tg8k8wjy13"
+path="res://.godot/imported/companion.dialogue-642e796881af43ce4112ba57ec2dd35c.tres"
+
+[deps]
+
+source_file="res://dialogue/dia/companion.dialogue"
+dest_files=["res://.godot/imported/companion.dialogue-642e796881af43ce4112ba57ec2dd35c.tres"]
+
+[params]
+
+defaults=true
