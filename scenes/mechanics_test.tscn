@@ -1,0 +1,90 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scenes/mechanics_test.gd" id="1_ctrl"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/mechanics/parry.gd" id="3_parry"]
+[ext_resource type="Script" path="res://scripts/mechanics/yellow_object.gd" id="4_yellow"]
+[ext_resource type="Script" path="res://scripts/mechanics/parry_emitter.gd" id="5_emit"]
+
+[sub_resource type="RectangleShape2D" id="Rect_emit"]
+size = Vector2(72, 72)
+
+[node name="MechanicsTest" type="Node2D"]
+script = ExtResource("1_ctrl")
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -100
+color = Color(0.06, 0.07, 0.1, 1)
+polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+max_health = 5
+
+[node name="Camera" type="Camera2D" parent="Player"]
+zoom = Vector2(0.4, 0.4)
+
+[node name="Parry" type="Node2D" parent="Player"]
+script = ExtResource("3_parry")
+parry_radius = 220.0
+
+[node name="YellowObject" type="Node2D" parent="."]
+position = Vector2(300, -60)
+script = ExtResource("4_yellow")
+
+[node name="Shadow" type="Polygon2D" parent="YellowObject"]
+z_index = -1
+color = Color(0, 0, 0, 0.25)
+polygon = PackedVector2Array(-54, 0, 54, 0, 40, 14, -40, 14)
+
+[node name="Visual" type="Polygon2D" parent="YellowObject"]
+color = Color(0.95, 0.95, 0.95, 1)
+polygon = PackedVector2Array(-48, -110, 48, -110, 48, 0, -48, 0)
+
+[node name="EmitterLeft" type="StaticBody2D" parent="."]
+position = Vector2(-760, -30)
+collision_layer = 4
+script = ExtResource("5_emit")
+fire_interval = 1.8
+
+[node name="Visual" type="Polygon2D" parent="EmitterLeft"]
+color = Color(0.65, 0.25, 0.28, 1)
+polygon = PackedVector2Array(-36, -36, 36, -36, 36, 36, -36, 36)
+
+[node name="Collision" type="CollisionShape2D" parent="EmitterLeft"]
+shape = SubResource("Rect_emit")
+
+[node name="EmitterRight" type="StaticBody2D" parent="."]
+position = Vector2(760, -30)
+collision_layer = 4
+script = ExtResource("5_emit")
+fire_interval = 2.4
+
+[node name="Visual" type="Polygon2D" parent="EmitterRight"]
+color = Color(0.65, 0.25, 0.28, 1)
+polygon = PackedVector2Array(-36, -36, 36, -36, 36, 36, -36, 36)
+
+[node name="Collision" type="CollisionShape2D" parent="EmitterRight"]
+shape = SubResource("Rect_emit")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Info" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 1400.0
+offset_bottom = 110.0
+theme_override_font_sizes/font_size = 22
+
+[node name="YellowStatus" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 110.0
+offset_right = 1400.0
+offset_bottom = 150.0
+theme_override_font_sizes/font_size = 22
+
+[node name="ParryStatus" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 150.0
+offset_right = 1400.0
+offset_bottom = 190.0
+theme_override_font_sizes/font_size = 22
