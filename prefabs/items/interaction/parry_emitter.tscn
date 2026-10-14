@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/mechanics/parry_emitter.gd" id="1_emit"]
+
+[sub_resource type="RectangleShape2D" id="Rect_emit"]
+size = Vector2(72, 72)
+
+[node name="ParryEmitter" type="StaticBody2D"]
+collision_layer = 4
+script = ExtResource("1_emit")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.65, 0.25, 0.28, 1)
+polygon = PackedVector2Array(-36, -36, 36, -36, 36, 36, -36, 36)
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("Rect_emit")

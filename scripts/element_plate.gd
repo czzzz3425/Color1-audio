@@ -18,8 +18,11 @@ const Rules := preload("res://scripts/element/element_rules.gd")
 @export var burn_color := Color(1.0, 0.3, 0.3)
 @export var freeze_color := Color(0.3, 0.55, 1.0)
 @export var grow_color := Color(0.35, 0.85, 0.4)
+@export var cyan_color := Color(0.3, 0.9, 0.95)
+@export var yellow_color := Color(1.0, 0.85, 0.2)
 
 @onready var visual: Polygon2D = $Visual
+@onready var collision_shape: CollisionShape2D = $Collision
 
 var _occupants: Array = []   # 压在踏板上的 colorable 对象
 var _last_element := ""
@@ -28,12 +31,13 @@ signal element_changed(element_id: String)
 
 
 func _ready() -> void:
-	body_entered.connect(_on_body_entered)
-	body_exited.connect(_on_body_exited)
 	_refresh()
 
 
 func _physics_process(_delta: float) -> void:
+	# 每帧几何扫描：不用 body_entered，因为 StaticBody2D 被 tween/瞬移（青色移动）后
+	# 物理引擎不会更新碰撞对，body_entered 会漏检。这里直接按世界矩形判断压在板上的对象。
+	_rebuild_occupants()
 	# 轮询：踩踏对象的元素可能被蔓延 / 相生改变（如踏板上的燃烧木被蓝打到熄火），
 	# 只在状态真的变化时才发信号，避免每帧空发。
 	var el := detected_element()
@@ -43,18 +47,27 @@ func _physics_process(_delta: float) -> void:
 		element_changed.emit(el)
 
 
-func _on_body_entered(body: Node) -> void:
-	if not _is_element_carrier(body):
-		return
-	if body not in _occupants:
-		_occupants.append(body)
-		_refresh()
+## 重建压板对象：遍历 colorable 组，把「携带元素状态且中心落在踏板矩形内」的对象记下来。
+func _rebuild_occupants() -> void:
+	_occupants.clear()
+	var rect := _plate_rect()
+	for obj in get_tree().get_nodes_in_group("colorable"):
+		if not GameState.is_in_current_scene(obj):
+			continue
+		if not (obj is Node2D):
+			continue
+		if not _is_element_carrier(obj):
+			continue
+		if rect.has_point((obj as Node2D).global_position):
+			_occupants.append(obj)
 
 
-func _on_body_exited(body: Node) -> void:
-	if body in _occupants:
-		_occupants.erase(body)
-		_refresh()
+## 踏板的世界矩形（按 Collision 的 RectangleShape2D 尺寸）。
+func _plate_rect() -> Rect2:
+	var half := Vector2(48, 48)
+	if collision_shape != null and collision_shape.shape is RectangleShape2D:
+		half = (collision_shape.shape as RectangleShape2D).size * 0.5
+	return Rect2(global_position - half, half * 2)
 
 
 ## 是否携带元素状态的对象（有 current_element / 在 heat_source 组）。
@@ -97,4 +110,8 @@ func _apply_visual(el: String) -> void:
 		c = freeze_color
 	elif el == "grow":
 		c = grow_color
+	elif el == "cyan":
+		c = cyan_color
+	elif el == "yellow":
+		c = yellow_color
 	visual.color = c

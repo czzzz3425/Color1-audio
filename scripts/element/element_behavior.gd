@@ -9,7 +9,7 @@ extends Node2D
 
 const Rules := preload("res://scripts/element/element_rules.gd")
 const SHATTER := preload("res://effects/shatter/shatter.gd")
-const ASH := preload("res://scripts/ash.gd")
+const Reflector := preload("res://scripts/mechanics/bullet_reflector.gd")
 
 ## 燃烧光斑半径（世界像素，256px ≈ 1 格）。燃烧物在此挖出一片可见区域（塞尔达式遮罩挖洞），越小越聚焦。
 @export_range(16.0, 2048.0, 8.0) var light_radius := 352.0
@@ -24,11 +24,18 @@ const ASH := preload("res://scripts/ash.gd")
 @export var cyan_move_distance := 768.0
 ## 青态移动时长（秒）。
 @export var cyan_move_duration := 0.5
+## 黄（红×绿混合）态：是否自动开启子弹反射（变黄后把范围内的可弹反子弹弹回去）。
+@export var reflect_bullets := true
+## 黄色反射范围（世界像素）。
+@export_range(8.0, 2048.0, 1.0) var reflect_radius := 176.0
+## 反射后子弹归属阵营。
+@export var reflect_faction := "player"
 
 var _burning := false
 var _frozen := false
 var _grown := false
 var _cyan := false
+var _yellow := false
 var _element := ""
 
 var _parent: Node2D
@@ -38,6 +45,9 @@ var visual_center := Vector2.ZERO
 var shatter_target: CanvasItem = null
 var _vfx: Node
 var _light: Node2D
+var _reflector: Node2D
+## 变黄前父物体的碰撞层（变黄时临时切到 layer 3 让子弹穿过，吸收/破坏时还原）。
+var _original_collision_layer := -1
 
 
 func _ready() -> void:
@@ -68,11 +78,13 @@ func current_element() -> String:
 
 
 ## 吸收：清空状态并返回应返还给玩家的元素 id 列表。
-## 单元素返回 [el]；青色返回 ["freeze", "grow"]（蓝绿各返一颗）。
+## 单元素返回 [el]；青返回 ["freeze", "grow"]，黄返回 ["burn", "grow"]。
 func absorb() -> Array:
 	var result: Array = []
 	if _cyan:
 		result = ["freeze", "grow"]
+	elif _yellow:
+		result = ["burn", "grow"]
 	elif _element != "":
 		result = [_element]
 	clear()
@@ -85,9 +97,12 @@ func clear() -> void:
 	_frozen = false
 	_grown = false
 	_cyan = false
+	_yellow = false
 	_element = ""
 	_clear_vfx()
 	_free_light()
+	_free_reflector()
+	_restore_collision_layer()
 	_set_heat(false)
 	_set_growth(false)
 
@@ -95,20 +110,17 @@ func clear() -> void:
 func _apply_burn() -> bool:
 	if _burning:
 		return false
-	# 青是蓝绿混合态，红暂不参与（可后续定义「红破坏青」等交互）。
-	if _cyan:
+	# 青/黄都已是混合态，红不再叠加（可后续定义「红破坏黄」等交互）。
+	if _cyan or _yellow:
 		return false
 	# 点燃冻结中的物体 = 解冻后再燃烧。
 	if _frozen:
 		_frozen = false
 		_clear_vfx()
-	# 火烧藤 = 烧成灰烬（红 × 绿 = 灰烬）：藤烧尽，留下余烬堆，对象冷却回无。
+	# 红 × 绿 = 黄：给缠藤物上红 → 混合成黄并开启反射。
 	if _grown:
 		_grown = false
-		_clear_vfx()
-		_set_growth(false)
-		_spawn_ash()
-		_element = ""
+		_enter_yellow()
 		return true
 
 	_burning = true
@@ -140,6 +152,8 @@ func _apply_freeze(from_pos: Vector2) -> bool:
 		return true
 	if _cyan:
 		return false
+	if _yellow:
+		return false
 	if _frozen:
 		return false
 	_frozen = true
@@ -153,11 +167,19 @@ func _apply_freeze(from_pos: Vector2) -> bool:
 ## 绿 × 蓝 = 青：已冻结物体被赋予绿 → 混合成青并移动。
 ## 其余情况：已有任何元素（燃烧/已生长/已混合）都长不出来（返回 false 不耗种子）。
 func _apply_grow(from_pos: Vector2) -> bool:
-	if _cyan:
+	if _cyan or _yellow:
 		return false
 	if _frozen:
 		_frozen = false
 		_enter_cyan(from_pos)
+		return true
+	# 绿 × 红 = 黄：给燃烧中的物体上绿 → 混合成黄并开启反射。
+	if _burning:
+		_burning = false
+		_clear_vfx()
+		_free_light()
+		_set_heat(false)
+		_enter_yellow()
 		return true
 	if _element != "":
 		return false
@@ -187,6 +209,61 @@ func _enter_cyan(from_pos: Vector2) -> void:
 			dir = away.normalized()
 	var tween := create_tween()
 	tween.tween_property(_parent, "global_position", _parent.global_position + dir * cyan_move_distance, cyan_move_duration)
+
+
+## 进入黄色混合态：红 × 绿 = 黄。清除旧的燃烧/生长状态，登记为混合态，
+## 并按配置挂一个子弹反射组件（黄被破坏/吸收时关闭）。
+func _enter_yellow() -> void:
+	_clear_vfx()
+	_free_light()
+	_set_heat(false)
+	_set_growth(false)
+	_yellow = true
+	_element = "yellow"
+	if _parent == null or not is_instance_valid(_parent):
+		return
+	_switch_to_yellow_layer()
+	if reflect_bullets:
+		_setup_reflector()
+
+
+## 变黄时把父物体切到 layer 3：玩家（mask 6 含 3）仍被挡，子弹（mask 7 不含 3）能穿过，
+## 让子弹能进入反射器范围而不是撞在物体碰撞上被销毁。
+func _switch_to_yellow_layer() -> void:
+	if not (_parent is CollisionObject2D):
+		return
+	var body := _parent as CollisionObject2D
+	if _original_collision_layer == -1:
+		_original_collision_layer = body.collision_layer
+	body.collision_layer = 3
+
+
+## 黄被吸收/破坏后还原父物体原来的碰撞层。
+func _restore_collision_layer() -> void:
+	if _original_collision_layer == -1:
+		return
+	if _parent != null and is_instance_valid(_parent) and (_parent is CollisionObject2D):
+		(_parent as CollisionObject2D).collision_layer = _original_collision_layer
+	_original_collision_layer = -1
+
+
+## 挂一个 BulletReflector 到父物体并开启（变黄后反射子弹）。
+func _setup_reflector() -> void:
+	_free_reflector()
+	var r := Reflector.new()
+	r.name = "BulletReflector"
+	r.radius = reflect_radius
+	r.faction = reflect_faction
+	_parent.add_child(r)
+	r.set_enabled(true)
+	_reflector = r
+
+
+## 移除并关闭反射组件（黄被吸收/破坏时）。
+func _free_reflector() -> void:
+	if _reflector != null and is_instance_valid(_reflector):
+		_reflector.queue_free()
+	_reflector = null
 
 
 func _schedule_spread(element_id: String) -> void:
@@ -300,15 +377,3 @@ func _shatter() -> void:
 		t.tween_property(_parent, "modulate:a", 0.0, 0.5)
 		t.tween_callback(_parent.queue_free)
 
-
-## 烧藤成灰烬：在宿主旁生成一个灰烬堆（热源 + 肥料，可吸红）。
-func _spawn_ash() -> void:
-	if _parent == null or not is_instance_valid(_parent):
-		return
-	var host_parent := _parent.get_parent()
-	if host_parent == null:
-		return
-	var ash := ASH.new()
-	ash.name = "Ash"
-	host_parent.add_child(ash)
-	ash.global_position = _parent.global_position

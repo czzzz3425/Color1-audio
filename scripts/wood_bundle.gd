@@ -27,6 +27,10 @@ const DepthSort := preload("res://scripts/depth_sort.gd")
 @export var cyan_move_dir := Vector2.RIGHT
 @export_range(0.0, 4096.0, 8.0) var cyan_move_distance := 768.0
 @export_range(0.05, 5.0, 0.05) var cyan_move_duration := 0.5
+## 黄（红×绿混合）态：是否开启子弹反射与反射参数。
+@export var reflect_bullets := true
+@export_range(8.0, 2048.0, 1.0) var reflect_radius := 176.0
+@export var reflect_faction := "player"
 
 @export_group("状态")
 @export var state_id: String = ""
@@ -63,6 +67,9 @@ func _setup_behavior() -> void:
 	_behavior.cyan_move_dir = cyan_move_dir
 	_behavior.cyan_move_distance = cyan_move_distance
 	_behavior.cyan_move_duration = cyan_move_duration
+	_behavior.reflect_bullets = reflect_bullets
+	_behavior.reflect_radius = reflect_radius
+	_behavior.reflect_faction = reflect_faction
 	if visual != null:
 		_behavior.visual_center = visual.position
 		_behavior.shatter_target = visual
