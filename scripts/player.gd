@@ -19,6 +19,7 @@ enum State {
 	RUN,
 	JUMP,
 	ROTATE,
+	HIT,
 }
 
 @export_group("Movement")
@@ -63,6 +64,8 @@ const FEET_FRAME_OFFSET := 705.0
 const SHADOW_FLATTEN := 0.45
 ## 受击后无敌时长（毫秒），防止机关连发瞬间秒杀。
 const INVINCIBLE_MS := 1000
+## 受击动画时长（秒），需与受击动画实际时长对齐（12 帧 ÷ speed）。
+const HIT_DURATION := 1.0
 
 ## 4 方向（屏幕坐标，y 向下）：下、左、上、右。
 const DIRS: Array[Vector2] = [
@@ -101,6 +104,7 @@ var _knockback_vel := Vector2.ZERO   # 被飞行物命中时的击退速度（�
 var _dialogue_active := false        # 对话中禁止玩家移动
 var health := 1.0
 var _invincible_until := 0
+var _hit_t := 0.0   # 受击动画计时
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var collision: CollisionShape2D = $Collision
@@ -181,6 +185,15 @@ func _physics_process(delta: float) -> void:
 		input = Vector2.ZERO
 	var running := Input.is_action_pressed("run")
 
+	if state == State.HIT:
+		_hit_t += delta
+		if _hit_t >= HIT_DURATION:
+			state = State.IDLE
+			_apply_animation()
+		velocity = _knockback_vel + flow_vel   # 受击时保留击退/水流，但不响应输入
+		move_and_slide()
+		return
+
 	if state == State.ROTATE:
 		velocity = Vector2.ZERO
 		_rotate_t += delta
@@ -255,6 +268,15 @@ func knockback(dir: Vector2, strength := 700.0) -> void:
 	_knockback_vel = dir.normalized() * strength
 
 
+## 受击：进入 HIT 状态并播一次受击动画（只播一次，HIT 分支里不再每帧重播）。
+## 受击素材只有左右两套：朝左用左侧受击，其余（右/下/上）先用右边受击兜底。
+func _start_hit() -> void:
+	state = State.HIT
+	_hit_t = 0.0
+	velocity = Vector2.ZERO
+	sprite.play("hit_left" if facing == 1 else "hit_right")
+
+
 ## 流向编号 → 方向向量（屏幕坐标）。1=右 2=下 3=左 4=上，其它=无。
 func _flow_vector(dir: int) -> Vector2:
 	match dir:
@@ -293,6 +315,7 @@ func take_damage(amount: float = 1.0) -> void:
 	_invincible_until = Time.get_ticks_msec() + INVINCIBLE_MS
 	health = maxf(health - amount, 0.0)
 	health_changed.emit(health, max_health)
+	_start_hit()
 	if health <= 0.0:
 		_die()
 
@@ -358,6 +381,9 @@ func _push_boxes(dir: Vector2, delta: float) -> void:
 
 func _apply_animation() -> void:
 	sprite.flip_h = false  # 左右各有独立素材，不再镜像
+	if state == State.HIT:
+		sprite.play("hit_left" if facing == 1 else "hit_right")
+		return
 	# 目前只有 4 方向的 walk 与朝下的 idle 动画；run/jump/rotate 暂复用，后续补。
 	if state == State.IDLE or state == State.ROTATE:
 		sprite.play("idle_down")

@@ -26,8 +26,8 @@ texture_filter = 1
 position = Vector2(4.9999995, -74.00001)
 scale = Vector2(0.2, 0.2)
 sprite_frames = ExtResource("2_frames")
-animation = &"idle_down"
-frame_progress = 0.19528179
+animation = &"hit_right"
+frame_progress = 0.9558689
 offset = Vector2(0, -8)
 
 [node name="Collision" type="CollisionShape2D" parent="." unique_id=1738913374]
