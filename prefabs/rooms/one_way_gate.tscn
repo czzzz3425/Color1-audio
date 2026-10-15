@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/one_way_gate.gd" id="1_gate"]
+[ext_resource type="Texture2D" uid="uid://bqvmrxeuuahbf" path="res://art/picture_boluo/门tm.png" id="2_door"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gate"]
+size = Vector2(448, 481)
+
+[node name="OneWayGate" type="StaticBody2D"]
+script = ExtResource("1_gate")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+position = Vector2(-33, -51.5)
+shape = SubResource("RectangleShape2D_gate")
+
+[node name="Visual" type="Sprite2D" parent="."]
+position = Vector2(-13, -56)
+scale = Vector2(2.0175781, 2.0683594)
+texture = ExtResource("2_door")

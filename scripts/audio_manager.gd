@@ -195,6 +195,8 @@ func _nearest_water_distance(pos: Vector2) -> float:
 		best = minf(best, pos.distance_to(opos))
 	# 纯视觉水面层（背景水）：逐格补距离；跳过已结冰的格（tile 还在但已不是流水）。
 	for layer in _water_layers:
+		if not is_instance_valid(layer):
+			continue
 		for cell in layer.get_used_cells():
 			var wpos := layer.to_global(layer.map_to_local(cell))
 			if _near_any(wpos, frozen, CELL * 0.5):
@@ -235,6 +237,8 @@ func surface_at(pos: Vector2) -> String:
 	var best_z := -INF
 	var best_surf := ""
 	for layer in _ground_layers:
+		if not is_instance_valid(layer):
+			continue
 		var cell := layer.local_to_map(layer.to_local(pos))
 		var src_id := layer.get_cell_source_id(cell)
 		if src_id == -1:
@@ -253,6 +257,9 @@ func surface_at(pos: Vector2) -> String:
 ## —— 地面层收集 ——
 
 func _on_room_changed(_room_id: String) -> void:
+	# 立即清空旧层引用：切关后旧场景的 TileMapLayer 已释放，rescan 延迟执行前不能留着 freed 引用。
+	_ground_layers.clear()
+	_water_layers.clear()
 	_rescan_layers.call_deferred()
 	_step_accum = 0.0
 	_surface = ""

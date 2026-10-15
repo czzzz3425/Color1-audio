@@ -35,7 +35,7 @@
 [ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="29_hnsmf"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
 [ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="31_hjqri"]
-[ext_resource type="PackedScene" path="res://prefabs/items/interaction/red_heart.tscn" id="36_v8pws"]
+[ext_resource type="PackedScene" uid="uid://bqctqappo14d2" path="res://prefabs/items/interaction/red_heart.tscn" id="36_v8pws"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
