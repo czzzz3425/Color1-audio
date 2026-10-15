@@ -58,4 +58,5 @@ func _apply() -> void:
 		collision.set_deferred("disabled", _open)
 	if visual != null:
 		var t := create_tween()
-		t.tween_property(visual, "modulate", open_color if _open else closed_color, 0.2)
+		# 开门淡出、关门恢复，保持门贴图原色（不再整扇染色）。
+		t.tween_property(visual, "modulate:a", 0.0 if _open else 1.0, 0.2)

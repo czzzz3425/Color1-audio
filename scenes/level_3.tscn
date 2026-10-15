@@ -17,7 +17,9 @@
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/parry_emitter.tscn" id="16_una4e"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="17_ema3p"]
 [ext_resource type="PackedScene" uid="uid://be2eeohasm6ng" path="res://prefabs/items/static prop/tree_dead.tscn" id="18_8uepa"]
+[ext_resource type="PackedScene" path="res://prefabs/rooms/one_way_gate.tscn" id="19_q7pjq"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_gate.tscn" id="23_gate"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -302,6 +304,12 @@ position = Vector2(13555, 7391)
 [node name="ElementPlate" parent="." unique_id=1579093526 instance=ExtResource("17_ema3p")]
 position = Vector2(9146, 6387)
 
+[node name="ElementGate" parent="." unique_id=1616364979 instance=ExtResource("23_gate")]
+position = Vector2(3387, 9588)
+scale = Vector2(1.9600025, 2.2400026)
+sensor_path = NodePath("../ElementPlate")
+required_element = "cyan"
+
 [node name="Tree2" parent="." unique_id=2091125691 instance=ExtResource("14_una4e")]
 position = Vector2(7981, 6828)
 
@@ -328,3 +336,7 @@ position = Vector2(14690, 5722)
 
 [node name="Tree9" parent="." unique_id=1144198378 instance=ExtResource("14_una4e")]
 position = Vector2(15916, 5774)
+
+[node name="OneWayGate" parent="." unique_id=2137978421 instance=ExtResource("19_q7pjq")]
+position = Vector2(287, 3126)
+pass_dir = Vector2(0, 1)

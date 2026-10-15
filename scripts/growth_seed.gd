@@ -161,20 +161,25 @@ func _capture_vine_cells() -> void:
 	var start := global_position
 	var end := global_position + grow_dir * vine_length
 	var steps := maxi(1, int(vine_length / (HeightMap.CELL * 0.5)))
+	var perp := Vector2(-grow_dir.y, grow_dir.x).normalized()
+	var half := vine_thickness * 0.5
 	var seen: Dictionary = {}   # grid(Vector2i) -> true，同格只记第一次（未修改前）的原值
 	for i in range(steps + 1):
-		var p := start.lerp(end, float(i) / float(steps))
-		var grid := Vector2i(floor(p.x / HeightMap.CELL), floor(p.y / HeightMap.CELL))
-		if seen.has(grid):
-			continue
-		seen[grid] = true
-		_vine_cells.append({
-			"grid": grid,
-			"walkable": HeightMap.is_walkable(p),
-			"flow": HeightMap.flow_at(p),
-		})
-		HeightMap.set_walkable(p, true)
-		HeightMap.set_flow(p, 0)
+		var base := start.lerp(end, float(i) / float(steps))
+		# 沿桥宽采样（中心 + 两侧），覆盖整条桥的通行性，避免玩家在桥边缘擦到未桥接的水。
+		for off in [-half, 0.0, half]:
+			var p: Vector2 = base + perp * float(off)
+			var grid := Vector2i(floor(p.x / HeightMap.CELL), floor(p.y / HeightMap.CELL))
+			if seen.has(grid):
+				continue
+			seen[grid] = true
+			_vine_cells.append({
+				"grid": grid,
+				"walkable": HeightMap.is_walkable(p),
+				"flow": HeightMap.flow_at(p),
+			})
+			HeightMap.set_walkable(p, true)
+			HeightMap.set_flow(p, 0)
 	_bridge_water()
 
 
@@ -186,6 +191,8 @@ func _bridge_water() -> void:
 	var start := global_position
 	var end := global_position + grow_dir * vine_length
 	var steps := maxi(1, int(vine_length / (HeightMap.CELL * 0.5)))
+	var perp := Vector2(-grow_dir.y, grow_dir.x).normalized()
+	var half := vine_thickness * 0.5
 	for obj in get_tree().get_nodes_in_group("colorable"):
 		if not is_instance_valid(obj):
 			continue
@@ -193,8 +200,12 @@ func _bridge_water() -> void:
 			continue
 		var hit := false
 		for i in range(steps + 1):
-			if bool(obj.call("contains_point", start.lerp(end, float(i) / float(steps)))):
-				hit = true
+			var base := start.lerp(end, float(i) / float(steps))
+			for off in [-half, 0.0, half]:
+				if bool(obj.call("contains_point", base + perp * float(off))):
+					hit = true
+					break
+			if hit:
 				break
 		if hit:
 			obj.call("set_bridged", true)
