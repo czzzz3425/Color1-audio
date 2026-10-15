@@ -61,6 +61,7 @@
 | `colorable_sprite.gd` | 贴图版（无碰撞，自建 behavior） |
 | `colorable_static.gd` | 带碰撞静态物（树/木条） |
 | `ember.gd` | 火种：开局带红挡路，吸收红→破碎放行（`seed_amount=3`） |
+| `yellow_object.gd` + `color_combo.gd` | 黄色机制载体 `YellowObject`：红+绿赋予同一物体→变黄，变黄后自动反弹子弹 |
 | `ice_block.gd` | 冰块/冰墙（`ice_block.tscn` + `ice_wall.tscn` 共用） |
 | `color_fill.gdshader` / `color_fill_texture.gdshader` | 颜色从赋予源径向扩散 |
 | `shatter.gdshader` + `effects/shatter/shatter.gd` | 网格碎片破碎 |
@@ -89,6 +90,10 @@
 |---|---|
 | `trap.gd` + `trap.tscn` | 周期发射飞行物（`aim_at_player`/`fixed_direction`） |
 | `projectile.gd` + `projectile.tscn` | 直线飞行物，撞玩家→`knockback` |
+| `parry.gd` (`Parry`, Node2D) | 弹反组件：按 J/K/中键开短时窗口，范围内可弹反子弹被反弹 |
+| `bullet_reflector.gd` (`BulletReflector`) | 被动反射组件：范围内可弹反子弹持续反弹（黄色物体变黄后开启） |
+| `parry_emitter.gd` + `parry_emitter.tscn` | 弹幕怪 `ParryEmitter`（CharacterBody2D）：走位 + 周期发射，被反打掉血直至销毁 |
+| `parry_projectile.gd` + `parry_projectile.tscn` | 可弹反子弹 `ParryProjectile`：弹反后反向 + 归属翻转 |
 | `pushable_box.gd` + `pushable_body.gd` + `box.tscn` | 推箱（逻辑壳 `$Body` 物理体） |
 | `goal.gd` + `room_effects.gd` | 踩上触发：`RoomEffects.unlock` 按 `door_id` 匹配 `room_door` group 开门 + HUD 反馈 |
 
@@ -127,6 +132,7 @@
 ## 关键约定与现状提示
 
 - **碰撞层**：玩家 1 / 障碍 2 / 箱子 3 / 飞行物 mask 7。
+- **弹反契约（依赖倒置）**：任何子弹入组 `parryable_projectile` 并实现 `can_parry()`/`parry(dir, parrier)` 即可被 `Parry`/`BulletReflector` 弹反，无需改组件；`ParryProjectile` 是现成实现。
 - **坐标系**：大坐标 + 256px 瓦片 + 物体 scale 16 + Camera zoom 0.25。
 - **切关正确性**：`element_behavior`(蔓延)、`darkness_overlay`(光源)、`player`(拾取/冻结预览)、`room_effects`(开门) 四处全局搜索都已收敛到 `GameState.is_in_current_scene`；`SceneManager` 切关前 `HeightMap.clear()`。
 - **现状（非缺陷）**：① 元素蔓延 `spreads=false` 关闭中；② 绿元素 `grow` 注释搁置；③ 鸟/松鼠无 AI 脚本。

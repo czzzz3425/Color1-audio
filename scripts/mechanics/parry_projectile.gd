@@ -46,12 +46,14 @@ var _parried := false
 func _ready() -> void:
 	if parryable:
 		add_to_group("parryable_projectile")
+	_update_visual_rotation()
 
 
 ## 初始化。from 为发射者阵营组名（默认 "enemy"）。
 func setup(dir: Vector2, from: String = "enemy") -> void:
 	direction = dir.normalized() if dir != Vector2.ZERO else Vector2.RIGHT
 	source_group = from
+	_update_visual_rotation()
 
 
 func is_parried() -> bool:
@@ -73,6 +75,7 @@ func parry(deflect_dir: Vector2, parrier: Node) -> bool:
 	_age = 0.0
 	# 归属翻转后不再命中「玩家层」（层 1），避免刚弹反就被自己挡住。
 	set_collision_mask_value(1, source_group != "player")
+	_update_visual_rotation()
 	_on_parried_visual()
 	parried.emit(direction)
 	return true
@@ -117,3 +120,9 @@ func _on_parried_visual() -> void:
 		(visual as Polygon2D).color = gold
 	elif visual is Sprite2D:
 		(visual as Sprite2D).self_modulate = gold
+
+
+## 让视觉朝向飞行方向（只转视觉，不影响圆形碰撞与移动）。
+func _update_visual_rotation() -> void:
+	if visual != null:
+		visual.rotation = direction.angle()
