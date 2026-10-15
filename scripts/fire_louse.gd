@@ -46,12 +46,16 @@ enum State { DORMANT, CHASE, FROZEN, RETREAT }
 @export var glint_radius: float = 60.0
 
 @export_group("视觉")
+@export var neutral_texture: Texture2D
+@export var burning_texture: Texture2D
+## 暂无蓝色素材时使用无色贴图染蓝；以后可直接在 Inspector 指定。
+@export var frozen_texture: Texture2D
 @export var glow_color: Color = Color(1.0, 0.35, 0.15)
 @export var frozen_color: Color = Color(0.4, 0.65, 1.0)
 @export var dim_color: Color = Color(0.3, 0.3, 0.3)
 @export var hit_radius: float = 52.0
 
-@onready var visual: Node2D = $Visual
+@onready var visual: Sprite2D = $Visual
 @onready var light: LightSource = $Light
 
 var _state: int = State.DORMANT
@@ -228,7 +232,13 @@ func _refresh() -> void:
 			tint = glow_color
 		elif _state == State.FROZEN:
 			tint = frozen_color
-		visual.self_modulate = tint
+		var texture: Texture2D = neutral_texture
+		if _state == State.CHASE:
+			texture = burning_texture
+		elif _state == State.FROZEN:
+			texture = frozen_texture
+		visual.texture = texture if texture != null else neutral_texture
+		visual.self_modulate = Color.WHITE if texture != null else tint
 	# 背上星形种子：剩几颗亮几颗。
 	for i in _gems.size():
 		if _gems[i] != null:

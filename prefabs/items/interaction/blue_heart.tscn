@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://dgk72eudaijk4"]
+
+[ext_resource type="Script" uid="uid://y87flgagvwst" path="res://scripts/heart_pickup.gd" id="1_heart"]
+[ext_resource type="Texture2D" uid="uid://jgsj4jwo8pwc" path="res://art/picture_boluo/生命值（蓝）tm.png" id="2_texture"]
+[ext_resource type="Shader" uid="uid://dcqsrgo08k78j" path="res://shaders/Sun_brust.gdshader" id="3_rays"]
+
+[sub_resource type="CircleShape2D" id="Shape"]
+radius = 105.0
+
+[sub_resource type="ShaderMaterial" id="HeartRays"]
+shader = ExtResource("3_rays")
+shader_parameter/ray_count = 15.0
+shader_parameter/ray_width = 0.65
+shader_parameter/inner_radius = 0.15
+shader_parameter/inner_fade_width = 0.1
+shader_parameter/outer_radius = 0.5
+shader_parameter/outer_fade_width = 0.15
+shader_parameter/ray_color = Color(1, 0.9019608, 0.5019608, 1)
+shader_parameter/intensity = 1.0
+shader_parameter/rotate_speed = 0.12
+shader_parameter/flicker_speed = 3.0
+
+[node name="BlueHeart" type="Node2D" unique_id=1241446493]
+script = ExtResource("1_heart")
+display_name = "蓝心"
+
+[node name="PickupArea" type="Area2D" parent="." unique_id=963025849]
+collision_layer = 0
+
+[node name="Collision" type="CollisionShape2D" parent="PickupArea" unique_id=655682474]
+shape = SubResource("Shape")
+
+[node name="Visual" type="Sprite2D" parent="." unique_id=1298963819]
+scale = Vector2(1.35, 1.35)
+texture = ExtResource("2_texture")
+
+[node name="Rays" type="ColorRect" parent="Visual" unique_id=1339623628]
+show_behind_parent = true
+material = SubResource("HeartRays")
+offset_left = -220.0
+offset_top = -220.0
+offset_right = 220.0
+offset_bottom = 220.0
+pivot_offset = Vector2(220, 220)
+mouse_filter = 2

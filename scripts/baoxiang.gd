@@ -43,6 +43,10 @@ func interact() -> void:
 		return
 	is_open = true
 	_refresh()
+	var base_scale := open_sprite.scale
+	open_sprite.scale = base_scale * Vector2(1.08, 0.9)
+	var opening := create_tween()
+	opening.tween_property(open_sprite, "scale", base_scale, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	_spawn_drop()
 
 
@@ -66,12 +70,16 @@ func _spawn_drop() -> void:
 		push_warning("BaoXiang '%s' 的 drop_scene 无法实例化为 Node2D" % name)
 		return
 	_configure_drop(item)
+	item.position = get_parent().to_local(global_position)
 	get_parent().add_child(item)
 	_pop_drop(item)
 
 
 ## 把 drop_id / drop_name 填到对应拾取脚本的字段上（必须在 add_child 触发 _ready 之前完成）。
 func _configure_drop(item: Node2D) -> void:
+	if item is HeartPickup and drop_id == "":
+		item.prop_id = _heart_drop_id()
+		return
 	if drop_id == "":
 		return
 	if item is KeyItem:
@@ -89,10 +97,11 @@ func _pop_drop(item: Node2D) -> void:
 	var start := global_position
 	var end := global_position + drop_offset
 	item.global_position = start
-	item.scale = Vector2(0.4, 0.4)
+	var base_scale := item.scale
+	item.scale = base_scale * 0.4
 	var tween := create_tween().set_parallel(true)
-	tween.tween_property(item, "global_position", end, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(item, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_method(func(t: float): item.global_position = start.lerp(end, t) + Vector2(0, -sin(t * PI) * 110), 0.0, 1.0, 0.4)
+	tween.tween_property(item, "scale", base_scale, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 ## —— 持久化 ——
@@ -112,6 +121,16 @@ func restore_state(data: Dictionary) -> void:
 ## 掉落物是否已被拾取/消耗（已捡走，或钥匙已用掉，就不再重复掉落）。
 func _drop_claimed() -> bool:
 	if drop_id == "":
+		if drop_scene != null:
+			var sample := drop_scene.instantiate()
+			var is_heart := sample is HeartPickup
+			sample.free()
+			if is_heart:
+				return GameState.has_prop(_heart_drop_id())
 		return true
 	return GameState.has_key(drop_id) or GameState.was_key_used(drop_id) \
 		or GameState.has_prop(drop_id) or GameState.has_ability(drop_id)
+
+
+func _heart_drop_id() -> String:
+	return "heart:%s" % get_path()

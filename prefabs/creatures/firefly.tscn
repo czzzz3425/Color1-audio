@@ -1,20 +1,28 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://dcqt7kn0dxvip"]
 
-[ext_resource type="Script" path="res://scripts/firefly.gd" id="1_firefly"]
-[ext_resource type="Script" path="res://scripts/light_source.gd" id="2_light"]
+[ext_resource type="Script" uid="uid://dkqs0c5831rwt" path="res://scripts/firefly.gd" id="1_firefly"]
+[ext_resource type="Script" uid="uid://2gsisf72rlgw" path="res://scripts/light_source.gd" id="2_light"]
+[ext_resource type="Texture2D" uid="uid://b2pd71hwrdbua" path="res://art/creature/Firefly/Firefly.png" id="3_neutral"]
+[ext_resource type="Texture2D" uid="uid://5spmr4qadcq6" path="res://art/creature/Firefly/Red.png" id="4_red"]
+[ext_resource type="Texture2D" uid="uid://qprtak2aslmd" path="res://art/creature/Firefly/Blue.png" id="5_blue"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 12.0
 
-[node name="Firefly" type="CharacterBody2D"]
+[node name="Firefly" type="CharacterBody2D" unique_id=1805090174]
+scale = Vector2(2, 2)
 script = ExtResource("1_firefly")
+neutral_texture = ExtResource("3_neutral")
+burning_texture = ExtResource("4_red")
+frozen_texture = ExtResource("5_blue")
 
-[node name="Collision" type="CollisionShape2D" parent="."]
+[node name="Collision" type="CollisionShape2D" parent="." unique_id=40339631]
 shape = SubResource("CircleShape2D_body")
 
-[node name="Visual" type="Polygon2D" parent="."]
-color = Color(1, 1, 1, 1)
-polygon = PackedVector2Array(0, -16, 16, 0, 0, 16, -16, 0)
+[node name="Visual" type="Sprite2D" parent="." unique_id=512320836]
+texture_filter = 1
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("4_red")
 
-[node name="Light" type="Node2D" parent="."]
+[node name="Light" type="Node2D" parent="." unique_id=1053322203]
 script = ExtResource("2_light")

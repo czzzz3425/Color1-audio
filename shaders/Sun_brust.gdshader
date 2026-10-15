@@ -31,6 +31,7 @@ uniform float rotate_speed : hint_range(-2.0, 2.0) = 0.0;
 uniform float flicker_speed : hint_range(0.0, 10.0) = 0.0;
 
 void fragment() {
+    vec4 item_tint = COLOR;
     // 把 UV 平移到以中心为原点，范围 -0.5 ~ 0.5
     vec2 uv = UV - vec2(0.5);
 
@@ -64,5 +65,5 @@ void fragment() {
     float alpha = rays * fade * intensity * flicker;
 
     // 输出颜色
-    COLOR = vec4(ray_color.rgb, ray_color.a * alpha);
+    COLOR = vec4(ray_color.rgb, ray_color.a * alpha) * item_tint;
 }

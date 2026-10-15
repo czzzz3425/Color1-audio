@@ -102,6 +102,8 @@ func _refresh_status(_a = null, _b = null) -> void:
 		parts.append("钥匙：%s" % ", ".join(names))
 	var props := _true_keys(GameState.props)
 	if not props.is_empty():
+		for i in props.size():
+			props[i] = str(GameState.health_upgrade_names.get(props[i], props[i]))
 		parts.append("道具：%s" % ", ".join(props))
 	var abilities := _true_keys(GameState.abilities)
 	if not abilities.is_empty():
@@ -179,24 +181,27 @@ func _hex(c: Color) -> String:
 	return "%02x%02x%02x" % [int(c.r * 255.0), int(c.g * 255.0), int(c.b * 255.0)]
 
 
-# —— 红心血量显示 ——
-## 当前用文字 ♥/♡ 占位；后续换美术贴图时，把 _make_heart 改成返回 TextureRect 并设贴图即可。
-const HEART_FILLED := "♥"
-const HEART_EMPTY := "♡"
+# —— 黑白贴图血量显示 ——
+const HEART_TEXTURE := preload("res://art/picture_boluo/生命值(黑)tm.png")
+const HEART_ICON_SIZE := 56.0
 
-var hearts: HBoxContainer
+var hearts: GridContainer
+var _last_health := -1.0
+var _heart_tweens: Dictionary = {}
 
 
 func _make_hearts() -> void:
-	hearts = HBoxContainer.new()
+	hearts = GridContainer.new()
+	hearts.columns = 10
 	hearts.name = "Hearts"
 	hearts.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	hearts.offset_left = -120.0
+	hearts.offset_left = -368.0
 	hearts.offset_top = 12.0
 	hearts.offset_right = -12.0
-	hearts.offset_bottom = 44.0
-	hearts.alignment = BoxContainer.ALIGNMENT_END
-	hearts.add_theme_constant_override("separation", 2)
+	hearts.offset_bottom = 84.0
+	hearts.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	hearts.add_theme_constant_override("h_separation", 4)
+	hearts.add_theme_constant_override("v_separation", 4)
 	add_child(hearts)
 
 
@@ -205,15 +210,48 @@ func _on_health_changed(health: float, max_health: int) -> void:
 
 
 func _rebuild_hearts(health: float, max_health: int) -> void:
-	for c in hearts.get_children():
-		c.queue_free()
+	hearts.columns = mini(10, maxi(1, max_health))
+	hearts.offset_left = -12.0 - (float(hearts.columns) * (HEART_ICON_SIZE + 4.0) - 4.0)
+	var previous_count := hearts.get_child_count()
+	while hearts.get_child_count() > max_health:
+		var last := hearts.get_child(hearts.get_child_count() - 1)
+		if _heart_tweens.has(last):
+			_heart_tweens[last].kill()
+			_heart_tweens.erase(last)
+		hearts.remove_child(last)
+		last.queue_free()
+	for i in range(previous_count, max_health):
+		var icon := _make_heart(true)
+		hearts.add_child(icon)
+		if _last_health >= 0.0:
+			icon.scale = Vector2(0.2, 0.2)
+			icon.modulate.a = 0.0
+			var pop := create_tween().set_parallel(true)
+			pop.tween_property(icon, "scale", Vector2.ONE, 0.45).set_delay(0.08 * (i - previous_count)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			pop.tween_property(icon, "modulate:a", 1.0, 0.25)
+			_heart_tweens[icon] = pop
+	# 少量伤害也显示亮度差异，避免 0.2 点伤害完全没有血量反馈。
 	for i in max_health:
-		hearts.add_child(_make_heart(i < health))
+		var icon := hearts.get_child(i) as TextureRect
+		var fill := clampf(health - float(i), 0.0, 1.0)
+		icon.self_modulate.a = 0.22 + fill * 0.78
+		if _last_health >= 0.0 and health < _last_health and float(i) < _last_health and float(i + 1) > health:
+			if _heart_tweens.has(icon):
+				_heart_tweens[icon].kill()
+			var hit := create_tween()
+			_heart_tweens[icon] = hit
+			hit.tween_property(icon, "scale", Vector2(1.2, 0.85), 0.08)
+			hit.tween_property(icon, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_last_health = health
 
 
 func _make_heart(filled: bool) -> Control:
-	var h := Label.new()
-	h.text = HEART_FILLED if filled else HEART_EMPTY
-	h.add_theme_font_size_override("font_size", 28)
-	h.add_theme_color_override("font_color", Color(0.95, 0.22, 0.22) if filled else Color(1, 1, 1, 0.35))
+	var h := TextureRect.new()
+	h.texture = HEART_TEXTURE
+	h.custom_minimum_size = Vector2.ONE * HEART_ICON_SIZE
+	h.pivot_offset = Vector2.ONE * HEART_ICON_SIZE * 0.5
+	h.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	h.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.self_modulate.a = 1.0 if filled else 0.22
 	return h

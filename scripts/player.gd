@@ -115,6 +115,8 @@ func _ready() -> void:
 	add_to_group("player")
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
+	for bonus in GameState.health_upgrades.values():
+		max_health += int(bonus)
 	health = float(max_health)
 	_base_collision_mask = collision_mask
 	_register_input_actions()
@@ -348,6 +350,19 @@ func _spawn_position() -> Vector2:
 ## 供 HUD 在连接信号前读取当前血量快照。
 func health_snapshot() -> Dictionary:
 	return {"health": health, "max_health": max_health}
+
+
+## 永久容器：本次游戏跨关/死亡保留，每件唯一道具只增加一次。
+func acquire_heart_container(item_id: String, amount: int = 1) -> bool:
+	if item_id == "" or amount <= 0 or GameState.has_prop(item_id) or GameState.health_upgrades.has(item_id):
+		return false
+	GameState.health_upgrades[item_id] = amount
+	max_health += amount
+	health = minf(health + float(amount), float(max_health))
+	GameState.add_prop(item_id)
+	GameState.item_collected.emit(item_id)
+	health_changed.emit(health, max_health)
+	return true
 
 
 ## 站在水里（不可站水格）时，临时忽略水层碰撞，让玩家能在水里走动（踩水）；

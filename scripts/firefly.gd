@@ -1,6 +1,6 @@
 class_name Firefly
 extends CharacterBody2D
-## 萤虫（中立生物）：单张贴图 + 全代码行为（无动画帧）。
+## 萤虫（中立生物）：按颜色状态切换静态贴图 + 全代码行为（无动画帧）。
 ##
 ## 状态（用 _color 表达，视觉 / 移动 / 光源全由它驱动）：
 ##   "burn"   默认——发红光（暗房里是红色光源），慢速漫游，玩家靠近时避让
@@ -32,12 +32,15 @@ const Rules := preload("res://scripts/element/element_rules.gd")
 @export var scared_glint_radius: float = 80.0
 
 @export_group("视觉")
+@export var neutral_texture: Texture2D
+@export var burning_texture: Texture2D
+@export var frozen_texture: Texture2D
 @export var glow_color: Color = Color(1.0, 0.55, 0.25)
 @export var frozen_color: Color = Color(0.4, 0.65, 1.0)
 @export var dim_color: Color = Color(0.35, 0.35, 0.35)
 @export var hit_radius: float = 48.0
 
-@onready var visual: Node2D = $Visual
+@onready var visual: Sprite2D = $Visual
 @onready var light: LightSource = $Light
 
 var _color: String = "burn"
@@ -166,4 +169,11 @@ func _refresh() -> void:
 			tint = glow_color
 		elif _color == "freeze":
 			tint = frozen_color
-		visual.self_modulate = tint
+		var texture: Texture2D = neutral_texture
+		if _color == "burn":
+			texture = burning_texture
+		elif _color == "freeze":
+			texture = frozen_texture
+		visual.texture = texture if texture != null else neutral_texture
+		# 彩色美术直接显示原色，避免再次染色让脸和翅膀一起变色。
+		visual.self_modulate = Color.WHITE if texture != null else tint

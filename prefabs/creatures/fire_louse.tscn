@@ -1,35 +1,26 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://cmdgelgno7nbk"]
 
-[ext_resource type="Script" path="res://scripts/fire_louse.gd" id="1_louse"]
-[ext_resource type="Script" path="res://scripts/light_source.gd" id="2_light"]
+[ext_resource type="Script" uid="uid://pfdwp5jewf7a" path="res://scripts/fire_louse.gd" id="1_louse"]
+[ext_resource type="Script" uid="uid://2gsisf72rlgw" path="res://scripts/light_source.gd" id="2_light"]
+[ext_resource type="Texture2D" uid="uid://c1bmtc62o4yck" path="res://art/creature/fire_louse/fire_louse.png" id="3_neutral"]
+[ext_resource type="Texture2D" uid="uid://b7ieral84qd0j" path="res://art/creature/fire_louse/Red.png" id="4_red"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 14.0
 
-[node name="FireLouse" type="CharacterBody2D"]
+[node name="FireLouse" type="CharacterBody2D" unique_id=837049173]
+scale = Vector2(2, 2)
 script = ExtResource("1_louse")
+neutral_texture = ExtResource("3_neutral")
+burning_texture = ExtResource("4_red")
 
-[node name="Collision" type="CollisionShape2D" parent="."]
+[node name="Collision" type="CollisionShape2D" parent="." unique_id=1911720190]
 shape = SubResource("CircleShape2D_body")
 
-[node name="Visual" type="Polygon2D" parent="."]
-color = Color(1, 1, 1, 1)
-polygon = PackedVector2Array(0, -18, 15, -9, 15, 9, 0, 18, -15, 9, -15, -9)
+[node name="Visual" type="Sprite2D" parent="." unique_id=423832427]
+texture_filter = 1
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_neutral")
 
-[node name="Gem0" type="Polygon2D" parent="."]
-position = Vector2(0, -24)
-color = Color(1, 0.55, 0.2, 1)
-polygon = PackedVector2Array(0, -5, 5, 0, 0, 5, -5, 0)
-
-[node name="Gem1" type="Polygon2D" parent="."]
-position = Vector2(-13, -15)
-color = Color(1, 0.55, 0.2, 1)
-polygon = PackedVector2Array(0, -5, 5, 0, 0, 5, -5, 0)
-
-[node name="Gem2" type="Polygon2D" parent="."]
-position = Vector2(13, -15)
-color = Color(1, 0.55, 0.2, 1)
-polygon = PackedVector2Array(0, -5, 5, 0, 0, 5, -5, 0)
-
-[node name="Light" type="Node2D" parent="."]
+[node name="Light" type="Node2D" parent="." unique_id=1217172333]
 script = ExtResource("2_light")

@@ -35,8 +35,7 @@
 [ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="29_hnsmf"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
 [ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="31_hjqri"]
-[ext_resource type="PackedScene" uid="uid://bd407jao4ex8d" path="res://prefabs/rooms/dialogue_trigger.tscn" id="36_tdlki"]
-[ext_resource type="Resource" uid="uid://cmb4natv3shm5" path="res://dialogue/dia/story_template.dialogue" id="37_v8pws"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/red_heart.tscn" id="36_v8pws"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -5238,14 +5237,7 @@ polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
 
 [node name="BaoXiang" parent="." unique_id=1645125291 instance=ExtResource("26_hg84p")]
 position = Vector2(4339, -586)
+drop_scene = ExtResource("36_v8pws")
 
 [node name="BaoXiang2" parent="." unique_id=217552730 instance=ExtResource("26_hg84p")]
 position = Vector2(2475, -5202)
-
-[node name="DialogueTrigger" parent="." unique_id=1194824880 instance=ExtResource("36_tdlki")]
-z_as_relative = false
-position = Vector2(1982, -337)
-repeat_mode = 1
-dialogue_resource = ExtResource("37_v8pws")
-cue = "first_meeting"
-radius = 334.0

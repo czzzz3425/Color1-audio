@@ -28,6 +28,8 @@ var elements: Dictionary = {}     # element_id -> count（由玩家 inventory �
 var opened_gates: Dictionary = {}
 ## 本次游戏已开始播放的剧情，切关保留，reset 后清空。
 var played_story: Dictionary = {}
+var health_upgrades: Dictionary = {} # 道具唯一 id -> 增加的最大生命值
+var health_upgrade_names: Dictionary = {}
 
 var current_room_id: String = ""
 var current_room: Node = null
@@ -46,6 +48,8 @@ func reset() -> void:
 	elements.clear()
 	opened_gates.clear()
 	played_story.clear()
+	health_upgrades.clear()
+	health_upgrade_names.clear()
 	current_room_id = ""
 	current_room = null
 

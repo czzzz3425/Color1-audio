@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7ieral84qd0j"
-path="res://.godot/imported/Red.png-30ef0eb96adde2041d203de12ebadbb4.ctex"
+path="res://.godot/imported/Red.png-d850081b8b4dda7279f4ed219452f32d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/creature/焰虱/Red.png"
-dest_files=["res://.godot/imported/Red.png-30ef0eb96adde2041d203de12ebadbb4.ctex"]
+source_file="res://art/creature/fire_louse/Red.png"
+dest_files=["res://.godot/imported/Red.png-d850081b8b4dda7279f4ed219452f32d.ctex"]
 
 [params]
 

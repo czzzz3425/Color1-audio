@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://prefabs/items/static prop/Baoxiang.tscn" id="1_chest"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/blue_heart.tscn" id="2_heart"]
+
+[node name="ChestBlueHeart" instance=ExtResource("1_chest")]
+drop_scene = ExtResource("2_heart")
+drop_name = "蓝心"
