@@ -46,6 +46,8 @@
 
 门与锁系统（1:1 钥匙门、条件锁模型 `LockCondition`、道具/能力/开关/元素门、真正单向的 `OneWayGate`），详见 [`docs/lock-system.md`](docs/lock-system.md)。
 
+弹反 / 反打 / 黄色反射机关（`ParryEmitter` 弹幕怪、可弹反子弹 `ParryProjectile`、`Parry`/`BulletReflector`），详见 [`docs/level-system-usage.md`](docs/level-system-usage.md) 的「弹反 / 反打机关」章节。
+
 水面深/浅怎么画（深水挡路、浅水可走 + 美术区分），详见 [`docs/water-system.md`](docs/water-system.md)。
 
 黑暗关卡/照明怎么搭（暗房 + 玩家微光 + 燃烧照明），详见 [`docs/lighting.md`](docs/lighting.md)。

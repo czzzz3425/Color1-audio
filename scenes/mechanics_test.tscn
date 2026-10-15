@@ -1,13 +1,21 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scenes/mechanics_test.gd" id="1_ctrl"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/mechanics/parry.gd" id="3_parry"]
 [ext_resource type="Script" path="res://scripts/mechanics/yellow_object.gd" id="4_yellow"]
-[ext_resource type="Script" path="res://scripts/mechanics/parry_emitter.gd" id="5_emit"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/parry_emitter.tscn" id="5_emit"]
+[ext_resource type="Texture2D" uid="uid://oxidhgibw4fy" path="res://art/picture_boluo/墙体.png" id="6_wall"]
+[ext_resource type="Texture2D" uid="uid://h1u7tdvkd65m" path="res://art/things/box.png" id="7_box"]
 
-[sub_resource type="RectangleShape2D" id="Rect_emit"]
-size = Vector2(72, 72)
+[sub_resource type="RectangleShape2D" id="Rect_wall_v"]
+size = Vector2(96, 2700)
+
+[sub_resource type="RectangleShape2D" id="Rect_wall_h"]
+size = Vector2(2700, 96)
+
+[sub_resource type="RectangleShape2D" id="Rect_block"]
+size = Vector2(128, 128)
 
 [node name="MechanicsTest" type="Node2D"]
 script = ExtResource("1_ctrl")
@@ -16,6 +24,86 @@ script = ExtResource("1_ctrl")
 z_index = -100
 color = Color(0.06, 0.07, 0.1, 1)
 polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
+
+[node name="Arena" type="Node2D" parent="."]
+
+[node name="LeftWall" type="StaticBody2D" parent="Arena"]
+position = Vector2(-1300, -30)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Sprite2D" parent="Arena/LeftWall"]
+texture_filter = 1
+scale = Vector2(0.09375, 2.636719)
+texture = ExtResource("6_wall")
+
+[node name="Collision" type="CollisionShape2D" parent="Arena/LeftWall"]
+shape = SubResource("Rect_wall_v")
+
+[node name="RightWall" type="StaticBody2D" parent="Arena"]
+position = Vector2(1300, -30)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Sprite2D" parent="Arena/RightWall"]
+texture_filter = 1
+scale = Vector2(0.09375, 2.636719)
+texture = ExtResource("6_wall")
+
+[node name="Collision" type="CollisionShape2D" parent="Arena/RightWall"]
+shape = SubResource("Rect_wall_v")
+
+[node name="TopWall" type="StaticBody2D" parent="Arena"]
+position = Vector2(0, -1330)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Sprite2D" parent="Arena/TopWall"]
+texture_filter = 1
+scale = Vector2(2.636719, 0.09375)
+texture = ExtResource("6_wall")
+
+[node name="Collision" type="CollisionShape2D" parent="Arena/TopWall"]
+shape = SubResource("Rect_wall_h")
+
+[node name="BottomWall" type="StaticBody2D" parent="Arena"]
+position = Vector2(0, 1270)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Sprite2D" parent="Arena/BottomWall"]
+texture_filter = 1
+scale = Vector2(2.636719, 0.09375)
+texture = ExtResource("6_wall")
+
+[node name="Collision" type="CollisionShape2D" parent="Arena/BottomWall"]
+shape = SubResource("Rect_wall_h")
+
+[node name="BlockLeft" type="StaticBody2D" parent="Arena"]
+position = Vector2(-1000, -30)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Sprite2D" parent="Arena/BlockLeft"]
+texture_filter = 1
+scale = Vector2(2, 2)
+texture = ExtResource("7_box")
+
+[node name="Collision" type="CollisionShape2D" parent="Arena/BlockLeft"]
+shape = SubResource("Rect_block")
+
+[node name="BlockRight" type="StaticBody2D" parent="Arena"]
+position = Vector2(1000, -30)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Visual" type="Sprite2D" parent="Arena/BlockRight"]
+texture_filter = 1
+scale = Vector2(2, 2)
+texture = ExtResource("7_box")
+
+[node name="Collision" type="CollisionShape2D" parent="Arena/BlockRight"]
+shape = SubResource("Rect_block")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 max_health = 5
@@ -40,31 +128,17 @@ polygon = PackedVector2Array(-54, 0, 54, 0, 40, 14, -40, 14)
 color = Color(0.95, 0.95, 0.95, 1)
 polygon = PackedVector2Array(-48, -110, 48, -110, 48, 0, -48, 0)
 
-[node name="EmitterLeft" type="StaticBody2D" parent="."]
+[node name="EmitterLeft" parent="." instance=ExtResource("5_emit")]
 position = Vector2(-760, -30)
-collision_layer = 4
-script = ExtResource("5_emit")
 fire_interval = 1.8
+move_speed = 80.0
+travel = Vector2(-540, 0)
 
-[node name="Visual" type="Polygon2D" parent="EmitterLeft"]
-color = Color(0.65, 0.25, 0.28, 1)
-polygon = PackedVector2Array(-36, -36, 36, -36, 36, 36, -36, 36)
-
-[node name="Collision" type="CollisionShape2D" parent="EmitterLeft"]
-shape = SubResource("Rect_emit")
-
-[node name="EmitterRight" type="StaticBody2D" parent="."]
+[node name="EmitterRight" parent="." instance=ExtResource("5_emit")]
 position = Vector2(760, -30)
-collision_layer = 4
-script = ExtResource("5_emit")
 fire_interval = 2.4
-
-[node name="Visual" type="Polygon2D" parent="EmitterRight"]
-color = Color(0.65, 0.25, 0.28, 1)
-polygon = PackedVector2Array(-36, -36, 36, -36, 36, 36, -36, 36)
-
-[node name="Collision" type="CollisionShape2D" parent="EmitterRight"]
-shape = SubResource("Rect_emit")
+move_speed = 60.0
+travel = Vector2(540, 0)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

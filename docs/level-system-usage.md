@@ -181,7 +181,65 @@ scenes/level_2.tscn  (根 Room, room_id="level_2")
 
 ---
 
-## 7. 注意事项 / 坑
+## 7. 弹反 / 反打机关（`ParryEmitter` / `ParryProjectile` / `Parry`）
+
+一套「敌人发射弹幕 → 玩家弹反 → 子弹打回敌人」的机关。组件间用**依赖倒置的子弹契约**解耦：
+
+> 任何子弹只要 **入组 `parryable_projectile`** 且实现 `can_parry() -> bool` / `parry(dir, parrier) -> bool`，就会被被动扫描的 `Parry` / `BulletReflector` 自动弹反，**无需改组件**。项目内 `ParryProjectile` 是现成实现。
+
+### 7a. 复用件（放进关卡用这些，不用改贴图）
+
+| prefab / 节点 | 脚本 | 结构 |
+|---|---|---|
+| `prefabs/items/interaction/parry_emitter.tscn` | `parry_emitter.gd` (`ParryEmitter`, CharacterBody2D) | `Visual`(Sprite2D，固定贴图) + `Collision`(矩形 72×72) |
+| `scenes/parry_projectile.tscn` | `parry_projectile.gd` (`ParryProjectile`, CharacterBody2D) | `Visual`(Sprite2D，固定贴图，自动朝向) + `Collision`(圆 r18) |
+| `Node2D` + `parry.gd` | `parry.gd` (`Parry`) | 挂在玩家上：开弹反窗口 |
+| 可上色载体 + `yellow_object.gd` | `yellow_object.gd` + `bullet_reflector.gd` | 变黄后自动被动反射 |
+
+`ParryEmitter` 默认：`collision_layer=4`（被子弹命中）、`collision_mask=2`（只撞障碍层）；在 `enemy` 组、带 `take_damage`，被弹反回来的子弹命中掉血直至销毁。
+
+### 7b. `ParryEmitter` 字段
+
+| 字段 | 作用 |
+|---|---|
+| `fire_interval` | 发射间隔（秒） |
+| `aim_at_player` | `true` = 瞄准玩家；`false` = 沿 `fire_direction` 直线发射 |
+| `fire_direction` | `aim_at_player=false` 时的发射方向 |
+| `muzzle_offset` / `projectile_speed` | 出膛点前向偏移 / 子弹速度 |
+| `max_health` | 被反打命中的血量（归零销毁） |
+| `activate_radius` | 玩家在此距离内才发射；`0` = 始终发射 |
+| `move_speed` | 行走速度；`0` = 原地不动（默认，旧关卡行为不变） |
+| `move_direction` | 未设 `travel` 时的直线方向 |
+| `travel` | 往复终点相对起点的偏移（`Vector2.ZERO` = 不设距离终点） |
+| `bounce_on_wall` | 撞到「障碍」层（层 2）对撞面时折返 |
+| `flip_visual` | 行走时按方向水平翻转贴图 |
+
+**行走模式**：
+- `move_speed = 0` → 静止；
+- `travel = ZERO` → 沿 `move_direction` 直线走（撞障碍才折返）；
+- `travel ≠ ZERO` → 在 `起点 ↔ 起点+travel` 之间**往复**；途中撞到障碍（中间的方块 / 边界墙）也会折返。
+
+### 7c. 最小示例（弹反怪放进一间房）
+
+```
+ParryEmitter（instance parry_emitter.tscn）        位置 (-760, -30)
+  fire_interval = 1.8, aim_at_player = true
+  move_speed = 80, travel = Vector2(-540, 0)      ← 向左往复，撞中间方块折返
+Player（instance player.tscn）
+  └─ Parry（Node2D + parry.gd）parry_radius = 220
+```
+
+障碍/边界用 `StaticBody2D`（`collision_layer=2`、`collision_mask=0`）即可挡住怪物（也会同时挡玩家与子弹）。现成完整示例见 `scenes/mechanics_test.tscn`（正方形围栏 + 中间方块 + 两种折返）。
+
+### 7d. 子弹 / 弹反端
+
+- `ParryProjectile`：直线飞行，命中「非本方阵营」实体造成伤害/击退；被弹反后**反向 + 归属翻转 + 提速**，视觉变金，且视觉自动朝向飞行方向。
+- `Parry`（挂在玩家）：`try_parry()` / `can_parry()` / `is_parrying()` / `cooldown_ratio()`，信号 `parry_started` / `parry_ended` / `parry_succeeded` / `state_changed`（供 HUD 画冷却）。
+- 输入动作 `parry` 默认自动注册 `J` / `K` / 鼠标中键（`auto_register_input`）。
+
+---
+
+## 8. 注意事项 / 坑
 
 - **运行跑 `scenes/game.tscn`（F5）**，不要直接 F6 跑某个 `level_x.tscn`——后者没有 Player/Camera/HUD/Darkness 常驻层。
 - **改 `.tscn` 要在编辑器里改**（或先 `force_reload`），否则下次 autosave 用内存态冲掉磁盘手改。

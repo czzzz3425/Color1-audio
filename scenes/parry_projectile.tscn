@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/mechanics/parry_projectile.gd" id="1_proj"]
+[ext_resource type="Texture2D" uid="uid://trw1vyhpvfoa" path="res://art/creature/Bee_Jaw/子弹.png" id="2_bullet"]
 
 [sub_resource type="CircleShape2D" id="Circle_proj"]
 radius = 18.0
@@ -13,6 +14,7 @@ script = ExtResource("1_proj")
 [node name="Collision" type="CollisionShape2D" parent="."]
 shape = SubResource("Circle_proj")
 
-[node name="Visual" type="Polygon2D" parent="."]
-color = Color(1, 0.45, 0.2, 1)
-polygon = PackedVector2Array(0, -18, 18, 0, 0, 18, -18, 0)
+[node name="Visual" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("2_bullet")

@@ -25,6 +25,7 @@ tile 是 **256px**，物品手拖容易对不齐。在 2D 视图顶部工具栏 
 | `ice_block.tscn` / `ice_wall.tscn` | `ice_block` | 无 |
 | `ember.tscn` | `ember` | `seed_amount`（默认 3） |
 | `trap.tscn` | `trap` | `fire_interval` / `aim_at_player` / `fixed_direction` |
+| `parry_emitter.tscn` | `parry_emitter` (`ParryEmitter`) | `fire_interval` / `aim_at_player` / `fire_direction` / `move_speed` / `travel` / `bounce_on_wall` / `max_health`（弹反怪，贴图固定；详见 [`level-system-usage.md`](level-system-usage.md) §7） |
 | `goal.tscn` | `goal` | `unlock_door_ids` / `is_final` |
 | 自建 `StaticBody2D` | `room_door` | `door_id` / `required_key_id` / `unlock_options` / `unlock_side` |
 | 自建 `Area2D` | `door` | `target_scene` / `target_entrance` / `required_key_id` / `unlock_options` |
