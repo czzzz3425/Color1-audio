@@ -35,10 +35,15 @@ func contains_point(world_pos: Vector2) -> bool:
 	return visual.get_rect().has_point(visual.to_local(world_pos))
 
 
-## 给红（burn）时启动烧毁溶解；其它元素不接管材质。
+## 给红（burn）时启动烧毁溶解；变黄（红×绿）时取消烧毁，让燃料停在黄色态反射子弹。
 func _apply_visual(_c: Color, _origin: Vector2) -> void:
-	if burn_down and _behavior != null and _behavior.current_element() == "burn":
+	if not burn_down or _behavior == null:
+		return
+	var el := _behavior.current_element()
+	if el == "burn":
 		_start_burn_down()
+	elif el == "yellow":
+		_cancel_burn_down()
 
 
 ## 吸收颜色（熄灭）时打断烧毁，恢复完整树体。
