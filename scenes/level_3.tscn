@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://bgfnfyk13xrue" path="res://prefabs/items/static prop/tree.tscn" id="14_una4e"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/parry_emitter.tscn" id="16_una4e"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="17_ema3p"]
+[ext_resource type="PackedScene" uid="uid://be2eeohasm6ng" path="res://prefabs/items/static prop/tree_dead.tscn" id="18_8uepa"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
@@ -321,3 +322,9 @@ position = Vector2(9167, 8145)
 
 [node name="Tree8" parent="." unique_id=2114839965 instance=ExtResource("14_una4e")]
 position = Vector2(5557, 12964)
+
+[node name="Tree_dead" parent="." unique_id=1335524654 instance=ExtResource("18_8uepa")]
+position = Vector2(14690, 5722)
+
+[node name="Tree9" parent="." unique_id=1144198378 instance=ExtResource("14_una4e")]
+position = Vector2(15916, 5774)
