@@ -43,8 +43,8 @@ enum State { IDLE, FOLLOWING, TASK }
 @export_group("Reminders")
 ## 玩家卡住多久后提醒（秒）。
 @export var idle_reminder_delay: float = 12.0
-## 这个时间窗口内净位移小于此值就算「卡住」。
-@export var idle_move_threshold: float = 64.0
+## 这个时间窗口内净位移小于此值就算「卡住」。0 = 动一点点都算没卡住。
+@export var idle_move_threshold: float = 0.0
 ## 两次提醒之间的最小间隔（秒）。
 @export var idle_reminder_cooldown: float = 30.0
 
@@ -85,6 +85,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if player == null or not is_instance_valid(player):
 		return
+	if _visual == null or not is_instance_valid(_visual):
+		return
 	if state == State.TASK:
 		return   # 飞行/执行动画由 tween 控制
 	if state == State.FOLLOWING and not _talking:
@@ -118,6 +120,8 @@ func _idle_bob(delta: float) -> void:
 
 
 func _start_breathing() -> void:
+	if _visual == null or not is_instance_valid(_visual):
+		return
 	_breath_tween = create_tween().set_loops()
 	_breath_tween.tween_property(_visual, "scale:y", 1.0 + breathe_amount, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_breath_tween.tween_property(_visual, "scale:y", 1.0 - breathe_amount, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -171,6 +175,9 @@ func interact(target: Node) -> bool:
 
 func _begin_task() -> void:
 	state = State.TASK
+	if _visual == null or not is_instance_valid(_visual):
+		_finish_task()
+		return
 	_visual.position = Vector2.ZERO
 	_visual.rotation = 0.0
 	_stop_breathing()
@@ -184,6 +191,8 @@ func _begin_task() -> void:
 ## 弧线飞向 end，落地时回调 on_arrive。
 func _fly_to(end: Vector2, on_arrive: Callable) -> void:
 	_kill_fly()
+	if _visual == null or not is_instance_valid(_visual):
+		return
 	var start := global_position
 	var dir := end - start
 	_facing = 1.0 if dir.x >= 0.0 else -1.0
@@ -212,6 +221,9 @@ func _quad_bezier(a: Vector2, b: Vector2, c: Vector2, t: float) -> Vector2:
 
 ## 落地：squash&stretch 压扁回弹，完成后执行任务动作。
 func _do_task() -> void:
+	if _visual == null or not is_instance_valid(_visual):
+		_finish_task()
+		return
 	_visual.scale = Vector2(1.5 * _facing, 0.5)
 	var tween := create_tween()
 	tween.tween_property(_visual, "scale", Vector2(_facing, 1.0), 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -239,12 +251,18 @@ func _execute_task() -> void:
 
 
 func _fly_back() -> void:
+	if player == null or not is_instance_valid(player):
+		_finish_task()
+		return
 	var home := player.global_position + follow_offset
 	_fly_to(home, _on_return_arrive)
 
 
 ## 飞回落地：squash 回弹，完成后结算并恢复跟随。
 func _on_return_arrive() -> void:
+	if _visual == null or not is_instance_valid(_visual):
+		_finish_task()
+		return
 	_visual.scale = Vector2(1.5 * _facing, 0.5)
 	var tween := create_tween()
 	tween.tween_property(_visual, "scale", Vector2(_facing, 1.0), 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -252,12 +270,12 @@ func _on_return_arrive() -> void:
 
 
 func _finish_task() -> void:
-	if not _carry.is_empty() and player != null and player.has_method("receive_element"):
+	if not _carry.is_empty() and player != null and is_instance_valid(player) and player.has_method("receive_element"):
 		player.call("receive_element", _carry["element"], _carry["amount"])
 	_carry = {}
 	_task = {}
 	state = State.FOLLOWING
-	if player != null:
+	if player != null and is_instance_valid(player):
 		_idle_ref_pos = player.global_position
 	_start_breathing()
 
@@ -322,7 +340,7 @@ func _check_reminders(delta: float) -> void:
 	_idle_accum += delta
 	if _idle_accum < idle_reminder_delay:
 		return
-	if player.global_position.distance_to(_idle_ref_pos) >= idle_move_threshold:
+	if player.global_position.distance_to(_idle_ref_pos) > idle_move_threshold:
 		# 没卡住，只是走到别处了：重开窗口
 		_idle_accum = 0.0
 		_idle_ref_pos = player.global_position

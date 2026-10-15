@@ -15,6 +15,8 @@ extends StaticBody2D
 @export var muzzle_offset := 64.0
 @export var projectile_speed := 420.0
 @export_range(1, 50, 1) var max_health := 2
+## 玩家在此距离内才发射；0 = 不限制距离（始终发射）。
+@export_range(0.0, 20000.0, 16.0) var activate_radius := 4096.0
 
 var health := 0
 
@@ -33,11 +35,22 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not _player_in_range():
+		return
 	_t += delta
 	if _t < fire_interval:
 		return
 	_t = 0.0
 	fire()
+
+
+## 玩家是否在激活半径内（距离不足时暂停发射，不累计冷却）。
+func _player_in_range() -> bool:
+	if activate_radius <= 0.0:
+		return true
+	if _player == null or not is_instance_valid(_player):
+		return false
+	return global_position.distance_to(_player.global_position) <= activate_radius
 
 
 ## 发射一发子弹，返回子弹节点（发射失败返回 null）。
