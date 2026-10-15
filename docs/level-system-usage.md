@@ -191,7 +191,8 @@ scenes/level_2.tscn  (根 Room, room_id="level_2")
 
 | prefab / 节点 | 脚本 | 结构 |
 |---|---|---|
-| `prefabs/items/interaction/parry_emitter.tscn` | `parry_emitter.gd` (`ParryEmitter`, CharacterBody2D) | `Visual`(Sprite2D，固定贴图) + `Collision`(矩形 72×72) |
+| `prefabs/items/interaction/parry_emitter.tscn` | `parry_emitter.gd` (`ParryEmitter`, CharacterBody2D) | `Visual`(Sprite2D，固定贴图) + `Collision`(矩形 128×128) |
+| `prefabs/items/interaction/parry_emitter_patrol.tscn` | 继承 `parry_emitter.tscn` | 走动版：默认 `move_speed=90`、`travel=(-320,0)`，拖进关卡即走即射 |
 | `scenes/parry_projectile.tscn` | `parry_projectile.gd` (`ParryProjectile`, CharacterBody2D) | `Visual`(Sprite2D，固定贴图，自动朝向) + `Collision`(圆 r18) |
 | `Node2D` + `parry.gd` | `parry.gd` (`Parry`) | 挂在玩家上：开弹反窗口 |
 | 可上色载体 + `yellow_object.gd` | `yellow_object.gd` + `bullet_reflector.gd` | 变黄后自动被动反射 |
@@ -213,6 +214,8 @@ scenes/level_2.tscn  (根 Room, room_id="level_2")
 | `travel` | 往复终点相对起点的偏移（`Vector2.ZERO` = 不设距离终点） |
 | `bounce_on_wall` | 撞到「障碍」层（层 2）对撞面时折返 |
 | `flip_visual` | 行走时按方向水平翻转贴图 |
+| `idle_texture` / `windup_texture` | 待机贴图 / 开火前摇贴图（默认已用 Bee_Jaw 素材；留空则用场景里摆好的贴图） |
+| `windup_time` | 攻击前摇时长（秒）：开火前先亮 `windup_texture`，之后发射并切回待机 |
 
 **行走模式**：
 - `move_speed = 0` → 静止；
@@ -224,7 +227,7 @@ scenes/level_2.tscn  (根 Room, room_id="level_2")
 ```
 ParryEmitter（instance parry_emitter.tscn）        位置 (-760, -30)
   fire_interval = 1.8, aim_at_player = true
-  move_speed = 80, travel = Vector2(-540, 0)      ← 向左往复，撞中间方块折返
+  move_speed = 80, travel = Vector2(-320, 0)      ← 向左短距离往复，撞中间方块折返
 Player（instance player.tscn）
   └─ Parry（Node2D + parry.gd）parry_radius = 220
 ```

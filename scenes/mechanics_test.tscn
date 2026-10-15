@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scenes/mechanics_test.gd" id="1_ctrl"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/parry_emitter.tscn" id="5_emit"]
 [ext_resource type="Texture2D" uid="uid://oxidhgibw4fy" path="res://art/picture_boluo/墙体.png" id="6_wall"]
 [ext_resource type="Texture2D" uid="uid://h1u7tdvkd65m" path="res://art/things/box.png" id="7_box"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/parry_emitter_patrol.tscn" id="8_patrol"]
 
 [sub_resource type="RectangleShape2D" id="Rect_wall_v"]
 size = Vector2(96, 2700)
@@ -132,13 +133,16 @@ polygon = PackedVector2Array(-48, -110, 48, -110, 48, 0, -48, 0)
 position = Vector2(-760, -30)
 fire_interval = 1.8
 move_speed = 80.0
-travel = Vector2(-540, 0)
+travel = Vector2(-320, 0)
 
 [node name="EmitterRight" parent="." instance=ExtResource("5_emit")]
 position = Vector2(760, -30)
 fire_interval = 2.4
 move_speed = 60.0
-travel = Vector2(540, 0)
+travel = Vector2(320, 0)
+
+[node name="PatrolEmitter" parent="." instance=ExtResource("8_patrol")]
+position = Vector2(500, -650)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

@@ -23,7 +23,7 @@ var _selected := "burn"
 
 
 func _ready() -> void:
-	info_label.text = "【弹反】J / K / 鼠标中键；子弹变金并打回发射器\n【黄色】鼠标悬停物体：1=赋予红  2=赋予绿  3=吸收；红+绿 → 变黄，变黄后会自动反弹子弹\n【行走】两侧怪物沿直线往复行走，撞到中间方块/边界墙会折返；仍会朝玩家发射"
+	info_label.text = "【弹反】J / K / 鼠标中键；子弹变金并打回发射器\n【黄色】鼠标悬停物体：1=赋予红  2=赋予绿  3=吸收；红+绿 → 变黄，变黄后会自动反弹子弹\n【行走】两侧怪物沿直线往复行走，撞到中间方块/边界墙会折返；仍会朝玩家发射\n【预制体】上方 PatrolEmitter 直接放置 parry_emitter_patrol.tscn：固定距离往返 + 攻击前摇"
 	for obj in get_tree().get_nodes_in_group("colorable"):
 		if obj.has_signal("became_yellow"):
 			obj.connect("became_yellow", _refresh_yellow)
