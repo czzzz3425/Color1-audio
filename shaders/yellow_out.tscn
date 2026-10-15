@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://clin1kf0hxtau"]
+
+[ext_resource type="Shader" uid="uid://gp73t2cwohnr" path="res://shaders/yellowinside.gdshader" id="1_jrvcn"]
+[ext_resource type="Texture2D" uid="uid://i2wr7ihe6f6u" path="res://icon.svg" id="2_20d1t"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6f8o3"]
+shader = ExtResource("1_jrvcn")
+shader_parameter/gold_tint = Color(1, 0.75, 0.25, 1)
+shader_parameter/gold_amount = 0.450000021375
+shader_parameter/scan_speed = 0.50000002375
+shader_parameter/glow_color = Color(1, 0.82, 0.35, 1)
+shader_parameter/glow_radius = 5.0
+shader_parameter/glow_intensity = 0.400000019
+shader_parameter/glow_pulse_speed = 0.18
+shader_parameter/glow_pulse_amp = 0.06
+
+[node name="YellowOut" type="Node2D" unique_id=907607796]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=487967930]
+material = SubResource("ShaderMaterial_6f8o3")
+position = Vector2(0, 3)
+texture = ExtResource("2_20d1t")
