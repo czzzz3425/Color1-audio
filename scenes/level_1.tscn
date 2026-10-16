@@ -36,6 +36,7 @@
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
 [ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="31_hjqri"]
 [ext_resource type="PackedScene" uid="uid://bqctqappo14d2" path="res://prefabs/items/interaction/red_heart.tscn" id="36_v8pws"]
+[ext_resource type="PackedScene" uid="uid://dcqt7kn0dxvip" path="res://prefabs/creatures/firefly.tscn" id="37_tdlki"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -5242,3 +5243,5 @@ drop_scene = ExtResource("36_v8pws")
 
 [node name="BaoXiang2" parent="." unique_id=217552730 instance=ExtResource("26_hg84p")]
 position = Vector2(2475, -5202)
+
+[node name="Firefly" parent="." unique_id=1805090174 instance=ExtResource("37_tdlki")]
