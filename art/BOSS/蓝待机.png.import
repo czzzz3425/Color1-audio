@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://wjgqa41xedi5"
-path="res://.godot/imported/色轮.jpg-0a548be779949101fa4c60091693d0ea.ctex"
+uid="uid://cffae576ldbjn"
+path="res://.godot/imported/蓝待机.png-85611b595cb0687a93e6dfd6eefef0d4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/ui/色轮.jpg"
-dest_files=["res://.godot/imported/色轮.jpg-0a548be779949101fa4c60091693d0ea.ctex"]
+source_file="res://art/BOSS/蓝待机.png"
+dest_files=["res://.godot/imported/蓝待机.png-85611b595cb0687a93e6dfd6eefef0d4.ctex"]
 
 [params]
 

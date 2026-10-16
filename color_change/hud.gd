@@ -3,27 +3,23 @@ extends CanvasLayer
 
 const Rules := preload("res://scripts/element/element_rules.gd")
 
-## 右下角色轮方向盘：替代左上角文字调色盘，只露出当前选中颜色所在扇区。
-const WHEEL_TEXTURE := preload("res://art/ui/色轮.jpg")
-const WHEEL_SHADER := preload("res://shaders/color_wheel.gdshader")
-## 元素 id -> 色轮上的角度（弧度，atan2 约定：0=右，+π/2=下，-π/2=上）。
-## 色轮图：红在顶部、蓝在右侧、绿在右下。
-const WHEEL_ANGLE := {
-	"burn": -PI * 0.5,       # 红
-	"freeze": 0.0,           # 蓝
-	"grow": PI * 2.0 / 3.0,  # 绿
+## 右下角色轮方向盘：红/绿/蓝各一张独立成品图，选中哪个元素就显示哪张。
+## 每张图都已画好「选中色高亮、其余两色压淡」，无需 shader 旋转 / 扇区遮罩。
+const WHEEL_TEXTURES := {
+	"burn": preload("res://art/ui/色轮/色轮_红.png"),     # 红
+	"grow": preload("res://art/ui/色轮/色轮_绿.png"),     # 绿
+	"freeze": preload("res://art/ui/色轮/色轮_蓝.png"),   # 蓝
 }
-const WHEEL_REVEAL_CENTER := -PI * 0.5   # 显示窗口固定在顶部
-const WHEEL_SIZE := 160.0
+## 新图为 2000×2000，色环外径约 600px（占图 60%）、内径约 131px；
+## 按色环外径约 160px 反推显示尺寸，让新图与旧图视觉大小一致。
+const WHEEL_SIZE := 256.0
 const WHEEL_MARGIN := 20.0
-const WHEEL_SPIN := 0.45   # 切换颜色旋转动画时长（秒）
+const WHEEL_FADE := 0.22   # 切换颜色时淡入淡出各段时长（秒）
 
 @onready var color_label: RichTextLabel = $ColorLabel
 @onready var win_label: Label = $WinLabel
 
 var wheel: TextureRect
-var _wheel_mat: ShaderMaterial
-var _wheel_rotation := 0.0
 var _wheel_tween: Tween
 var _count_label: Label
 
@@ -205,11 +201,10 @@ func _hex(c: Color) -> String:
 
 
 # —— 右下角色轮方向盘 ——
-## 代码里创建色轮 TextureRect（右下角），挂 shader 遮罩：只露出选中颜色一扇，其余压暗。
+## 代码里创建色轮 TextureRect（右下角）：贴图在 _update_wheel 里按选中元素切换。
 func _make_wheel() -> void:
 	wheel = TextureRect.new()
 	wheel.name = "ColorWheel"
-	wheel.texture = WHEEL_TEXTURE
 	wheel.custom_minimum_size = Vector2.ONE * WHEEL_SIZE
 	wheel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	wheel.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -222,11 +217,6 @@ func _make_wheel() -> void:
 	wheel.offset_top = -(WHEEL_SIZE + WHEEL_MARGIN)
 	wheel.offset_right = -WHEEL_MARGIN
 	wheel.offset_bottom = -WHEEL_MARGIN
-	_wheel_mat = ShaderMaterial.new()
-	_wheel_mat.shader = WHEEL_SHADER
-	_wheel_mat.set_shader_parameter("reveal_center", WHEEL_REVEAL_CENTER)
-	_wheel_mat.set_shader_parameter("wheel_rotation", 0.0)
-	wheel.material = _wheel_mat
 	wheel.visible = false
 	_count_label = _make_wheel_count_label()
 	wheel.add_child(_count_label)
@@ -240,37 +230,40 @@ func _make_wheel_count_label() -> Label:
 	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", 40)
+	l.add_theme_font_size_override("font_size", 24)
 	l.add_theme_color_override("font_color", Color.WHITE)
 	l.add_theme_color_override("font_outline_color", Color(0.1, 0.1, 0.1))
-	l.add_theme_constant_override("outline_size", 8)
+	l.add_theme_constant_override("outline_size", 5)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return l
 
 
-## 根据当前选中元素旋转色轮，让该颜色转到顶部显示窗口，并在轮心显示持有数量。
+## 根据当前选中元素切换显示对应色轮图，并在轮心显示持有数量。
 func _update_wheel(selected_element: String, count: int) -> void:
 	if wheel == null:
 		return
-	if selected_element == "" or not WHEEL_ANGLE.has(selected_element) or count <= 0:
+	if selected_element == "" or not WHEEL_TEXTURES.has(selected_element) or count <= 0:
 		wheel.visible = false
 		return
 	wheel.visible = true
 	_count_label.text = str(count)
-	var desired := WHEEL_REVEAL_CENTER - float(WHEEL_ANGLE[selected_element])
-	var target := _wheel_rotation + wrapf(desired - _wheel_rotation, -PI, PI)
-	if is_equal_approx(target, _wheel_rotation):
+	_switch_wheel_texture(WHEEL_TEXTURES[selected_element])
+
+
+## 交叉淡入换图：先把旧图淡出，换上新图再淡入。
+## 只动 self_modulate，不影响作为子节点的中心数量角标。
+func _switch_wheel_texture(tex: Texture2D) -> void:
+	if wheel.texture == tex:
 		return
 	if _wheel_tween and _wheel_tween.is_valid():
 		_wheel_tween.kill()
+	wheel.self_modulate.a = 1.0
 	_wheel_tween = create_tween()
-	_wheel_tween.tween_method(_set_wheel_rotation, _wheel_rotation, target, WHEEL_SPIN).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-
-
-func _set_wheel_rotation(v: float) -> void:
-	_wheel_rotation = v
-	if _wheel_mat:
-		_wheel_mat.set_shader_parameter("wheel_rotation", v)
+	_wheel_tween.tween_property(wheel, "self_modulate:a", 0.0, WHEEL_FADE).set_trans(Tween.TRANS_CUBIC)
+	_wheel_tween.tween_callback(func():
+		wheel.texture = tex
+	)
+	_wheel_tween.tween_property(wheel, "self_modulate:a", 1.0, WHEEL_FADE).set_trans(Tween.TRANS_CUBIC)
 
 
 # —— 黑白贴图血量显示 ——
