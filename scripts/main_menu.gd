@@ -182,13 +182,13 @@ func _build_title() -> void:
 		placeholder.name = "TitlePlaceholder"
 		placeholder.add_theme_constant_override("separation", 4)
 		_panel.add_child(placeholder)
-		var subtitle := _label(placeholder, "失色", 22, Color.WHITE)
+		var subtitle := _label(placeholder, "失色", 70, Color.WHITE)
 		var subtitle_font := FontVariation.new()
 		subtitle_font.base_font = _game.menu_font
 		subtitle_font.variation_embolden = 0.5
 		subtitle.add_theme_font_override("font", subtitle_font)
 		var subtitle_material := _ink.duplicate() as ShaderMaterial
-		subtitle_material.set_shader_parameter("outline_width", 0.6)
+		subtitle_material.set_shader_parameter("outline_width", 0.85)
 		subtitle.material = subtitle_material
 		var lettering := _label(placeholder, "招领处", 76, Color.WHITE)
 		# 稍加厚原字笔画，再在着色器中挖空中心，保留手写字形的双轮廓。
