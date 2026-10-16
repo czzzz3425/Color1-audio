@@ -4389,7 +4389,8 @@ script = ExtResource("21_oneway")
 block_scale = Vector2(4, 9)
 
 [node name="Collision" type="CollisionShape2D" parent="OneWayGate" unique_id=2117144384]
-position = Vector2(-33, -51.5)
+position = Vector2(-39.00003, -31.000004)
+scale = Vector2(1, 1.7)
 shape = SubResource("RectangleShape2D_door")
 
 [node name="Sprite2D" type="Sprite2D" parent="OneWayGate" unique_id=1371349898]
