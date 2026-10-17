@@ -10,6 +10,11 @@ extends ColorableBase
 ## 绿生长粒子（green_grow_tree.tscn）：被赋予绿时在视觉中心喷发一撮绿叶（藤桥同款·加大粒子量）。
 const GrowFx := preload("res://shaders/green_grow_tree.tscn")
 
+## 附魔着色器：给绿/红后在树体上叠一层，中心向外扩散一圈后常驻。
+const GreenEnchant := preload("res://shaders/GreenInside.gdshader")
+const RedEnchant := preload("res://shaders/RedInside.gdshader")
+const BlueEnchant := preload("res://shaders/BlueInside.gdshader")
+
 ## 烧毁模式：给红后 Visual 溶解烧尽并整体销毁（枯木等燃料）。默认关，普通树/木条不受影响。
 @export var burn_down := false
 ## 烧毁溶解时长（秒，默认 2）。
@@ -17,6 +22,9 @@ const GrowFx := preload("res://shaders/green_grow_tree.tscn")
 
 var _burn_tween: Tween
 var _burning_away := false
+var _enchant_overlay: Sprite2D
+var _enchant_mat: ShaderMaterial
+var _enchant_tween: Tween
 
 
 func _ready() -> void:
@@ -46,6 +54,13 @@ func _apply_visual(_c: Color, _origin: Vector2) -> void:
 	var el := _behavior.current_element()
 	if el == "grow":
 		_play_grow_fx()
+		_play_enchant(GreenEnchant)
+	elif el == "burn" and not burn_down:
+		_play_enchant(RedEnchant)
+	elif el == "freeze":
+		_play_enchant(BlueEnchant)
+	else:
+		_hide_enchant()
 	if not burn_down:
 		return
 	if el == "burn":
@@ -71,9 +86,71 @@ func _play_grow_fx() -> void:
 	)
 
 
+## 附魔覆盖层：给绿/红时叠一层对应着色器，中心向外扫一圈后常驻。
+func _play_enchant(shader: Shader) -> void:
+	_ensure_enchant_overlay()
+	_enchant_overlay.visible = true
+	if _enchant_tween and _enchant_tween.is_valid():
+		_enchant_tween.kill()
+	_enchant_mat = ShaderMaterial.new()
+	_enchant_mat.shader = shader
+	_enchant_mat.set_shader_parameter("enchant_progress", 0.0)
+	_enchant_mat.set_shader_parameter("enchant_speed", 0.8)
+	_enchant_overlay.material = _enchant_mat
+	var duration := 1.0 / float(_enchant_mat.get_shader_parameter("enchant_speed"))
+	_enchant_tween = create_tween()
+	_enchant_tween.tween_method(_set_enchant_progress, 0.0, 1.0, duration)
+
+
+func _set_enchant_progress(v: float) -> void:
+	if _enchant_mat != null:
+		_enchant_mat.set_shader_parameter("enchant_progress", v)
+
+
+## 懒建覆盖层：复制 Visual（贴图/缩放/偏移完全对齐），插到 Visual 之后（粒子仍画在其上）。
+func _ensure_enchant_overlay() -> void:
+	if _enchant_overlay != null and is_instance_valid(_enchant_overlay):
+		return
+	if visual == null:
+		return
+	_enchant_overlay = visual.duplicate() as Sprite2D
+	_enchant_overlay.name = "EnchantOverlay"
+	visual.add_sibling(_enchant_overlay)
+
+
+## 抽走颜色 / 进入混合态时收起附魔（树体还原）。
+func _hide_enchant() -> void:
+	if _enchant_tween and _enchant_tween.is_valid():
+		_enchant_tween.kill()
+		_enchant_tween = null
+	if _enchant_overlay != null and is_instance_valid(_enchant_overlay):
+		_enchant_overlay.visible = false
+
+
+## 开局预置颜色时直接以终态常驻（不重播扩散动画）。
+func _apply_seed_visual(cfg: Dictionary) -> void:
+	var color_name: String = cfg.get("color_name", "")
+	var shader: Shader = null
+	if color_name == "绿":
+		shader = GreenEnchant
+	elif color_name == "红" and not burn_down:
+		shader = RedEnchant
+	elif color_name == "蓝":
+		shader = BlueEnchant
+	if shader == null:
+		return
+	_ensure_enchant_overlay()
+	_enchant_overlay.visible = true
+	_enchant_mat = ShaderMaterial.new()
+	_enchant_mat.shader = shader
+	_enchant_mat.set_shader_parameter("enchant_progress", 1.0)
+	_enchant_overlay.material = _enchant_mat
+
+
 ## 吸收颜色（熄灭）时打断烧毁，恢复完整树体。
 func _reset_visual() -> void:
 	_cancel_burn_down()
+	_hide_enchant()
 
 
 func _start_burn_down() -> void:

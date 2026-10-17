@@ -40,6 +40,7 @@
 [ext_resource type="PackedScene" uid="uid://chdkxg2bd1tkv" path="res://prefabs/rooms/room_door.tscn" id="37_v8pws"]
 [ext_resource type="PackedScene" uid="uid://bgew1y27utuh3" path="res://prefabs/items/interaction/growth_seed.tscn" id="39_rscm6"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="39_wom8k"]
+[ext_resource type="PackedScene" uid="uid://dcqt7kn0dxvip" path="res://prefabs/creatures/firefly.tscn" id="41_wa552"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -5266,3 +5267,6 @@ chain_radius = 512.0
 [node name="SeedContainer" parent="." unique_id=425245008 instance=ExtResource("39_wom8k")]
 position = Vector2(1174, -98)
 grow_seeds = 3
+
+[node name="Firefly" parent="." unique_id=1805090174 instance=ExtResource("41_wa552")]
+position = Vector2(1427, -207)
