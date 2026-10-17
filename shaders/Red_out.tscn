@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://bdfpc4pro22qf"]
+
+[ext_resource type="Shader" uid="uid://jo705qj7k3r7" path="res://shaders/BlueInside.gdshader" id="1_gbauy"]
+[ext_resource type="Texture2D" uid="uid://i2wr7ihe6f6u" path="res://icon.svg" id="2_713b0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6f8o3"]
+shader = ExtResource("1_gbauy")
+shader_parameter/ice_core = Color(0.85, 0.95, 1, 1)
+shader_parameter/ice_mid = Color(0.3, 0.7, 1, 1)
+shader_parameter/ice_edge = Color(0.05, 0.2, 0.5, 1)
+shader_parameter/tint_amount = 0.4
+shader_parameter/glow_color = Color(1, 0.4509804, 0.4, 1)
+shader_parameter/glow_intensity = 0.8
+shader_parameter/enchant_progress = 1.0
+shader_parameter/enchant_speed = 0.800000038
+shader_parameter/enchant_offset = 0.0
+shader_parameter/enchant_width = 0.00999999977648
+shader_parameter/enchant_radius = 0.7071
+shader_parameter/front_intensity = 3.0
+shader_parameter/ice_distortion = 0.25
+shader_parameter/ice_speed = 0.8
+shader_parameter/ice_scale = 6.0
+shader_parameter/frost_surface = 0.6
+
+[node name="RedOut" type="Node2D" unique_id=907607796]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=487967930]
+material = SubResource("ShaderMaterial_6f8o3")
+position = Vector2(78, 73)
+texture = ExtResource("2_713b0")
