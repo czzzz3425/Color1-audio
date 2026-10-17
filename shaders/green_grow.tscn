@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://co0qbduentrn4"]
 
+[ext_resource type="Texture2D" uid="uid://djg3g0rcqg0le" path="res://effects/life_ring/glow_soft.tres" id="1_tex"]
+
 [sub_resource type="Curve" id="Curve_riqys"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.3022222), 0.0, 0.0, 0, 0]
 point_count = 2
@@ -12,6 +14,7 @@ colors = PackedColorArray(0.72156864, 1, 0.41568628, 1, 0.72156864, 1, 0.4156862
 [node name="TipParticles" type="CPUParticles2D" parent="." unique_id=283065784]
 position = Vector2(1, -2)
 amount = 40
+texture = ExtResource("1_tex")
 lifetime = 0.5
 emission_shape = 1
 emission_sphere_radius = 3.0
@@ -25,8 +28,8 @@ angular_velocity_max = 180.0
 damping_min = 10.0
 damping_max = 30.0
 angle_max = 360.0
-scale_amount_min = 6.0
-scale_amount_max = 12.0
+scale_amount_min = 0.25
+scale_amount_max = 0.6
 scale_amount_curve = SubResource("Curve_riqys")
 color = Color(0.72156864, 1, 0.41568628, 1)
 color_ramp = SubResource("Gradient_bhunq")

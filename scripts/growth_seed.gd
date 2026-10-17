@@ -18,6 +18,8 @@ extends Node2D
 ## ⚠️ 不要定义 is_frozen()（player._water_at_mouse 会误判成水格崩溃）。
 
 const Rules := preload("res://scripts/element/element_rules.gd")
+## 绿生长粒子（green_grow.tscn）：长藤时在种子处朝 grow_dir 喷发一撮绿叶。
+const GrowFx := preload("res://shaders/green_grow.tscn")
 
 @export_group("生长")
 ## 藤蔓延伸方向（单位向量，屏幕坐标 y 向下）。默认向右。
@@ -40,6 +42,8 @@ var seed_visual: Sprite2D
 var vine: StaticBody2D
 var vine_visual: Sprite2D
 var vine_collision: CollisionShape2D
+var _grow_fx: Node2D
+var _grow_particles: CPUParticles2D
 
 var _grown := false
 var _frozen := false
@@ -75,6 +79,7 @@ func _ready() -> void:
 		if vine_visual != null:
 			_setup_vine_texture()
 		vine.scale = Vector2(0.001, 1.0)   # 收拢：scale.x=0 会触发警告，用 0.001 近似
+	_setup_grow_fx()
 	_apply_visual()
 
 
@@ -84,6 +89,40 @@ func _apply_visual() -> void:
 		seed_visual.modulate = vine_color if _grown else seed_color
 	if vine_visual != null:
 		vine_visual.modulate = frozen_color if _frozen else vine_color
+
+
+## 挂载绿生长粒子（green_grow.tscn）并适配藤蔓：喷发方向对齐 grow_dir（默认贴图朝 -X），
+## 喷发点放在藤蔓尖端、随生长推进；连续喷发（one_shot=false），生长结束才停。
+func _setup_grow_fx() -> void:
+	_grow_fx = GrowFx.instantiate()
+	_grow_fx.name = "GrowFx"
+	add_child(_grow_fx)
+	_grow_particles = _grow_fx.get_node_or_null("TipParticles") as CPUParticles2D
+	if _grow_particles == null:
+		return
+	_grow_fx.position = Vector2.ZERO
+	_grow_particles.direction = grow_dir
+	_grow_particles.one_shot = false
+	_grow_particles.emitting = false
+	# 适配长度：藤越长，沿途粒子越多（默认 256px 对应 40 粒）。
+	_grow_particles.amount = int(_grow_particles.amount * clampf(vine_length / 256.0, 0.5, 3.0))
+
+
+## 生长时播放粒子：喷发点从种子推进到藤蔓尖端，与 vine.scale:x 的 0.4s 同节奏推进，
+## 让绿叶在整段生长路径上持续喷出；生长结束停喷，剩余粒子自然消散。
+func _play_grow_fx() -> void:
+	if _grow_fx == null or _grow_particles == null:
+		return
+	_grow_fx.position = Vector2.ZERO
+	_grow_particles.emitting = true
+	var t := create_tween()
+	t.tween_property(_grow_fx, "position", grow_dir * vine_length, 0.4)
+	t.tween_callback(_on_grow_fx_done)
+
+
+func _on_grow_fx_done() -> void:
+	if _grow_particles != null:
+		_grow_particles.emitting = false
 
 
 ## 贴图非透明内容的最小包围盒（裁掉四周透明边，让平铺/拉伸都以图案实际尺寸为准）。
@@ -164,6 +203,7 @@ func _set_vine(on: bool) -> void:
 
 func _grow_vine() -> void:
 	_grown = true
+	_play_grow_fx()
 	if vine == null:
 		return
 	if vine_collision != null:
