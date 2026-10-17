@@ -134,7 +134,9 @@ func _ready() -> void:
 	_apply_animation()
 	_outline_material = ShaderMaterial.new()
 	_outline_material.shader = OUTLINE_SHADER
-	_select_element("")  # 初始化 HUD + 描边 + 首次信号
+	_inventory = GameState.elements.duplicate()
+	var saved_elements := _held_elements()
+	_select_element(str(saved_elements[0]) if not saved_elements.is_empty() else "")
 	_setup_light()
 	_setup_range_indicator()
 

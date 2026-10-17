@@ -23,6 +23,12 @@ var _resume_at_checkpoint := false
 
 
 func setup(p_player: Node2D, p_room_container: Node) -> void:
+	# 主菜单重开整个游戏根节点后，单例不能保留已释放的房间引用和切房守卫。
+	if not is_instance_valid(current_room):
+		current_room = null
+		current_room_scene = ""
+		_switching = false
+		_resume_at_checkpoint = false
 	player = p_player
 	room_container = p_room_container
 
@@ -33,7 +39,7 @@ func is_busy() -> bool:
 
 ## 继续游戏：切到存档点所在场景，并把玩家定位到存档点坐标。
 func resume_from_checkpoint() -> bool:
-	if not GameState.has_checkpoint():
+	if _switching or not GameState.has_checkpoint() or not ResourceLoader.exists(GameState.checkpoint_scene, "PackedScene"):
 		return false
 	_resume_at_checkpoint = true
 	change_room(GameState.checkpoint_scene, "spawn")

@@ -17,6 +17,23 @@ extends Node2D
 @onready var player: Node2D = $Player
 @onready var room_container: Node2D = $RoomContainer
 @onready var pcam: PhantomCamera2D = $MainPCam as PhantomCamera2D
+var menu_has_save := false
+var launch_action := ""
+
+
+func _enter_tree() -> void:
+	if not show_main_menu:
+		return
+	launch_action = GameState.menu_launch_action
+	GameState.menu_launch_action = ""
+	# 必须在 Player._ready 和关卡实例化前读档，确保背包、血量和房间一致。
+	if launch_action == "new":
+		GameState.new_game()
+	else:
+		menu_has_save = GameState.continue_game()
+		if not menu_has_save:
+			GameState.reset()
+			launch_action = ""  # 存档失效时回到菜单，不误开启新游戏。
 
 
 func _ready() -> void:
@@ -27,4 +44,7 @@ func _ready() -> void:
 	SceneManager.setup(player, room_container)
 	if pcam != null:
 		pcam.follow_target = player
-	SceneManager.change_room(start_room, start_entrance)
+	if show_main_menu and menu_has_save:
+		SceneManager.resume_from_checkpoint()
+	else:
+		SceneManager.change_room(start_room, start_entrance)
