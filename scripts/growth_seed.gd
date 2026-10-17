@@ -36,9 +36,9 @@ const Rules := preload("res://scripts/element/element_rules.gd")
 @export_group("状态")
 @export var state_id: String = ""
 
-var seed_visual: Polygon2D
+var seed_visual: Sprite2D
 var vine: StaticBody2D
-var vine_visual: Polygon2D
+var vine_visual: Sprite2D
 var vine_collision: CollisionShape2D
 
 var _grown := false
@@ -57,10 +57,10 @@ func _ready() -> void:
 		grow_dir = Vector2.RIGHT
 	grow_dir = grow_dir.normalized()
 	rotation = grow_dir.angle()   # 整个种子朝向 grow_dir，藤蔓在局部 +X 延伸
-	seed_visual = get_node_or_null("SeedVisual") as Polygon2D
+	seed_visual = get_node_or_null("SeedVisual") as Sprite2D
 	vine = get_node_or_null("Vine") as StaticBody2D
 	if vine != null:
-		vine_visual = vine.get_node_or_null("VineVisual") as Polygon2D
+		vine_visual = vine.get_node_or_null("VineVisual") as Sprite2D
 		vine_collision = vine.get_node_or_null("VineCollision") as CollisionShape2D
 		vine.position = Vector2.ZERO
 		vine.rotation = 0.0
@@ -73,13 +73,14 @@ func _ready() -> void:
 			vine_collision.position = Vector2(vine_length * 0.5, 0.0)
 			vine_collision.set_deferred("disabled", true)
 		if vine_visual != null:
+			vine_visual.centered = true
+			vine_visual.rotation = -PI * 0.5
 			vine_visual.position = Vector2(vine_length * 0.5, 0.0)
-			vine_visual.polygon = PackedVector2Array([
-				Vector2(-vine_length * 0.5, -vine_thickness * 0.5),
-				Vector2(vine_length * 0.5, -vine_thickness * 0.5),
-				Vector2(vine_length * 0.5, vine_thickness * 0.5),
-				Vector2(-vine_length * 0.5, vine_thickness * 0.5),
-			])
+			# 贴图版：按贴图原始尺寸把藤蔓图拉伸到 vine_length × vine_thickness，
+			# 左端锚在种子处（centered=true，position.x=长度一半），随 vine.scale.x 生长。
+			var tex := vine_visual.texture
+			var tex_size := tex.get_size() if tex != null else Vector2(vine_thickness, vine_length)
+			vine_visual.scale = Vector2(vine_thickness / tex_size.x, vine_length / tex_size.y)
 		vine.scale = Vector2(0.001, 1.0)   # 收拢：scale.x=0 会触发警告，用 0.001 近似
 	_apply_visual()
 
@@ -87,9 +88,9 @@ func _ready() -> void:
 ## 视觉统一刷新：种子发芽变绿、藤蔓按 frozen/grown 换色。
 func _apply_visual() -> void:
 	if seed_visual != null:
-		seed_visual.color = vine_color if _grown else seed_color
+		seed_visual.modulate = vine_color if _grown else seed_color
 	if vine_visual != null:
-		vine_visual.color = frozen_color if _frozen else vine_color
+		vine_visual.modulate = frozen_color if _frozen else vine_color
 
 
 ## 直接设藤蔓终态（restore 用）；生长/收回动画走 _grow_vine/_shrink_vine。

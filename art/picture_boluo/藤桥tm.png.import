@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://blhrhgx16rv4m"
-path="res://.godot/imported/_colorwheel_preview.png-9cb21944bef7fed75c45f1de994d74b4.ctex"
+uid="uid://dk6jnneshuvv0"
+path="res://.godot/imported/藤桥tm.png-f0d34bf0cc38e7b4b18a62b911df3b64.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://_colorwheel_preview.png"
-dest_files=["res://.godot/imported/_colorwheel_preview.png-9cb21944bef7fed75c45f1de994d74b4.ctex"]
+source_file="res://art/picture_boluo/藤桥tm.png"
+dest_files=["res://.godot/imported/藤桥tm.png-f0d34bf0cc38e7b4b18a62b911df3b64.ctex"]
 
 [params]
 
