@@ -12,6 +12,12 @@ var _shade: ColorRect
 var _curtain: ColorRect
 var _settings: VBoxContainer
 var _start: Button
+var _continue: Button
+var _new_game_prompt: VBoxContainer
+var _save_status: Label
+var _settings_button: Button
+var _quit_button: Button
+var _ready_for_input := false
 var _menu_camera: PhantomCamera2D
 var _starting := false
 var _title: Control
@@ -62,12 +68,22 @@ func _on_room_ready(_room_id: String) -> void:
 	_game.add_child(_menu_camera)
 	await get_tree().process_frame
 	await get_tree().process_frame
+	if _game.launch_action != "":
+		_panel.hide()
+		_curtain.hide()
+		_play_transition()
+		return
 	var reveal := create_tween()
 	reveal.tween_property(_curtain, "color:a", 0.0, 0.65)
 	await reveal.finished
 	_curtain.hide()
 	_start.disabled = false
-	_start.grab_focus()
+	_continue.disabled = not _game.menu_has_save
+	_ready_for_input = true
+	if _game.menu_has_save:
+		_continue.grab_focus()
+	else:
+		_start.grab_focus()
 
 
 func _build_ui() -> void:
@@ -112,10 +128,24 @@ func _build_ui() -> void:
 	var space := Control.new()
 	space.custom_minimum_size.y = 22
 	_panel.add_child(space)
-	_start = _button(_panel, "开始游戏    →", _begin)
+	_continue = _button(_panel, "继续游戏    →", _continue_game)
+	_continue.disabled = true
+	_continue.tooltip_text = "回到最近的存档点" if _game.menu_has_save else "暂无可用存档"
+	_start = _button(_panel, "开始游戏", _begin)
 	_start.disabled = true
-	_button(_panel, "设置", _toggle_settings)
-	_button(_panel, "退出游戏", func(): get_tree().quit())
+	var saved_level := GameState.checkpoint_scene.get_file().get_basename()
+	var chapter_names := {"level_1": "第一关", "level_2": "第二关", "level_3": "第三关", "level_4": "第四关"}
+	var save_text := "最近存档 · %s" % chapter_names[saved_level] if chapter_names.has(saved_level) else "最近的存档点"
+	_save_status = _label(_panel, save_text if _game.menu_has_save else "尚无存档 · 从第一笔开始", 16, Color("646859"))
+	_new_game_prompt = VBoxContainer.new()
+	_new_game_prompt.add_theme_constant_override("separation", 8)
+	_panel.add_child(_new_game_prompt)
+	_label(_new_game_prompt, "重新开始将清除已有存档。", 16, Color("805c44"))
+	_button(_new_game_prompt, "确认重新开始", func(): _request_session("new"))
+	_button(_new_game_prompt, "返回", func(): _show_new_game_prompt(false))
+	_new_game_prompt.hide()
+	_settings_button = _button(_panel, "设置", _toggle_settings)
+	_quit_button = _button(_panel, "退出游戏", func(): get_tree().quit())
 	_settings = VBoxContainer.new()
 	_settings.add_theme_constant_override("separation", 10)
 	_panel.add_child(_settings)
@@ -277,6 +307,7 @@ func _button(parent: Node, text: String, action: Callable) -> Button:
 	button.add_theme_color_override("font_hover_color", Color("263e30"))
 	button.add_theme_color_override("font_pressed_color", Color("263e30"))
 	button.add_theme_color_override("font_focus_color", Color("263e30"))
+	button.add_theme_color_override("font_disabled_color", Color("909184"))
 	for state in ["normal", "hover", "pressed", "focus"]:
 		var style := StyleBoxFlat.new()
 		style.bg_color = Color(0.35, 0.43, 0.31, 0.10 if state != "normal" else 0.015)
@@ -290,10 +321,75 @@ func _button(parent: Node, text: String, action: Callable) -> Button:
 
 
 func _toggle_settings() -> void:
+	if _starting:
+		return
 	_settings.visible = not _settings.visible
+	# 设置与主操作共用区域，新增继续按钮后，小窗口也不会被挤出屏幕。
+	for control in [_continue, _start, _save_status, _quit_button]:
+		control.visible = not _settings.visible
+	_settings_button.text = "返回主菜单" if _settings.visible else "设置"
 
 
 func _begin() -> void:
+	if _starting or not _ready_for_input:
+		return
+	if _game.menu_has_save:
+		_settings.hide()
+		_show_new_game_prompt(true)
+		return
+	_request_session("new")
+
+
+func _show_new_game_prompt(show_prompt: bool) -> void:
+	_new_game_prompt.visible = show_prompt
+	for control in [_continue, _start, _save_status, _settings_button, _quit_button]:
+		control.visible = not show_prompt
+	if show_prompt:
+		var back := _new_game_prompt.get_child(_new_game_prompt.get_child_count() - 1) as Button
+		back.grab_focus()
+	else:
+		_start.grab_focus()
+
+
+func _continue_game() -> void:
+	if _starting or not _ready_for_input:
+		return
+	if not GameState.has_valid_save():
+		_continue.disabled = true
+		_game.menu_has_save = false
+		_save_status.text = "存档不可用，请开始新游戏"
+		return
+	_request_session("continue")
+
+
+func _request_session(action: String) -> void:
+	if _starting:
+		return
+	_starting = true
+	_ready_for_input = false
+	for button in _panel.find_children("*", "Button", true, false):
+		button.disabled = true
+	# 先用纸面遮住重建过程，再按选项重新读取或清空进度。
+	_curtain.show()
+	_curtain.color.a = 0.0
+	var cover := create_tween()
+	cover.tween_property(_curtain, "color:a", 1.0, 0.2)
+	await cover.finished
+	GameState.menu_launch_action = action
+	get_tree().paused = false
+	var error := get_tree().reload_current_scene()
+	if error != OK:
+		GameState.menu_launch_action = ""
+		get_tree().paused = true
+		_starting = false
+		_ready_for_input = true
+		_start.disabled = false
+		_continue.disabled = not _game.menu_has_save
+		_curtain.hide()
+		_save_status.text = "场景加载失败，请重试"
+
+
+func _play_transition() -> void:
 	if _starting:
 		return
 	_starting = true

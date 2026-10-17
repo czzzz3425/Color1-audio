@@ -39,6 +39,8 @@ var checkpoint_scene: String = ""
 var checkpoint_pos: Vector2 = Vector2.ZERO
 
 const SAVE_PATH := "user://save.json"
+## 主菜单请求的下一次启动方式。重建玩家和房间，避免继承预览状态。
+var menu_launch_action := ""
 
 const ReachabilityScript = preload("res://scripts/reachability.gd")
 
@@ -102,19 +104,52 @@ func save_game() -> void:
 	f.close()
 
 
-## 从 user://save.json 恢复进度 + 存档点。成功返回 true。
-func load_game() -> bool:
+## 校验磁盘数据；失败不修改内存，也不覆盖原文件。
+func _read_save() -> Dictionary:
 	if not FileAccess.file_exists(SAVE_PATH):
-		return false
+		return {}
 	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if f == null:
-		return false
+		return {}
 	var text := f.get_as_text()
 	f.close()
-	var parsed: Variant = JSON.parse_string(text)
+	var json := JSON.new()
+	if json.parse(text) != OK:
+		return {}
+	var parsed: Variant = json.data
 	if parsed == null or not (parsed is Dictionary):
-		return false
+		return {}
 	var d: Dictionary = parsed
+	var scene: Variant = d.get("checkpoint_scene", "")
+	var position: Variant = d.get("checkpoint_pos", [])
+	if not scene is String or not scene.begins_with("res://") or not scene.ends_with(".tscn") or not ResourceLoader.exists(scene, "PackedScene"):
+		return {}
+	if not position is Array or position.size() != 2:
+		return {}
+	for coordinate in position:
+		if not (coordinate is float or coordinate is int) or not is_finite(float(coordinate)):
+			return {}
+	for key in ["keys", "used_keys", "key_names", "switches", "abilities", "props", "elements", "opened_gates", "played_story", "health_upgrades", "health_upgrade_names"]:
+		if not d.get(key, {}) is Dictionary:
+			return {}
+	for key in ["elements", "health_upgrades"]:
+		for value in d.get(key, {}).values():
+			if not (value is int or value is float) or not is_finite(float(value)) or value < 0:
+				return {}
+	return d
+
+
+## 检查可继续的存档，不改内存进度；缺失、损坏、场景已删除均返回 false。
+func has_valid_save() -> bool:
+	return not _read_save().is_empty()
+
+
+## 从有效存档恢复进度；先清理上一局的房间元数据。
+func load_game() -> bool:
+	var d := _read_save()
+	if d.is_empty():
+		return false
+	reset()
 	checkpoint_scene = str(d.get("checkpoint_scene", ""))
 	var pos_arr: Array = d.get("checkpoint_pos", [0.0, 0.0])
 	checkpoint_pos = Vector2(float(pos_arr[0]), float(pos_arr[1]))
