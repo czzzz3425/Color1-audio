@@ -5257,7 +5257,11 @@ scale = Vector2(0.35041574, 0.35999912)
 required_key_id = "1"
 
 [node name="GrowthSeed" parent="." unique_id=1492456846 instance=ExtResource("39_rscm6")]
-position = Vector2(2041, 440)
+position = Vector2(4745, -5774)
+grow_dir = Vector2(0, -1)
+vine_length = 856.0
+vine_thickness = 128.0
+chain_radius = 512.0
 
 [node name="SeedContainer" parent="." unique_id=425245008 instance=ExtResource("39_wom8k")]
 position = Vector2(1174, -98)
