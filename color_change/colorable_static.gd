@@ -7,6 +7,9 @@ extends ColorableBase
 
 @onready var visual: Sprite2D = $Visual
 
+## 绿生长粒子（green_grow_tree.tscn）：被赋予绿时在视觉中心喷发一撮绿叶（藤桥同款·加大粒子量）。
+const GrowFx := preload("res://shaders/green_grow_tree.tscn")
+
 ## 烧毁模式：给红后 Visual 溶解烧尽并整体销毁（枯木等燃料）。默认关，普通树/木条不受影响。
 @export var burn_down := false
 ## 烧毁溶解时长（秒，默认 2）。
@@ -35,15 +38,37 @@ func contains_point(world_pos: Vector2) -> bool:
 	return visual.get_rect().has_point(visual.to_local(world_pos))
 
 
-## 给红（burn）时启动烧毁溶解；变黄（红×绿）时取消烧毁，让燃料停在黄色态反射子弹。
+## 给绿（grow）时喷发一撮绿叶；给红（burn）时启动烧毁溶解；
+## 变黄（红×绿）时取消烧毁，让燃料停在黄色态反射子弹。
 func _apply_visual(_c: Color, _origin: Vector2) -> void:
-	if not burn_down or _behavior == null:
+	if _behavior == null:
 		return
 	var el := _behavior.current_element()
+	if el == "grow":
+		_play_grow_fx()
+	if not burn_down:
+		return
 	if el == "burn":
 		_start_burn_down()
 	elif el == "yellow":
 		_cancel_burn_down()
+
+
+## 挂载绿生长粒子（green_grow.tscn）作一次性喷发：绿叶在视觉中心炸开，喷完自动销毁。
+func _play_grow_fx() -> void:
+	var fx := GrowFx.instantiate()
+	fx.name = "GrowFx"
+	add_child(fx)
+	fx.position = visual.position
+	var particles := fx.get_node_or_null("TipParticles") as CPUParticles2D
+	if particles != null:
+		particles.one_shot = true
+		particles.emitting = true
+	# 粒子寿命 0.5s，留足余量后销毁节点。
+	get_tree().create_timer(1.0).timeout.connect(func():
+		if is_instance_valid(fx):
+			fx.queue_free()
+	)
 
 
 ## 吸收颜色（熄灭）时打断烧毁，恢复完整树体。
