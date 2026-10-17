@@ -341,6 +341,9 @@ func _respawn() -> void:
 
 ## 出生点：当前房间的 "spawn" 入口位置（约定每个房间都有 entrance_id=spawn）。
 func _spawn_position() -> Vector2:
+	# 有存档点且存档点就在当前场景 → 优先复活到存档点。
+	if GameState.has_checkpoint() and GameState.checkpoint_scene == SceneManager.current_room_scene:
+		return GameState.checkpoint_pos
 	var room := GameState.current_room as Room
 	if room == null:
 		return global_position  # 兜底：不知道出生点就原地满血复活

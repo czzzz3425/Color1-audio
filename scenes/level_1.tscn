@@ -35,8 +35,9 @@
 [ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="29_hnsmf"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
 [ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="31_hjqri"]
-[ext_resource type="PackedScene" uid="uid://bqctqappo14d2" path="res://prefabs/items/interaction/red_heart.tscn" id="36_v8pws"]
-[ext_resource type="PackedScene" uid="uid://dcqt7kn0dxvip" path="res://prefabs/creatures/firefly.tscn" id="37_tdlki"]
+[ext_resource type="PackedScene" path="res://prefabs/rooms/checkpoint.tscn" id="33_v8pws"]
+[ext_resource type="PackedScene" uid="uid://dgk72eudaijk4" path="res://prefabs/items/interaction/blue_heart.tscn" id="36_tdlki"]
+[ext_resource type="PackedScene" uid="uid://chdkxg2bd1tkv" path="res://prefabs/rooms/room_door.tscn" id="37_v8pws"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -5173,6 +5174,9 @@ jitter_amount = 4.0
 stop_speed_threshold = 7.5
 erase_speed = 5
 
+[node name="Checkpoint" parent="." unique_id=1314338313 instance=ExtResource("33_v8pws")]
+position = Vector2(-9279, -7906)
+
 [node name="CompanionHint_01" type="Node2D" parent="." unique_id=1147803756]
 position = Vector2(6107, -433)
 script = ExtResource("28_k8ld0")
@@ -5238,10 +5242,14 @@ color = Color(0.5, 0.85, 0.5, 1)
 polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
 
 [node name="BaoXiang" parent="." unique_id=1645125291 instance=ExtResource("26_hg84p")]
-position = Vector2(4339, -586)
-drop_scene = ExtResource("36_v8pws")
+position = Vector2(3769, 10947)
+drop_scene = ExtResource("36_tdlki")
 
 [node name="BaoXiang2" parent="." unique_id=217552730 instance=ExtResource("26_hg84p")]
 position = Vector2(2475, -5202)
+drop_id = "1"
 
-[node name="Firefly" parent="." unique_id=1805090174 instance=ExtResource("37_tdlki")]
+[node name="RoomDoor" parent="." unique_id=1357631850 instance=ExtResource("37_v8pws")]
+position = Vector2(6661.001, -458)
+scale = Vector2(0.35041574, 0.35999912)
+required_key_id = "1"

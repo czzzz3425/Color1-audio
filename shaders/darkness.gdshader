@@ -9,8 +9,8 @@ uniform vec4 dark_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
 uniform float darkness : hint_range(0.0, 1.0) = 0.0; // 0 = 无黑暗，1 = 全黑
 uniform float softness : hint_range(0.0, 0.5) = 0.18; // 光斑边缘软化（占半径比例）
 uniform int light_count = 0;
-uniform vec2 light_pos[32];
-uniform float light_radius[32];
+uniform vec2 light_pos[96];
+uniform float light_radius[96];
 
 varying vec2 world_pos;
 
@@ -20,7 +20,7 @@ void vertex() {
 
 void fragment() {
 	float coverage = 0.0;
-	for (int i = 0; i < 32; i++) {
+	for (int i = 0; i < 96; i++) {
 		if (i >= light_count) {
 			break;
 		}
