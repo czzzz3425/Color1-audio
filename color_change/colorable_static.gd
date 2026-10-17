@@ -12,7 +12,7 @@ const GrowFx := preload("res://shaders/green_grow_tree.tscn")
 
 ## 附魔着色器：给绿/红后在树体上叠一层，中心向外扩散一圈后常驻。
 const GreenEnchant := preload("res://shaders/GreenInside.gdshader")
-const RedEnchant := preload("res://shaders/RedInside.gdshader")
+const RedEnchant := preload("res://shaders/Red_Inside.gdshader")
 const BlueEnchant := preload("res://shaders/BlueInside.gdshader")
 
 ## 烧毁模式：给红后 Visual 溶解烧尽并整体销毁（枯木等燃料）。默认关，普通树/木条不受影响。

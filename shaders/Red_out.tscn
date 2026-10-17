@@ -1,26 +1,25 @@
 [gd_scene format=3 uid="uid://bdfpc4pro22qf"]
 
-[ext_resource type="Shader" uid="uid://jo705qj7k3r7" path="res://shaders/BlueInside.gdshader" id="1_gbauy"]
+[ext_resource type="Shader" uid="uid://c5kv1hr2847ds" path="res://shaders/Red_Inside.gdshader" id="1_gbauy"]
 [ext_resource type="Texture2D" uid="uid://i2wr7ihe6f6u" path="res://icon.svg" id="2_713b0"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6f8o3"]
 shader = ExtResource("1_gbauy")
-shader_parameter/ice_core = Color(0.85, 0.95, 1, 1)
-shader_parameter/ice_mid = Color(0.3, 0.7, 1, 1)
-shader_parameter/ice_edge = Color(0.05, 0.2, 0.5, 1)
-shader_parameter/tint_amount = 0.4
-shader_parameter/glow_color = Color(1, 0.4509804, 0.4, 1)
+shader_parameter/tint = Color(0.9, 0.15, 0.15, 1)
+shader_parameter/tint_amount = 0.8
+shader_parameter/glow_color = Color(1, 0.2, 0.2, 1)
+shader_parameter/glow_radius = 3.0
 shader_parameter/glow_intensity = 0.8
+shader_parameter/glow_falloff = 2.0
+shader_parameter/glow_pulse_speed = 0.18
+shader_parameter/glow_pulse_amp = 0.06
 shader_parameter/enchant_progress = 1.0
-shader_parameter/enchant_speed = 0.800000038
+shader_parameter/enchant_speed = 1.20000005537006
 shader_parameter/enchant_offset = 0.0
 shader_parameter/enchant_width = 0.00999999977648
-shader_parameter/enchant_radius = 0.7071
-shader_parameter/front_intensity = 3.0
-shader_parameter/ice_distortion = 0.25
-shader_parameter/ice_speed = 0.8
-shader_parameter/ice_scale = 6.0
-shader_parameter/frost_surface = 0.6
+shader_parameter/enchant_radius = 0.80000003148023
+shader_parameter/enchant_front_color = Color(1, 0.5, 0.5, 1)
+shader_parameter/enchant_front_intensity = 2.0
 
 [node name="RedOut" type="Node2D" unique_id=907607796]
 
