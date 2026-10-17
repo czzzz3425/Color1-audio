@@ -4,16 +4,25 @@
 [ext_resource type="Texture2D" uid="uid://bqvmrxeuuahbf" path="res://art/picture_boluo/门tm.png" id="2_wxmyy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(1367, 2458)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_trigger"]
 size = Vector2(1367, 1516)
 
 [node name="RoomDoor" type="StaticBody2D" unique_id=1357631850]
 script = ExtResource("1_door")
 
 [node name="Collision" type="CollisionShape2D" parent="." unique_id=83457382]
-position = Vector2(-33.5, 0)
+position = Vector2(-33.5, 145)
 shape = SubResource("RectangleShape2D_door")
 
 [node name="Visual" type="Sprite2D" parent="." unique_id=300107527]
 position = Vector2(3, -1)
 scale = Vector2(6.1093745, 6.46875)
 texture = ExtResource("2_wxmyy")
+
+[node name="Trigger" type="Area2D" parent="." unique_id=1070210605]
+collision_layer = 0
+
+[node name="Collision" type="CollisionShape2D" parent="Trigger" unique_id=1191574134]
+shape = SubResource("RectangleShape2D_trigger")

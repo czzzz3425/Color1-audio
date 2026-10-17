@@ -34,6 +34,12 @@ var health_upgrade_names: Dictionary = {}
 var current_room_id: String = ""
 var current_room: Node = null
 
+## 存档点：角色最近一次到达的存档位置（场景路径 + 世界坐标）。
+var checkpoint_scene: String = ""
+var checkpoint_pos: Vector2 = Vector2.ZERO
+
+const SAVE_PATH := "user://save.json"
+
 const ReachabilityScript = preload("res://scripts/reachability.gd")
 
 
@@ -52,6 +58,94 @@ func reset() -> void:
 	health_upgrade_names.clear()
 	current_room_id = ""
 	current_room = null
+	checkpoint_scene = ""
+	checkpoint_pos = Vector2.ZERO
+
+
+# —— 存档 / 读档 ——
+## 设置存档点（角色到达存档点时调用），并立即写盘。
+func set_checkpoint(scene: String, pos: Vector2) -> void:
+	checkpoint_scene = scene
+	checkpoint_pos = pos
+	save_game()
+
+
+func has_checkpoint() -> bool:
+	return checkpoint_scene != ""
+
+
+## 序列化当前进度 + 存档点到 user://save.json。
+func save_game() -> void:
+	var data := {
+		"checkpoint_scene": checkpoint_scene,
+		"checkpoint_pos": [checkpoint_pos.x, checkpoint_pos.y],
+		"keys": keys,
+		"used_keys": used_keys,
+		"key_names": key_names,
+		"switches": switches,
+		"abilities": abilities,
+		"props": props,
+		"elements": elements,
+		"opened_gates": opened_gates,
+		"played_story": played_story,
+		"health_upgrades": health_upgrades,
+		"health_upgrade_names": health_upgrade_names,
+	}
+	# 确保 user:// 目录存在（首次运行时可能还没建）。
+	if DirAccess.open("user://") == null:
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://"))
+	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if f == null:
+		push_warning("无法写入存档：%s" % SAVE_PATH)
+		return
+	f.store_string(JSON.stringify(data))
+	f.close()
+
+
+## 从 user://save.json 恢复进度 + 存档点。成功返回 true。
+func load_game() -> bool:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return false
+	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if f == null:
+		return false
+	var text := f.get_as_text()
+	f.close()
+	var parsed: Variant = JSON.parse_string(text)
+	if parsed == null or not (parsed is Dictionary):
+		return false
+	var d: Dictionary = parsed
+	checkpoint_scene = str(d.get("checkpoint_scene", ""))
+	var pos_arr: Array = d.get("checkpoint_pos", [0.0, 0.0])
+	checkpoint_pos = Vector2(float(pos_arr[0]), float(pos_arr[1]))
+	keys = d.get("keys", {})
+	used_keys = d.get("used_keys", {})
+	key_names = d.get("key_names", {})
+	switches = d.get("switches", {})
+	abilities = d.get("abilities", {})
+	props = d.get("props", {})
+	elements = d.get("elements", {})
+	opened_gates = d.get("opened_gates", {})
+	played_story = d.get("played_story", {})
+	health_upgrades = d.get("health_upgrades", {})
+	health_upgrade_names = d.get("health_upgrade_names", {})
+	return true
+
+
+## 开始新游戏：清空进度、清掉存档点、删除存档文件。
+func new_game() -> void:
+	reset()
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.remove_absolute(SAVE_PATH)
+
+
+## 继续游戏：读取存档，返回是否有可用存档。
+func continue_game() -> bool:
+	return load_game()
+
+
+func has_save_file() -> bool:
+	return FileAccess.file_exists(SAVE_PATH)
 
 
 # —— 房间元数据 ——

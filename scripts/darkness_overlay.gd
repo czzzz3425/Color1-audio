@@ -6,7 +6,7 @@ extends Polygon2D
 ## 约定：polygon 顶点直接用世界坐标覆盖整个地图；喂给 shader 的光源位置用 to_local 转成
 ## 遮罩本地坐标，与 shader 里的 VERTEX 同空间，因此本节点可放在任意位置/带 transform。
 
-const MAX_LIGHTS := 32
+const MAX_LIGHTS := 96
 
 @export var dark_color := Color(0.0, 0.0, 0.0, 1.0)
 @export_range(0.0, 0.5, 0.01) var softness := 0.18
