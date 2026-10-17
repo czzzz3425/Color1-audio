@@ -38,6 +38,8 @@
 [ext_resource type="PackedScene" path="res://prefabs/rooms/checkpoint.tscn" id="33_v8pws"]
 [ext_resource type="PackedScene" uid="uid://dgk72eudaijk4" path="res://prefabs/items/interaction/blue_heart.tscn" id="36_tdlki"]
 [ext_resource type="PackedScene" uid="uid://chdkxg2bd1tkv" path="res://prefabs/rooms/room_door.tscn" id="37_v8pws"]
+[ext_resource type="PackedScene" uid="uid://bgew1y27utuh3" path="res://prefabs/items/interaction/growth_seed.tscn" id="39_rscm6"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="39_wom8k"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -5253,3 +5255,14 @@ drop_id = "1"
 position = Vector2(6661.001, -458)
 scale = Vector2(0.35041574, 0.35999912)
 required_key_id = "1"
+
+[node name="GrowthSeed" parent="." unique_id=1492456846 instance=ExtResource("39_rscm6")]
+position = Vector2(4745, -5774)
+grow_dir = Vector2(0, -1)
+vine_length = 856.0
+vine_thickness = 128.0
+chain_radius = 512.0
+
+[node name="SeedContainer" parent="." unique_id=425245008 instance=ExtResource("39_wom8k")]
+position = Vector2(1174, -98)
+grow_seeds = 3

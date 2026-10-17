@@ -22,7 +22,7 @@ const Rules := preload("res://scripts/element/element_rules.gd")
 @export_group("生长")
 ## 藤蔓延伸方向（单位向量，屏幕坐标 y 向下）。默认向右。
 @export var grow_dir := Vector2.RIGHT
-@export_range(32.0, 1024.0, 8.0) var vine_length := 256.0
+@export_range(32.0, 4096.0, 8.0) var vine_length := 256.0
 @export_range(8.0, 128.0, 4.0) var vine_thickness := 40.0
 ## 增殖：藤蔓末端碰到相邻藤种时自动连锁（绿蔓延）。0 = 不连锁。
 @export_range(0.0, 512.0, 8.0) var chain_radius := 96.0
@@ -36,9 +36,9 @@ const Rules := preload("res://scripts/element/element_rules.gd")
 @export_group("状态")
 @export var state_id: String = ""
 
-var seed_visual: Polygon2D
+var seed_visual: Sprite2D
 var vine: StaticBody2D
-var vine_visual: Polygon2D
+var vine_visual: Sprite2D
 var vine_collision: CollisionShape2D
 
 var _grown := false
@@ -56,14 +56,14 @@ func _ready() -> void:
 	if grow_dir == Vector2.ZERO:
 		grow_dir = Vector2.RIGHT
 	grow_dir = grow_dir.normalized()
-	rotation = grow_dir.angle()   # 整个种子朝向 grow_dir，藤蔓在局部 +X 延伸
-	seed_visual = get_node_or_null("SeedVisual") as Polygon2D
+	# 不旋转整个节点：种子贴图保持原朝向，只让藤蔓子节点朝向 grow_dir。
+	seed_visual = get_node_or_null("SeedVisual") as Sprite2D
 	vine = get_node_or_null("Vine") as StaticBody2D
 	if vine != null:
-		vine_visual = vine.get_node_or_null("VineVisual") as Polygon2D
+		vine_visual = vine.get_node_or_null("VineVisual") as Sprite2D
 		vine_collision = vine.get_node_or_null("VineCollision") as CollisionShape2D
 		vine.position = Vector2.ZERO
-		vine.rotation = 0.0
+		vine.rotation = grow_dir.angle()
 		# 藤桥跨水/坑时不设物理碰撞：通行性由 set_bridged + HeightMap 接管，
 		# 否则这层 layer 2 会横在桥中段挡住玩家（只能走第一格）。
 		# 桥两侧的深水碰撞仍在，玩家不会从侧面掉出去。
@@ -73,13 +73,7 @@ func _ready() -> void:
 			vine_collision.position = Vector2(vine_length * 0.5, 0.0)
 			vine_collision.set_deferred("disabled", true)
 		if vine_visual != null:
-			vine_visual.position = Vector2(vine_length * 0.5, 0.0)
-			vine_visual.polygon = PackedVector2Array([
-				Vector2(-vine_length * 0.5, -vine_thickness * 0.5),
-				Vector2(vine_length * 0.5, -vine_thickness * 0.5),
-				Vector2(vine_length * 0.5, vine_thickness * 0.5),
-				Vector2(-vine_length * 0.5, vine_thickness * 0.5),
-			])
+			_setup_vine_texture()
 		vine.scale = Vector2(0.001, 1.0)   # 收拢：scale.x=0 会触发警告，用 0.001 近似
 	_apply_visual()
 
@@ -87,9 +81,73 @@ func _ready() -> void:
 ## 视觉统一刷新：种子发芽变绿、藤蔓按 frozen/grown 换色。
 func _apply_visual() -> void:
 	if seed_visual != null:
-		seed_visual.color = vine_color if _grown else seed_color
+		seed_visual.modulate = vine_color if _grown else seed_color
 	if vine_visual != null:
-		vine_visual.color = frozen_color if _frozen else vine_color
+		vine_visual.modulate = frozen_color if _frozen else vine_color
+
+
+## 贴图非透明内容的最小包围盒（裁掉四周透明边，让平铺/拉伸都以图案实际尺寸为准）。
+func _content_rect(tex: Texture2D) -> Rect2:
+	if tex == null:
+		return Rect2(Vector2.ZERO, Vector2(vine_thickness, vine_length))
+	var img := tex.get_image()
+	if img == null:
+		return Rect2(Vector2.ZERO, tex.get_size())
+	img.convert(Image.FORMAT_RGBA8)
+	var min_x := img.get_width()
+	var min_y := img.get_height()
+	var max_x := -1
+	var max_y := -1
+	for y in img.get_height():
+		for x in img.get_width():
+			if img.get_pixel(x, y).a > 0.01:
+				min_x = mini(min_x, x)
+				max_x = maxi(max_x, x)
+				min_y = mini(min_y, y)
+				max_y = maxi(max_y, y)
+	if max_x < min_x:
+		return Rect2(Vector2.ZERO, tex.get_size())
+	return Rect2(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+
+
+## 把「一段桥」的贴图按原始比例沿长度方向自动拼接成整条桥，避免拉伸变形。
+func _setup_vine_texture() -> void:
+	var tex := vine_visual.texture
+	if tex == null:
+		return
+	var content := _content_rect(tex)
+	var img := tex.get_image()
+	if img == null:
+		# 拿不到像素数据时退回旧拉伸逻辑。
+		vine_visual.centered = true
+		vine_visual.rotation = -PI * 0.5
+		vine_visual.position = Vector2(vine_length * 0.5, 0.0)
+		vine_visual.region_enabled = true
+		vine_visual.region_rect = content
+		vine_visual.scale = Vector2(vine_thickness / content.size.x, vine_length / content.size.y)
+		return
+	img.convert(Image.FORMAT_RGBA8)
+	var cw := int(content.size.x)
+	var ch := int(content.size.y)
+	var seg := Image.create(cw, ch, false, Image.FORMAT_RGBA8)
+	seg.blit_rect(img, Rect2i(int(content.position.x), int(content.position.y), cw, ch), Vector2i.ZERO)
+	# 统一缩放：让厚度 = vine_thickness，图案宽高比保持不变。
+	var scale_factor := vine_thickness / float(cw)
+	var seg_w := maxi(1, int(vine_thickness))
+	var seg_h := maxi(1, int(ch * scale_factor))
+	seg.resize(seg_w, seg_h, Image.INTERPOLATE_BILINEAR)
+	# 沿长度方向重复拼接。
+	var count := maxi(1, ceili(vine_length / float(seg_h)))
+	var total_h := seg_h * count
+	var tiled := Image.create(seg_w, total_h, false, Image.FORMAT_RGBA8)
+	for i in count:
+		tiled.blit_rect(seg, Rect2i(0, 0, seg_w, seg_h), Vector2i(0, i * seg_h))
+	vine_visual.texture = ImageTexture.create_from_image(tiled)
+	vine_visual.region_enabled = false
+	vine_visual.centered = true
+	vine_visual.rotation = -PI * 0.5
+	vine_visual.position = Vector2(vine_length * 0.5, 0.0)
+	vine_visual.scale = Vector2.ONE
 
 
 ## 直接设藤蔓终态（restore 用）；生长/收回动画走 _grow_vine/_shrink_vine。
