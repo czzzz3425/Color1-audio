@@ -16,6 +16,8 @@ const DepthSort := preload("res://scripts/depth_sort.gd")
 @export var cyan_move_dir := Vector2.RIGHT
 @export_range(0.0, 4096.0, 8.0) var cyan_move_distance := 768.0
 @export_range(0.05, 5.0, 0.05) var cyan_move_duration := 0.5
+## 青色状态被玩家推动的速度（像素/秒）。
+@export_range(0.0, 3000.0, 5.0) var cyan_push_speed := 600.0
 ## 黄（红×绿混合）态：是否开启子弹反射与反射参数。转发给 ElementBehavior。
 @export var reflect_bullets := true
 @export_range(8.0, 2048.0, 1.0) var reflect_radius := 176.0
@@ -78,6 +80,17 @@ func has_color() -> bool:
 ## 当前元素状态（非破坏性读取：burn / freeze / grow / ""）。供元素踏板等传感器查询。
 func current_element() -> String:
 	return _behavior.current_element() if _behavior != null else ""
+
+
+## 青色状态可被玩家推动（推箱子式）；非青色返回不推。
+func push(dir: Vector2, delta: float) -> void:
+	if _behavior == null or _behavior.current_element() != "cyan":
+		return
+	if dir == Vector2.ZERO or delta <= 0.0:
+		return
+	move_and_collide(dir.normalized() * cyan_push_speed * delta)
+	# 推动后按脚底世界 Y 重算深度排序，保证玩家在树北侧时被树遮挡、南侧时挡在树前。
+	z_index = DepthSort.z_for(global_position.y)
 
 
 ## 命中判定：世界坐标点是否落在物体上。子类各自实现（多边形 / 贴图矩形）。

@@ -10,7 +10,8 @@ extends CharacterBody2D
 ##
 ## 交互（colorable 契约）：
 ##   给蓝(apply_color) → 冻结定身；给红 → 无效（它自己是红源，喂食没意义）
-##   吸收(absorb_color) → 抢走背上一颗红种子，吸空则耗竭逃跑
+##   吸收(absorb_color) → 冻结中优先吸回蓝并解冻；否则抢走背上一颗红种子，吸空则耗竭逃跑
+##   解冻（手动吸蓝或到期自动）→ 蓝种子自动返还玩家（种子守恒）
 ##   碰到玩家 → 抢玩家 1 颗红（没有红就击退）
 ##
 ## 碰撞：CharacterBody2D，collision_layer=0（不挡人）、collision_mask=2（撞墙），与萤虫一致。
@@ -130,8 +131,8 @@ func _frozen(delta: float) -> void:
 	velocity = Vector2.ZERO
 	_freeze_timer -= delta
 	if _freeze_timer <= 0.0:
-		_state = State.CHASE if _nearest_light() != null else State.DORMANT
-		_refresh()
+		_unfreeze()
+		_return_blue()
 
 
 func _retreat(_delta: float) -> void:
@@ -182,7 +183,8 @@ func _player_near() -> bool:
 
 # —— colorable 契约 ——
 func has_color() -> bool:
-	return _seeds > 0
+	# 冻结时持有 1 颗蓝：即使红种已被吸空，仍算「带色」、可被吸收（吸回蓝）。
+	return _seeds > 0 or _state == State.FROZEN
 
 
 func contains_point(world_pos: Vector2) -> bool:
@@ -201,6 +203,16 @@ func apply_color(_c: Color, color_name: String = "", _from_pos: Vector2 = Vector
 
 
 func absorb_color() -> Dictionary:
+	# 冻结中优先吸回蓝：吸收即解冻，蓝由跟班带回玩家。
+	if _state == State.FROZEN:
+		_unfreeze()
+		var fcfg: Dictionary = Rules.config("freeze")
+		return {
+			"element": "freeze",
+			"color": fcfg.get("color", Color.WHITE),
+			"color_name": fcfg.get("color_name", ""),
+			"amount": 1,
+		}
 	if _seeds <= 0:
 		return {"element": "", "color": Color.WHITE, "color_name": ""}
 	_seeds -= 1
@@ -214,6 +226,18 @@ func absorb_color() -> Dictionary:
 		"color_name": cfg.get("color_name", ""),
 		"amount": 1,
 	}
+
+
+## 解冻：按当前是否有光源决定回到追击还是潜伏，并刷新视觉。
+func _unfreeze() -> void:
+	_state = State.CHASE if _nearest_light() != null else State.DORMANT
+	_refresh()
+
+
+## 解冻后把冻结时消耗的那颗蓝返还玩家（种子守恒）。
+func _return_blue() -> void:
+	if _player != null and is_instance_valid(_player):
+		_player.receive_element("freeze", 1)
 
 
 func _refresh() -> void:

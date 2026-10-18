@@ -35,8 +35,12 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	var want := _condition_met()
 	if want != _open:
+		var was_open := _open
 		_open = want
 		_apply()
+		# 只在「从关到开」的瞬间提示一次，避免每帧刷屏；关回去不提示。
+		if _open and not was_open:
+			GameState.notice.emit("某处的大门打开了")
 
 
 func _condition_met() -> bool:

@@ -11,20 +11,20 @@
 [ext_resource type="Texture2D" uid="uid://dq1mvc7v72pfr" path="res://art/picture_boluo/湖水（深水）.png" id="8_nossa"]
 [ext_resource type="Script" uid="uid://b1mxwxqbqny2x" path="res://color_change/water_spawner.gd" id="12_spawn"]
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
-[ext_resource type="PackedScene" path="res://prefabs/items/interaction/growth_seed.tscn" id="13_p3r0x"]
+[ext_resource type="PackedScene" uid="uid://bgew1y27utuh3" path="res://prefabs/items/interaction/growth_seed.tscn" id="13_p3r0x"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="14_5xqnf"]
 [ext_resource type="PackedScene" uid="uid://bgfnfyk13xrue" path="res://prefabs/items/static prop/tree.tscn" id="14_una4e"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/parry_emitter.tscn" id="16_una4e"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="17_ema3p"]
 [ext_resource type="PackedScene" uid="uid://be2eeohasm6ng" path="res://prefabs/items/static prop/tree_dead.tscn" id="18_8uepa"]
 [ext_resource type="PackedScene" uid="uid://dy7h67xlfbi4q" path="res://prefabs/rooms/one_way_gate.tscn" id="19_q7pjq"]
-[ext_resource type="PackedScene" path="res://prefabs/rooms/checkpoint.tscn" id="19_vv2vh"]
+[ext_resource type="PackedScene" uid="uid://cy404hpgl6a4i" path="res://prefabs/rooms/checkpoint.tscn" id="19_vv2vh"]
 [ext_resource type="PackedScene" uid="uid://dolv6j8e0ihcs" path="res://prefabs/items/static prop/grass_1.tscn" id="21_k5r18"]
 [ext_resource type="PackedScene" uid="uid://bv06efk7r2psm" path="res://prefabs/items/static prop/Baoxiang.tscn" id="21_wu3ic"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
-[ext_resource type="PackedScene" uid="uid://bqctqappo14d2" path="res://prefabs/items/interaction/red_heart.tscn" id="22_vv2vh"]
 [ext_resource type="PackedScene" uid="uid://ba8r5yga0iqst" path="res://prefabs/items/static prop/grass_big.tscn" id="22_w5nkq"]
 [ext_resource type="PackedScene" uid="uid://b4snrjsvg2d6p" path="res://prefabs/items/interaction/element_gate.tscn" id="23_gate"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/green_heart.tscn" id="23_vv2vh"]
 [ext_resource type="PackedScene" uid="uid://chdkxg2bd1tkv" path="res://prefabs/rooms/room_door.tscn" id="25_5kn0t"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
@@ -250,19 +250,19 @@ chain_radius = 512.0
 [node name="GrowthSeed4" parent="." unique_id=886833259 instance=ExtResource("13_p3r0x")]
 position = Vector2(8995, 1198)
 grow_dir = Vector2(0, 1)
-vine_length = 1024.0
+vine_length = 1144.0
 vine_thickness = 128.0
 chain_radius = 512.0
 
 [node name="GrowthSeed3" parent="." unique_id=1039762610 instance=ExtResource("13_p3r0x")]
 position = Vector2(5695, 1120)
 grow_dir = Vector2(0, 1)
-vine_length = 1024.0
+vine_length = 1104.0
 vine_thickness = 128.0
 chain_radius = 512.0
 
 [node name="GrowthSeed6" parent="." unique_id=182088399 instance=ExtResource("13_p3r0x")]
-position = Vector2(7574, 10148)
+position = Vector2(7511, 10148)
 grow_dir = Vector2(0, -1)
 vine_length = 1024.0
 vine_thickness = 128.0
@@ -277,7 +277,7 @@ chain_radius = 512.0
 
 [node name="GrowthSeed2" parent="." unique_id=2091486293 instance=ExtResource("13_p3r0x")]
 position = Vector2(6021, 398)
-vine_length = 1024.0
+vine_length = 1144.0
 vine_thickness = 128.0
 chain_radius = 512.0
 
@@ -288,19 +288,19 @@ position = Vector2(7924, 6436)
 cyan_move_distance = 577.0
 
 [node name="Tree2" parent="Trees" unique_id=2091125691 instance=ExtResource("14_una4e")]
-position = Vector2(7981, 6828)
+position = Vector2(7188, 7015)
 
 [node name="Tree3" parent="Trees" unique_id=959493848 instance=ExtResource("14_una4e")]
-position = Vector2(7897, 7194)
+position = Vector2(9937, 785)
 
 [node name="Tree4" parent="Trees" unique_id=911241864 instance=ExtResource("14_una4e")]
-position = Vector2(7897, 7616)
+position = Vector2(7911, 8222)
 
 [node name="Tree5" parent="Trees" unique_id=1975473005 instance=ExtResource("14_una4e")]
-position = Vector2(7925, 8009)
+position = Vector2(1718, 2211)
 
 [node name="Tree6" parent="Trees" unique_id=1764776982 instance=ExtResource("14_una4e")]
-position = Vector2(8532, 8099)
+position = Vector2(4521, 7307)
 
 [node name="Tree7" parent="Trees" unique_id=1969830311 instance=ExtResource("14_una4e")]
 position = Vector2(9167, 8145)
@@ -355,7 +355,7 @@ position = Vector2(16799, 7260)
 position = Vector2(13555, 7391)
 
 [node name="ElementPlate" parent="." unique_id=1579093526 instance=ExtResource("17_ema3p")]
-position = Vector2(8763, 6421)
+position = Vector2(8864, 6666)
 
 [node name="Checkpoint" parent="." unique_id=1345829783 instance=ExtResource("19_vv2vh")]
 position = Vector2(12942, 3129)
@@ -369,11 +369,11 @@ required_element = "cyan"
 [node name="OneWayGate" parent="." unique_id=2137978421 instance=ExtResource("19_q7pjq")]
 position = Vector2(169, 3126)
 scale = Vector2(1.1200006, 1.1606196)
-pass_dir = Vector2(0, 1)
+pass_dir = Vector2(0, -1)
 
 [node name="BaoXiang" parent="." unique_id=1645125291 instance=ExtResource("21_wu3ic")]
 position = Vector2(692, 6167)
-drop_scene = ExtResource("22_vv2vh")
+drop_scene = ExtResource("23_vv2vh")
 
 [node name="BaoXiang2" parent="." unique_id=2009497491 instance=ExtResource("21_wu3ic")]
 position = Vector2(1075, 6154)
