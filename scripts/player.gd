@@ -393,7 +393,7 @@ func _push_boxes(dir: Vector2, delta: float) -> void:
 	for i in get_slide_collision_count():
 		var col := get_slide_collision(i)
 		var body := col.get_collider()
-		if body is CharacterBody2D and body.has_method("push"):
+		if body is PhysicsBody2D and body.has_method("push"):
 			var into := -col.get_normal()   # 指向箱子内部（被挡住的推入方向）
 			if dir.dot(into) > 0.3:
 				body.push(dir, delta)

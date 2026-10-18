@@ -88,6 +88,7 @@ func _make_hint_label() -> Label:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.add_theme_font_size_override("font_size", 24)
+	l.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
 	l.visible = false
 	add_child(l)
 	return l
@@ -103,7 +104,7 @@ func _make_status_label() -> Label:
 	l.offset_right = 720.0
 	l.offset_bottom = 96.0
 	l.add_theme_font_size_override("font_size", 18)
-	l.add_theme_color_override("font_color", Color(0.95, 0.9, 0.6))
+	l.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
 	l.visible = false
 	add_child(l)
 	return l
@@ -151,7 +152,7 @@ func _make_notice_label() -> Label:
 	l.offset_right = 720.0
 	l.offset_bottom = 128.0
 	l.add_theme_font_size_override("font_size", 20)
-	l.add_theme_color_override("font_color", Color(1.0, 0.95, 0.5))
+	l.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
 	l.visible = false
 	add_child(l)
 	return l

@@ -191,24 +191,13 @@ func _apply_grow(from_pos: Vector2) -> bool:
 	return true
 
 
-## 进入青色混合态：蓝 × 绿 = 青。清除旧的蓝/绿视觉状态，登记为混合态，并让物体
-## 朝「远离赋予来源」的方向移动一段距离（来源无效时退回 cyan_move_dir）。
-func _enter_cyan(from_pos: Vector2) -> void:
+## 进入青色混合态：蓝 × 绿 = 青。清除旧的蓝/绿视觉状态，登记为混合态。
+## 不再自动移动：青色物体改为可被玩家推动（推动逻辑见 colorable 的 push）。
+func _enter_cyan(_from_pos: Vector2) -> void:
 	_clear_vfx()
 	_set_growth(false)
 	_cyan = true
 	_element = "cyan"
-	if _parent == null or not is_instance_valid(_parent):
-		return
-	var dir := cyan_move_dir.normalized()
-	if dir == Vector2.ZERO:
-		dir = Vector2.RIGHT
-	if from_pos != Vector2.INF:
-		var away := _parent.global_position - from_pos
-		if away.length() > 1.0:
-			dir = away.normalized()
-	var tween := create_tween()
-	tween.tween_property(_parent, "global_position", _parent.global_position + dir * cyan_move_distance, cyan_move_duration)
 
 
 ## 进入黄色混合态：红 × 绿 = 黄。清除旧的燃烧/生长状态，登记为混合态，

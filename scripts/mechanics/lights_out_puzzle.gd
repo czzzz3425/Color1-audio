@@ -10,6 +10,8 @@ signal solved
 @export var initial_lit: Array[int] = [0, 2, 4, 6]
 ## 全亮后要打开的门（RoomDoor 等有 open() 方法的节点路径）。
 @export var door_path: NodePath
+## 全亮后同时打开的其它门（例如同一谜题解开多扇门）。
+@export var door_paths: Array[NodePath] = []
 
 var _switches: Array = []
 
@@ -46,7 +48,15 @@ func _check_solved() -> void:
 			return
 	solved.emit()
 	print("[LightsOut] solved!")
-	if door_path != NodePath(""):
-		var door := get_node_or_null(door_path)
-		if door != null and door.has_method("open"):
-			door.call("open")
+	_open_door(door_path)
+	for p in door_paths:
+		_open_door(p)
+
+
+## 按路径打开一扇有 open() 方法的门（忽略空路径 / 无效节点）。
+func _open_door(path: NodePath) -> void:
+	if path == NodePath(""):
+		return
+	var door := get_node_or_null(path)
+	if door != null and door.has_method("open"):
+		door.call("open")

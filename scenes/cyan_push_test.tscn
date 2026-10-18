@@ -1,0 +1,86 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="Script" uid="uid://c72jfj8on1i3d" path="res://color_change/hud.gd" id="2_hud"]
+[ext_resource type="PackedScene" uid="uid://bgfnfyk13xrue" path="res://prefabs/items/static prop/tree.tscn" id="3_tree"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/element_plate.tscn" id="4_plate"]
+[ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="5_companion"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/dia/companion.dialogue" id="6_dialogue"]
+[ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="7_vis"]
+[ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="8_line"]
+[ext_resource type="Script" path="res://scenes/cyan_push_test.gd" id="9_ctrl"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
+radius = 732.0
+
+[node name="CyanPushTest" type="Node2D"]
+script = ExtResource("9_ctrl")
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -10
+color = Color(0.06, 0.07, 0.1, 1)
+polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
+
+[node name="Player" parent="." groups=["player"] instance=ExtResource("1_player")]
+position = Vector2(-800, 0)
+
+[node name="Camera" type="Camera2D" parent="Player"]
+zoom = Vector2(0.25, 0.25)
+
+[node name="Companion" type="Node2D" parent="."]
+position = Vector2(-800, 150)
+scale = Vector2(0.35, 0.35)
+script = ExtResource("5_companion")
+dialogue_resource = ExtResource("6_dialogue")
+
+[node name="InteractArea" type="Area2D" parent="Companion"]
+collision_layer = 0
+
+[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea"]
+shape = SubResource("CircleShape2D_companion")
+
+[node name="Visual" type="Sprite2D" parent="Companion"]
+position = Vector2(3, 18)
+scale = Vector2(0.18135531, 0.17155984)
+texture = ExtResource("7_vis")
+
+[node name="Line2D" type="Line2D" parent="Companion" node_paths=PackedStringArray("target")]
+top_level = true
+default_color = Color(0.2509804, 1, 1, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("8_line")
+target = NodePath("..")
+max_points = 8
+min_distance = 10.0
+jitter_amount = 4.0
+stop_speed_threshold = 7.5
+erase_speed = 5
+
+[node name="Tree" parent="." instance=ExtResource("3_tree")]
+position = Vector2(300, 0)
+
+[node name="ElementPlate" parent="." instance=ExtResource("4_plate")]
+position = Vector2(1500, 0)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("2_hud")
+
+[node name="ColorLabel" type="RichTextLabel" parent="HUD"]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 760.0
+offset_bottom = 60.0
+bbcode_enabled = true
+
+[node name="WinLabel" type="Label" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+text = "过关！"
+horizontal_alignment = 1
+vertical_alignment = 1

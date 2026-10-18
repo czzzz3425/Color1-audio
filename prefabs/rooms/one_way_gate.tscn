@@ -4,13 +4,13 @@
 [ext_resource type="Texture2D" uid="uid://bqvmrxeuuahbf" path="res://art/picture_boluo/门tm.png" id="2_door"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gate"]
-size = Vector2(538, 728)
+size = Vector2(630, 728)
 
 [node name="OneWayGate" type="StaticBody2D" unique_id=1807542184]
 script = ExtResource("1_gate")
 
 [node name="Collision" type="CollisionShape2D" parent="." unique_id=1431473490]
-position = Vector2(15, -5)
+position = Vector2(-31, -5)
 shape = SubResource("RectangleShape2D_gate")
 
 [node name="Visual" type="Sprite2D" parent="." unique_id=500673117]

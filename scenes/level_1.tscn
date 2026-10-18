@@ -31,11 +31,12 @@
 [ext_resource type="PackedScene" uid="uid://bv06efk7r2psm" path="res://prefabs/items/static prop/Baoxiang.tscn" id="26_hg84p"]
 [ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="26_mmfjm"]
 [ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/dia/companion.dialogue" id="27_k8ld0"]
+[ext_resource type="PackedScene" uid="uid://cmdgelgno7nbk" path="res://prefabs/creatures/fire_louse.tscn" id="27_v0i6o"]
 [ext_resource type="Script" uid="uid://bsesqduu4fs8m" path="res://scripts/companion_hint.gd" id="28_k8ld0"]
 [ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="29_hnsmf"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
 [ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="31_hjqri"]
-[ext_resource type="PackedScene" path="res://prefabs/rooms/checkpoint.tscn" id="33_v8pws"]
+[ext_resource type="PackedScene" uid="uid://cy404hpgl6a4i" path="res://prefabs/rooms/checkpoint.tscn" id="33_v8pws"]
 [ext_resource type="PackedScene" uid="uid://dgk72eudaijk4" path="res://prefabs/items/interaction/blue_heart.tscn" id="36_tdlki"]
 [ext_resource type="PackedScene" uid="uid://chdkxg2bd1tkv" path="res://prefabs/rooms/room_door.tscn" id="37_v8pws"]
 [ext_resource type="PackedScene" uid="uid://bgew1y27utuh3" path="res://prefabs/items/interaction/growth_seed.tscn" id="39_rscm6"]
@@ -5069,13 +5070,6 @@ position = Vector2(4813, -5330)
 [node name="Rocks" type="Node2D" parent="." unique_id=1006773546]
 y_sort_enabled = true
 
-[node name="rock2" type="Sprite2D" parent="Rocks" unique_id=322543601 groups=["colorable"]]
-texture_filter = 1
-position = Vector2(-2370, -2010)
-scale = Vector2(43, 36)
-texture = ExtResource("4_272bh")
-script = ExtResource("4_5vw27")
-
 [node name="rock3" type="Sprite2D" parent="Rocks" unique_id=830044779 groups=["colorable"]]
 modulate = Color(1, 0, 0.23137255, 1)
 texture_filter = 1
@@ -5137,6 +5131,9 @@ scale = Vector2(16, 16)
 [node name="Ember2" parent="Interactables" unique_id=1501727551 instance=ExtResource("15_2cqfq")]
 position = Vector2(-10351, 8059)
 scale = Vector2(16, 16)
+
+[node name="FireLouse" parent="." unique_id=837049173 instance=ExtResource("27_v0i6o")]
+position = Vector2(682, -761)
 
 [node name="WaterFlow" type="TileMapLayer" parent="." unique_id=1100431437]
 z_index = 10

@@ -21,7 +21,7 @@ const Rules := preload("res://scripts/element/element_rules.gd")
 @export var cyan_color := Color(0.3, 0.9, 0.95)
 @export var yellow_color := Color(1.0, 0.85, 0.2)
 
-@onready var visual: Polygon2D = $Visual
+@onready var visual: Sprite2D = $Visual
 @onready var collision_shape: CollisionShape2D = $Collision
 
 var _occupants: Array = []   # 压在踏板上的 colorable 对象
@@ -114,4 +114,4 @@ func _apply_visual(el: String) -> void:
 		c = cyan_color
 	elif el == "yellow":
 		c = yellow_color
-	visual.color = c
+	visual.self_modulate = c
