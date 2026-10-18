@@ -537,7 +537,7 @@ func receive_element(element: String, amount: int) -> void:
 	_select_element(element)  # 吸收后自动选中新拿到的颜色
 
 
-## 跟班飞到后目标没吃下颜色，退回乐观扣除的种子（上色失败时由跟班回调）。
+## 上色失败或目标返还元素时，退回预留的种子。
 func refund_element(element: String, amount: int) -> void:
 	if amount <= 0 or element == "":
 		return
@@ -568,17 +568,20 @@ func steal_element(element: String, amount: int = 1) -> bool:
 
 
 ## 赋予：让跟班飞过去把当前选中的元素种到鼠标指向的可上色物体（种子守恒）。
-## 跟班跟随之后才有交互：未招募直接不做。乐观扣种子，失败由跟班回调 refund_element 退回。
+## 跟班跟随之后才有交互：先预留种子，到场执行；取消/失败退回。
 func _grant() -> void:
 	if _selected_element == "" or not _companion_recruited():
 		return
 	var target := _grantable_at_mouse()
 	if target == null:
 		return
-	var cfg := Rules.config(_selected_element)
+	var element := _selected_element
+	var cfg := Rules.config(element)
 	var companion := _companion()
-	if bool(companion.call("paint", target, cfg.get("color", Color.WHITE), cfg.get("color_name", ""), _selected_element)):
-		_consume_selected()
+	# 先预留种子；队列替换、目标失效或上色失败由跟班退回，拒绝接单则立即退回。
+	_consume_selected()
+	if not bool(companion.call("paint", target, cfg.get("color", Color.WHITE), cfg.get("color_name", ""), element)):
+		refund_element(element, 1)
 
 
 ## 扣掉当前选中元素的一颗种子，扣光后自动切到下一个持有色。

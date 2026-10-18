@@ -136,7 +136,7 @@ func _build_ui() -> void:
 	var saved_level := GameState.checkpoint_scene.get_file().get_basename()
 	var chapter_names := {"level_1": "第一关", "level_2": "第二关", "level_3": "第三关", "level_4": "第四关"}
 	var save_text := "最近存档 · %s" % chapter_names[saved_level] if chapter_names.has(saved_level) else "最近的存档点"
-	_save_status = _label(_panel, save_text if _game.menu_has_save else "尚无存档 · 从第一笔开始", 16, Color("646859"))
+	_save_status = _label(_panel, save_text if _game.menu_has_save else "尚无存档", 16, Color("646859"))
 	_new_game_prompt = VBoxContainer.new()
 	_new_game_prompt.add_theme_constant_override("separation", 8)
 	_panel.add_child(_new_game_prompt)

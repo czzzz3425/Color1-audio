@@ -4391,7 +4391,6 @@ polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
 [node name="OneWayGate" type="StaticBody2D" parent="." unique_id=465708706]
 position = Vector2(-3441, 93)
 script = ExtResource("21_oneway")
-block_scale = Vector2(4, 9)
 
 [node name="Collision" type="CollisionShape2D" parent="OneWayGate" unique_id=2117144384]
 position = Vector2(-39.00003, -31.000004)

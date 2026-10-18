@@ -7,7 +7,7 @@
 size = Vector2(1367, 2458)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_trigger"]
-size = Vector2(1367, 1516)
+size = Vector2(1623, 2714)
 
 [node name="RoomDoor" type="StaticBody2D" unique_id=1357631850]
 script = ExtResource("1_door")
@@ -25,4 +25,5 @@ texture = ExtResource("2_wxmyy")
 collision_layer = 0
 
 [node name="Collision" type="CollisionShape2D" parent="Trigger" unique_id=1191574134]
+position = Vector2(-33.5, 145)
 shape = SubResource("RectangleShape2D_trigger")

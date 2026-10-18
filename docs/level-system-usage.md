@@ -105,11 +105,10 @@ RoomDoor (StaticBody2D + room_door.gd)
 |---|---|
 | `pass_dir` | 允许穿过的方向（单位向量，如 `Vector2(1, 0)`） |
 | `block_scale` | 阻挡区 = `Visual` 宽高 × 此值（`Vector2.ZERO` = 用手配的 `Collision`） |
-| `open_reach` / `close_clearance` | 入口探测距离 / 穿过后重新封堵的余量（须 > 玩家碰撞盒半宽 64） |
 
-玩家只能沿 `pass_dir` 穿过一次：从入口侧靠近自动放行，穿到出口侧后自动封堵；从出口侧靠近不开门 → 反向进不去。
+玩家从 `pass_dir` 的入口侧实际碰撞门面时，门消失并永久放行；未开启时从出口侧碰门仍被阻挡。开启后双向都可通过，解锁随存档点保存。
 
-`level_1` 里的 `OneWayGate` 是现成例子：`pass_dir = Vector2(1, 0)`（只能从左往右过）。
+`level_1` 的 `pass_dir = Vector2(1, 0)` 表示从左侧碰门开启；要从右侧开启，设为 `Vector2(-1, 0)`。
 
 ### 3e. 钥匙门（`required_key_id`，1:1）
 

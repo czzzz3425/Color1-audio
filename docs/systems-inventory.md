@@ -25,7 +25,7 @@
 | `door.gd` | `Door` (Area2D) | 大场景出口传送门：触发切关；`required_key_id`（1:1 钥匙门）/ `unlock_options` 可选锁（全留空 = 纯传送点） |
 | `room_zone.gd` | `RoomZone` (Area2D) | 房分区：相机锁 + 暗房压黑/渐亮 + 房名 |
 | `room_door.gd` | `RoomDoor` (StaticBody2D) | 物理门：`required_key_id`(1:1 钥匙门)/`unlock_options`(OR 条件)/`unlock_side`(单向锁死)/`starts_open`；子节点 Collision/Visual/Trigger |
-| `one_way_gate.gd` | `OneWayGate` (StaticBody2D) | 真正单向通道：只能沿 `pass_dir` 穿过一次，反向永久封堵（`block_scale` 放大阻挡区） |
+| `one_way_gate.gd` | `OneWayGate` (StaticBody2D) | 单侧碰开捷径门：入口侧接触后消失，开启后双向通行；解锁随存档点保存 |
 | `lock_condition.gd` | `LockCondition` (RefCounted) | 条件锁模型：`"kind:id"` 解析/校验、OR 判定、单向判定；被 `Door`/`RoomDoor`/`level_lint` 复用（单一事实源） |
 | `key_lock.gd` | `KeyLock` (RefCounted) | 1:1 钥匙锁：是否需要钥匙/判定/消耗/全部文案；被 `Door`/`RoomDoor` 复用（单一事实源） |
 

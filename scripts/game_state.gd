@@ -28,6 +28,7 @@ var elements: Dictionary = {}     # element_id -> count（由玩家 inventory �
 var opened_gates: Dictionary = {}
 ## 本次游戏已开始播放的剧情，切关保留，reset 后清空。
 var played_story: Dictionary = {}
+var companion_recruited := false
 var health_upgrades: Dictionary = {} # 道具唯一 id -> 增加的最大生命值
 var health_upgrade_names: Dictionary = {}
 
@@ -56,6 +57,7 @@ func reset() -> void:
 	elements.clear()
 	opened_gates.clear()
 	played_story.clear()
+	companion_recruited = false
 	health_upgrades.clear()
 	health_upgrade_names.clear()
 	current_room_id = ""
@@ -78,6 +80,13 @@ func has_checkpoint() -> bool:
 
 ## 序列化当前进度 + 存档点到 user://save.json。
 func save_game() -> void:
+	# 飞行中预留的上色种子尚未作用到世界；存档应保留它们，避免读档丢种。
+	var saved_elements := elements.duplicate()
+	for companion in get_tree().get_nodes_in_group("companion"):
+		if companion.has_method("reserved_elements"):
+			var reserved: Dictionary = companion.reserved_elements()
+			for element in reserved:
+				saved_elements[element] = int(saved_elements.get(element, 0)) + int(reserved[element])
 	var data := {
 		"checkpoint_scene": checkpoint_scene,
 		"checkpoint_pos": [checkpoint_pos.x, checkpoint_pos.y],
@@ -87,9 +96,10 @@ func save_game() -> void:
 		"switches": switches,
 		"abilities": abilities,
 		"props": props,
-		"elements": elements,
+		"elements": saved_elements,
 		"opened_gates": opened_gates,
 		"played_story": played_story,
+		"companion_recruited": companion_recruited,
 		"health_upgrades": health_upgrades,
 		"health_upgrade_names": health_upgrade_names,
 	}
@@ -120,6 +130,8 @@ func _read_save() -> Dictionary:
 	if parsed == null or not (parsed is Dictionary):
 		return {}
 	var d: Dictionary = parsed
+	if d.has("companion_recruited") and not d.companion_recruited is bool:
+		return {}
 	var scene: Variant = d.get("checkpoint_scene", "")
 	var position: Variant = d.get("checkpoint_pos", [])
 	if not scene is String or not scene.begins_with("res://") or not scene.ends_with(".tscn") or not ResourceLoader.exists(scene, "PackedScene"):
@@ -162,6 +174,8 @@ func load_game() -> bool:
 	elements = d.get("elements", {})
 	opened_gates = d.get("opened_gates", {})
 	played_story = d.get("played_story", {})
+	# 旧存档无此字段：后续关卡或已获得元素说明已完成跟班教学。
+	companion_recruited = bool(d.get("companion_recruited", checkpoint_scene != "res://scenes/level_1.tscn" or not elements.is_empty()))
 	health_upgrades = d.get("health_upgrades", {})
 	health_upgrade_names = d.get("health_upgrade_names", {})
 	return true

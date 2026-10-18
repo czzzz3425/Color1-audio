@@ -25,17 +25,24 @@ func _run() -> void:
 	_boot()
 	await create_timer(1.5).timeout
 	assert(paused and _menu()._continue.disabled)
+	assert(not GameState.companion_recruited)
+	assert(not get_first_node_in_group("companion").is_recruited())
 	assert(SceneManager.current_room_scene == current_scene.start_room)
 	_menu()._toggle_settings()
 	assert(_menu()._settings.visible and not _menu()._continue.visible)
 	_menu()._toggle_settings()
 	assert(not _menu()._settings.visible and _menu()._continue.visible)
+	var first_companion: Node = get_first_node_in_group("companion")
+	first_companion._talking = true
+	first_companion._on_own_dialogue_finished()
+	assert(GameState.companion_recruited and first_companion.is_available())
 	_menu()._begin()
 	await create_timer(3.2).timeout
 	assert(not paused and _menu() == null)
 	# Seed a real checkpoint save in the next level, including player-specific state.
 	GameState.keys["menu_test_key"] = true
 	GameState.elements = {"burn": 2, "freeze": 1}
+	GameState.companion_recruited = true
 	GameState.health_upgrades = {"menu_test_heart": 1}
 	GameState.opened_gates["menu_test_gate"] = true
 	GameState.set_checkpoint("res://scenes/level_2.tscn", Vector2(-5202, -19165))
@@ -48,11 +55,16 @@ func _run() -> void:
 	assert(int(current_scene.player.palette_snapshot().inventory.get("burn", 0)) == 2)
 	assert(int(current_scene.player.palette_snapshot().inventory.get("freeze", 0)) == 1)
 	assert(current_scene.player.max_health == 2)
+	assert(get_nodes_in_group("companion").size() == 1)
+	assert(get_first_node_in_group("companion").is_available())
+	assert(get_first_node_in_group("companion").global_position.distance_to(current_scene.player.global_position) < 200)
 	assert(saved_text == FileAccess.get_file_as_string(GameState.SAVE_PATH), "Preview must not write save")
 	_menu()._continue_game()
 	await create_timer(3.2).timeout
 	assert(not paused and _menu() == null)
 	assert(SceneManager.current_room_scene == "res://scenes/level_2.tscn")
+	assert(get_nodes_in_group("companion").size() == 1)
+	assert(get_first_node_in_group("companion").is_available())
 	assert(GameState.keys.has("menu_test_key") and GameState.opened_gates.has("menu_test_gate"))
 	assert(int(current_scene.player.palette_snapshot().inventory.get("burn", 0)) == 2)
 	assert(int(current_scene.player.palette_snapshot().inventory.get("freeze", 0)) == 1)
@@ -72,6 +84,32 @@ func _run() -> void:
 	assert(GameState.keys.is_empty() and GameState.elements.is_empty())
 	assert(current_scene.player.max_health == 1)
 	assert(not GameState.has_save_file())
+	assert(not GameState.companion_recruited)
+	assert(not get_first_node_in_group("companion").is_recruited())
+	# Existing saves from later levels predate the recruitment field.
+	GameState.set_checkpoint("res://scenes/level_2.tscn", Vector2(-5202, -19165))
+	var legacy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(GameState.SAVE_PATH))
+	legacy.erase("companion_recruited")
+	var legacy_file := FileAccess.open(GameState.SAVE_PATH, FileAccess.WRITE)
+	legacy_file.store_string(JSON.stringify(legacy))
+	legacy_file.close()
+	assert(reload_current_scene() == OK)
+	await create_timer(1.5).timeout
+	assert(GameState.companion_recruited and get_nodes_in_group("companion").size() == 1)
+	assert(get_first_node_in_group("companion").is_available())
+	# Explicit false must not be overridden by the compatibility rule.
+	GameState.companion_recruited = false
+	GameState.save_game()
+	assert(reload_current_scene() == OK)
+	await create_timer(1.5).timeout
+	assert(not GameState.companion_recruited and get_nodes_in_group("companion").is_empty())
+	# A level-one save reuses the placed character rather than spawning a duplicate.
+	GameState.companion_recruited = true
+	GameState.set_checkpoint("res://scenes/level_1.tscn", Vector2(-9279, -7906))
+	assert(reload_current_scene() == OK)
+	await create_timer(1.5).timeout
+	assert(get_nodes_in_group("companion").size() == 1)
+	assert(get_first_node_in_group("companion").is_available())
 	# A malformed or stale save must not crash or enable Continue.
 	for broken in ['{"checkpoint_scene":"res://scenes/level_2.tscn","checkpoint_pos":[]}', '{"checkpoint_scene":"res://missing.tscn","checkpoint_pos":[0,0]}', 'not json']:
 		var file := FileAccess.open(GameState.SAVE_PATH, FileAccess.WRITE)
@@ -84,5 +122,5 @@ func _run() -> void:
 	assert(paused and _menu()._continue.disabled)
 	assert(SceneManager.current_room_scene == current_scene.start_room)
 	GameState.new_game()
-	print("MENU_SAVE_OK: no-save, preview, continue, inventory/health, confirmation, new-game reset, invalid save")
+	print("MENU_SAVE_OK: progress, companion restore/legacy/no duplicates, confirmation, new-game reset, invalid save")
 	quit()

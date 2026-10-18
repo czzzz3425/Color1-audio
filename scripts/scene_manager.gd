@@ -119,6 +119,23 @@ func _do_change_room(target_scene: String, target_entrance: String) -> void:
 	player.global_position = pos
 	if player is CharacterBody2D:
 		player.velocity = Vector2.ZERO
+	_restore_companion()
 
 	room_entered.emit(new_room.get("room_id"))
 	room_changed.emit(new_room.get("room_id"))
+
+
+func _restore_companion() -> void:
+	if not GameState.companion_recruited:
+		return
+	var companion: Node = null
+	for candidate in get_tree().get_nodes_in_group("companion"):
+		if is_instance_valid(candidate) and not candidate.is_queued_for_deletion():
+			companion = candidate
+			break
+	if companion == null:
+		companion = preload("res://prefabs/creatures/companion.tscn").instantiate()
+		room_container.add_child(companion)
+	elif companion.state == Companion.State.TASK:
+		return  # 正常切关时不覆盖仍在结算的吸色/上色任务。
+	companion.restore_following()

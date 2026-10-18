@@ -35,6 +35,7 @@ var is_open := false
 
 var _lock: Lock
 var _key_lock: KeyLock
+var _progress_key := ""
 
 
 func _ready() -> void:
@@ -44,6 +45,12 @@ func _ready() -> void:
 		door_id = name
 	if state_id == "":
 		state_id = door_id
+	# 名字相同的门在不同关卡独立存档，不能仅用默认的 RoomDoor 作全局键。
+	var room := get_parent()
+	while room != null and not room is Room:
+		room = room.get_parent()
+	var scene_path := room.scene_file_path if room != null else scene_file_path
+	_progress_key = "room_door:%s:%s" % [scene_path, state_id]
 	_lock = Lock.new(unlock_options, unlock_side)
 	_key_lock = KeyLock.new(required_key_id)
 	collision_layer = 2   # 挡玩家（玩家 collision_mask 含层 2）
@@ -53,7 +60,8 @@ func _ready() -> void:
 		trigger.collision_mask = 1   # 只检测玩家（层 1）
 		trigger.body_entered.connect(_on_body_entered)
 	_apply_region()
-	if starts_open:
+	if starts_open or _was_unlocked():
+		is_open = true
 		_apply_open()
 
 
@@ -66,7 +74,7 @@ func _on_body_entered(body: Node) -> void:
 		GameState.hint.emit("这扇门只能从对面开启")
 		return
 	# 1:1 钥匙门优先。
-	var key_result := _key_lock.try_unlock()
+	var key_result := _key_lock.try_unlock(false)
 	if key_result == KeyLock.Result.NO_KEY:
 		return
 	if key_result == KeyLock.Result.UNLOCKED:
@@ -84,6 +92,7 @@ func open() -> void:
 	if is_open:
 		return
 	is_open = true
+	GameState.mark_gate_opened(_progress_key)
 	_apply_open()
 	GameState.gate_opened.emit(door_id)
 
@@ -152,6 +161,11 @@ func save_state() -> Dictionary:
 
 
 func restore_state(data: Dictionary) -> void:
-	is_open = data.get("is_open", starts_open)
+	is_open = data.get("is_open", starts_open) or _was_unlocked()
 	if is_open:
 		_apply_open()
+
+
+func _was_unlocked() -> bool:
+	# 兼容修复前的存档：钥匙与门一一对应，已用钥匙意味着该门已开。
+	return GameState.is_gate_opened(_progress_key) or (required_key_id != "" and GameState.was_key_used(required_key_id))

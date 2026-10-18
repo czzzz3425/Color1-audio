@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://b1mxwxqbqny2x" path="res://color_change/water_spawner.gd" id="12_spawn"]
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
+[ext_resource type="PackedScene" path="res://prefabs/rooms/checkpoint.tscn" id="23_checkpoint"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -209,6 +210,9 @@ shallow = true
 [node name="spawn" type="Marker2D" parent="." unique_id=347443002]
 script = ExtResource("2_entrance")
 entrance_id = "spawn"
+
+[node name="Checkpoint" parent="." instance=ExtResource("23_checkpoint")]
+checkpoint_id = "level4_spawn"
 
 [node name="to_level_1" type="Area2D" parent="." unique_id=823019351]
 position = Vector2(-2499, 72)

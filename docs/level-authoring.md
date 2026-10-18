@@ -30,7 +30,7 @@ tile 是 **256px**，物品手拖容易对不齐。在 2D 视图顶部工具栏 
 | `goal.tscn` | `goal` | `unlock_door_ids` / `is_final` |
 | 自建 `StaticBody2D` | `room_door` | `door_id` / `required_key_id` / `unlock_options` / `unlock_side` |
 | 自建 `Area2D` | `door` | `target_scene` / `target_entrance` / `required_key_id` / `unlock_options` |
-| 自建 `StaticBody2D` | `one_way_gate` | `pass_dir` / `block_scale`（真正单向，只能朝一边穿过） |
+| 自建 `StaticBody2D` | `one_way_gate` | `pass_dir` / `block_scale`（仅入口侧能碰开，开后门消失、双向通行） |
 | `Marker2D` | `entrance` | `entrance_id` |
 | 自建 `Area2D` | `room_zone` | `room_name` / `dark` |
 | 自建 `Node2D` | `key` | `key_id` / `key_name` |
