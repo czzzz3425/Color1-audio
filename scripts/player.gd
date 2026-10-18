@@ -665,11 +665,17 @@ func _companion_recruited() -> bool:
 
 
 ## 跟班吸收带回的种子入库（吸收成功后由跟班回调）。
+## 首次获得某种颜色时自动选中它：既让色轮在第一次得色时直接亮出，
+## 也在之后新拿到一种没持有过的颜色时把色轮切到该色。
 func receive_element(element: String, amount: int) -> void:
 	if amount <= 0 or element == "":
 		return
+	var had_before := int(_inventory.get(element, 0)) > 0
 	_inventory[element] = int(_inventory.get(element, 0)) + amount
-	_notify_inventory()
+	if not had_before:
+		_select_element(element)
+	else:
+		_notify_inventory()
 
 
 ## 上色失败或目标返还元素时，退回预留的种子。

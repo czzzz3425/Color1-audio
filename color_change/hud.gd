@@ -454,10 +454,11 @@ func _make_wheel_count_label() -> Label:
 
 
 ## 根据当前选中元素切换显示对应色轮图，并在轮心显示持有数量。
+## 选中元素用完时保留选中色，数量角标显示 0，而非把色轮整个藏掉。
 func _update_wheel(selected_element: String, count: int) -> void:
 	if wheel == null:
 		return
-	if selected_element == "" or not WHEEL_TEXTURES.has(selected_element) or count <= 0:
+	if selected_element == "" or not WHEEL_TEXTURES.has(selected_element):
 		wheel.visible = false
 		return
 	wheel.visible = true
