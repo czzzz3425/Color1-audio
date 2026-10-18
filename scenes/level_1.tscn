@@ -7,9 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://v05473rse7id" path="res://art/picture_boluo/湖水.png" id="5_isj1j"]
 [ext_resource type="Texture2D" uid="uid://jxl8cetg4nil" path="res://art/picture_boluo/土墙块（湖水过渡）3.png" id="5_x2fux"]
 [ext_resource type="Texture2D" uid="uid://cpp75f0guxi8q" path="res://art/picture_boluo/地块1tm.png" id="6_s7g0b"]
-[ext_resource type="PackedScene" uid="uid://dj86vqolar41r" path="res://prefabs/items/interaction/box.tscn" id="8_5vw27"]
 [ext_resource type="Texture2D" uid="uid://dq1mvc7v72pfr" path="res://art/picture_boluo/湖水（深水）.png" id="8_nossa"]
-[ext_resource type="PackedScene" uid="uid://cth270frtlesc" path="res://prefabs/items/interaction/ice_block.tscn" id="9_4c57u"]
 [ext_resource type="PackedScene" uid="uid://bgfnfyk13xrue" path="res://prefabs/items/static prop/tree.tscn" id="9_kek77"]
 [ext_resource type="PackedScene" uid="uid://dolv6j8e0ihcs" path="res://prefabs/items/static prop/grass_1.tscn" id="9_ycdy4"]
 [ext_resource type="Texture2D" uid="uid://do002nfhoje5l" path="res://art/things/Ice_water2.png" id="11_1aans"]
@@ -17,7 +15,6 @@
 [ext_resource type="Script" uid="uid://b1mxwxqbqny2x" path="res://color_change/water_spawner.gd" id="12_spawn"]
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
 [ext_resource type="Script" uid="uid://co6ajp7px4q56" path="res://scripts/room_zone.gd" id="14_vivmo"]
-[ext_resource type="PackedScene" path="res://prefabs/items/interaction/ember.tscn" id="15_2cqfq"]
 [ext_resource type="Shader" uid="uid://cc4mtqgwkocui" path="res://shaders/portal.gdshader" id="16_8jqp6"]
 [ext_resource type="Texture2D" uid="uid://ch5gstr807tmq" path="res://art/picture_boluo/传送门tm.png" id="16_bamb7"]
 [ext_resource type="Texture2D" uid="uid://bqvmrxeuuahbf" path="res://art/picture_boluo/门tm.png" id="17_1aans"]
@@ -5122,25 +5119,6 @@ speed = 1200.0
 [node name="Trap8" parent="Traps" unique_id=1268851384 instance=ExtResource("17_trap")]
 position = Vector2(5110, 11254)
 speed = 1200.0
-
-[node name="Interactables" type="Node2D" parent="." unique_id=441863980]
-y_sort_enabled = true
-
-[node name="Box" parent="Interactables" unique_id=2085654712 instance=ExtResource("8_5vw27")]
-position = Vector2(-8683, 7256)
-scale = Vector2(16, 16)
-
-[node name="IceBlock" parent="Interactables" unique_id=1237292441 instance=ExtResource("9_4c57u")]
-position = Vector2(4843, -3281)
-scale = Vector2(16, 16)
-
-[node name="Ember" parent="Interactables" unique_id=1805318027 instance=ExtResource("15_2cqfq")]
-position = Vector2(-9781, 8203)
-scale = Vector2(16, 16)
-
-[node name="Ember2" parent="Interactables" unique_id=1501727551 instance=ExtResource("15_2cqfq")]
-position = Vector2(-10351, 8059)
-scale = Vector2(16, 16)
 
 [node name="WaterFlow" type="TileMapLayer" parent="." unique_id=1100431437]
 z_index = 10
