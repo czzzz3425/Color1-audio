@@ -11,8 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://dq1mvc7v72pfr" path="res://art/picture_boluo/湖水（深水）.png" id="8_nossa"]
 [ext_resource type="Script" uid="uid://b1mxwxqbqny2x" path="res://color_change/water_spawner.gd" id="12_spawn"]
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
+[ext_resource type="Texture2D" uid="uid://ch5gstr807tmq" path="res://art/picture_boluo/传送门tm.png" id="14_g31h8"]
+[ext_resource type="Shader" uid="uid://cc4mtqgwkocui" path="res://shaders/portal.gdshader" id="14_hy5x3"]
 [ext_resource type="Script" uid="uid://c87fgfsseq82n" path="res://color_change/air_wall_spawner.gd" id="22_airwall"]
-[ext_resource type="PackedScene" path="res://prefabs/rooms/checkpoint.tscn" id="23_checkpoint"]
+[ext_resource type="PackedScene" uid="uid://cy404hpgl6a4i" path="res://prefabs/rooms/checkpoint.tscn" id="23_checkpoint"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -169,8 +171,35 @@ tile_size = Vector2i(256, 256)
 sources/0 = SubResource("TileSetAtlasSource_water")
 sources/1 = SubResource("TileSetAtlasSource_hjqri")
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(64, 96)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_sn0t7"]
+radius = 113.0
+height = 314.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bhunq"]
+shader = ExtResource("14_hy5x3")
+shader_parameter/distortion_strength = 0.0150000007125
+shader_parameter/distortion_speed = 2.000000095
+shader_parameter/portal_radius = 0.5
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_riqys"]
+radius = 109.0
+height = 326.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8jqp6"]
+shader = ExtResource("14_hy5x3")
+shader_parameter/distortion_strength = 0.0150000007125
+shader_parameter/distortion_speed = 2.0
+shader_parameter/portal_radius = 0.48
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6f8o3"]
+radius = 113.0
+height = 326.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jscgt"]
+shader = ExtResource("14_hy5x3")
+shader_parameter/distortion_strength = 0.0150000007125
+shader_parameter/distortion_speed = 2.0
+shader_parameter/portal_radius = 0.48
 
 [node name="Level4" type="Node2D" unique_id=1581821904]
 script = ExtResource("1_room")
@@ -211,7 +240,7 @@ shallow = true
 script = ExtResource("2_entrance")
 entrance_id = "spawn"
 
-[node name="Checkpoint" parent="." instance=ExtResource("23_checkpoint")]
+[node name="Checkpoint" parent="." unique_id=1814421679 instance=ExtResource("23_checkpoint")]
 checkpoint_id = "level4_spawn"
 
 [node name="to_level_1" type="Area2D" parent="." unique_id=823019351]
@@ -222,12 +251,14 @@ target_scene = "res://scenes/level_1.tscn"
 target_entrance = "spawn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_1" unique_id=968016787]
-shape = SubResource("RectangleShape2D_door")
+position = Vector2(57, -61)
+shape = SubResource("CapsuleShape2D_sn0t7")
 
-[node name="Visual" type="Polygon2D" parent="to_level_1" unique_id=1366345042]
-z_index = 5
-color = Color(0.5, 0.85, 0.5, 1)
-polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+[node name="Sprite2D" type="Sprite2D" parent="to_level_1" unique_id=1178554607]
+material = SubResource("ShaderMaterial_bhunq")
+position = Vector2(60, -61)
+scale = Vector2(2, 2)
+texture = ExtResource("14_g31h8")
 
 [node name="to_level_2" type="Area2D" parent="." unique_id=1957715666]
 position = Vector2(5, -2344)
@@ -237,12 +268,12 @@ target_scene = "res://scenes/level_2.tscn"
 target_entrance = "spawn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_2" unique_id=2130818068]
-shape = SubResource("RectangleShape2D_door")
+shape = SubResource("CapsuleShape2D_riqys")
 
-[node name="Visual" type="Polygon2D" parent="to_level_2" unique_id=1997281931]
-z_index = 5
-color = Color(0.5, 0.85, 0.5, 1)
-polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+[node name="Sprite2D" type="Sprite2D" parent="to_level_2" unique_id=1248231237]
+material = SubResource("ShaderMaterial_8jqp6")
+scale = Vector2(2, 2)
+texture = ExtResource("14_g31h8")
 
 [node name="to_level_3" type="Area2D" parent="." unique_id=875691054]
 position = Vector2(2441, 0)
@@ -252,9 +283,9 @@ target_scene = "res://scenes/level_3.tscn"
 target_entrance = "spawn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_3" unique_id=803576809]
-shape = SubResource("RectangleShape2D_door")
+shape = SubResource("CapsuleShape2D_6f8o3")
 
-[node name="Visual" type="Polygon2D" parent="to_level_3" unique_id=1089564461]
-z_index = 5
-color = Color(0.5, 0.85, 0.5, 1)
-polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+[node name="Sprite2D" type="Sprite2D" parent="to_level_3" unique_id=444603125]
+material = SubResource("ShaderMaterial_jscgt")
+scale = Vector2(2, 2)
+texture = ExtResource("14_g31h8")

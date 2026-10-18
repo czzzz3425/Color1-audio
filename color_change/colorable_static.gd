@@ -14,6 +14,8 @@ const GrowFx := preload("res://shaders/green_grow_tree.tscn")
 const GreenEnchant := preload("res://shaders/GreenInside.gdshader")
 const RedEnchant := preload("res://shaders/Red_Inside.gdshader")
 const BlueEnchant := preload("res://shaders/BlueInside.gdshader")
+const CyanEnchant := preload("res://shaders/CyanInside.gdshader")
+const YellowEnchant := preload("res://shaders/yellowinside.gdshader")
 
 ## 烧毁模式：给红后 Visual 溶解烧尽并整体销毁（枯木等燃料）。默认关，普通树/木条不受影响。
 @export var burn_down := false
@@ -59,6 +61,10 @@ func _apply_visual(_c: Color, _origin: Vector2) -> void:
 		_play_enchant(RedEnchant)
 	elif el == "freeze":
 		_play_enchant(BlueEnchant)
+	elif el == "cyan":
+		_play_enchant(CyanEnchant)
+	elif el == "yellow":
+		_play_enchant(YellowEnchant)
 	else:
 		_hide_enchant()
 	if not burn_down:
@@ -137,6 +143,10 @@ func _apply_seed_visual(cfg: Dictionary) -> void:
 		shader = RedEnchant
 	elif color_name == "蓝":
 		shader = BlueEnchant
+	elif color_name == "青":
+		shader = CyanEnchant
+	elif color_name == "黄":
+		shader = YellowEnchant
 	if shader == null:
 		return
 	_ensure_enchant_overlay()
