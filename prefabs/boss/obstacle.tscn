@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="RectangleShape2D" id="Rect_obstacle"]
+size = Vector2(200, 200)
+
+[node name="Obstacle" type="StaticBody2D"]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Shadow" type="Polygon2D" parent="."]
+z_index = -1
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(-110, 96, 110, 96, 82, 126, -82, 126)
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.3, 0.32, 0.4, 1)
+polygon = PackedVector2Array(-100, -100, 100, -100, 100, 100, -100, 100)
+
+[node name="Top" type="Polygon2D" parent="."]
+color = Color(0.42, 0.45, 0.55, 1)
+polygon = PackedVector2Array(-100, -100, 100, -100, 70, -130, -70, -130)
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("Rect_obstacle")

@@ -62,6 +62,7 @@ var _last_reminder_ms := 0
 var _facing := 1.0
 var _breath_tween: Tween
 var _fly_tween: Tween
+var _fly_end := Vector2.ZERO
 var _task: Dictionary = {}    # 当前任务：{type, target, color, color_name, element}
 var _carry: Dictionary = {}   # 吸收带回的种子 {element, amount}
 
@@ -148,6 +149,8 @@ func is_available() -> bool:
 func paint(target: Node, color: Color, color_name: String, element: String) -> bool:
 	if not is_available():
 		return false
+	if target != null and is_instance_valid(target) and target.has_method("lock_for_paint"):
+		target.call("lock_for_paint", color_name, float(flight_duration) + 1.0)
 	_task = {"type": "paint", "target": target, "color": color, "color_name": color_name, "element": element}
 	_begin_task()
 	return true
@@ -185,7 +188,33 @@ func _begin_task() -> void:
 	if not is_instance_valid(target):
 		_finish_task()
 		return
-	_fly_to(target.global_position, _do_task)
+	_fly_to_target(target, _do_task)
+
+
+## 弧线飞行并持续追踪目标当前位置：目标被定格时也能准确落到它身上。
+func _fly_to_target(target: Node, on_arrive: Callable) -> void:
+	_kill_fly()
+	if _visual == null or not is_instance_valid(_visual):
+		return
+	var start := global_position
+	_fly_end = target.global_position
+	var dir := _fly_end - start
+	_facing = 1.0 if dir.x >= 0.0 else -1.0
+	_visual.scale.x = _facing
+	var tween := create_tween()
+	tween.tween_property(_visual, "scale:y", 0.6, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_visual, "scale:y", 1.15, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_method(_set_arc_pos_to_target.bind(start, target), 0.0, 1.0, flight_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_callback(on_arrive)
+	_fly_tween = tween
+
+
+func _set_arc_pos_to_target(t: float, start: Vector2, target: Node) -> void:
+	if target != null and is_instance_valid(target):
+		_fly_end = target.global_position
+	var mid := (start + _fly_end) * 0.5
+	mid.y -= flight_arc
+	global_position = _quad_bezier(start, mid, _fly_end, t)
 
 
 ## 弧线飞向 end，落地时回调 on_arrive。
@@ -236,9 +265,16 @@ func _execute_task() -> void:
 		_finish_task()
 		return
 	if _task["type"] == "paint":
-		var applied: bool = bool(target.call("apply_color", _task["color"], _task["color_name"], global_position))
-		if not applied and player != null and player.has_method("refund_element"):
-			player.call("refund_element", _task["element"], 1)
+		var applied := false
+		if target.has_method("apply_boss_color"):
+			applied = bool(target.call("apply_boss_color", _task["color"], _task["color_name"], global_position))
+		elif target.has_method("apply_color"):
+			applied = bool(target.call("apply_color", _task["color"], _task["color_name"], global_position))
+		if not applied:
+			if target.has_method("release_paint_lock"):
+				target.call("release_paint_lock")
+			if player != null and player.has_method("refund_element"):
+				player.call("refund_element", _task["element"], 1)
 	elif _task["type"] == "absorb":  # 抽色后带回来，飞回玩家才结算。
 		var info: Dictionary = target.call("absorb_color")
 		var el := str(info.get("element", ""))

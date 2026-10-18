@@ -14,6 +14,10 @@ signal gate_opened(gate_id: String)
 signal hint(text: String)
 ## 左上角短暂提示（拾取道具、门被解锁等）。HUD 连接它做顶部左侧的消息行。
 signal notice(text: String)
+## Boss 级警告横幅：标题 / 副标题 / 主题色 / 持续秒数（带倒计时）。HUD 连接它做居中横幅。
+signal alert(title: String, subtitle: String, color: Color, duration: float)
+## 立即收起当前 Boss 警告横幅（打断回血、Boss 死亡等）。
+signal alert_cancelled
 signal room_state_changed(room_id: String)
 
 var rooms: Dictionary = {}        # room_id -> RoomMeta

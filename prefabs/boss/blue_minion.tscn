@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/red_minion.gd" id="1_minion"]
+[ext_resource type="PackedScene" path="res://prefabs/boss/boss_freeze_orb.tscn" id="2_orb"]
+[ext_resource type="PackedScene" path="res://prefabs/boss/ground_hazard.tscn" id="3_hazard"]
+
+[sub_resource type="CircleShape2D" id="Circle_minion"]
+radius = 56.0
+
+[node name="BlueMinion" type="CharacterBody2D" groups=["enemy", "minion", "colorable"]]
+collision_layer = 0
+collision_mask = 2
+motion_mode = 1
+script = ExtResource("1_minion")
+minion_type = "blue"
+body_color = Color(0.4, 0.6, 1, 1)
+bullet_scene = ExtResource("2_orb")
+fire_interval = 1.7
+bullet_speed = 2200.0
+bullet_count = 2
+bullet_spread_deg = 3.5
+bullet_freeze_duration = 1.5
+bullet_trail_scene = ExtResource("3_hazard")
+bullet_trail_kind = 1
+bullet_trail_interval = 0.4
+aim_lock_time = 0.75
+aim_line_length = 2400.0
+sniper_shot_enabled = true
+trail_scene = null
+min_distance = 1100.0
+max_distance = 1400.0
+killed_by_element = "burn"
+
+[node name="Shadow" type="Polygon2D" parent="."]
+z_index = -1
+color = Color(0, 0, 0, 0.3)
+polygon = PackedVector2Array(-60, 50, 60, 50, 44, 70, -44, 70)
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.4, 0.6, 1, 1)
+polygon = PackedVector2Array(-52, -52, 52, -52, 52, 52, -52, 52)
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("Circle_minion")
+
+[node name="Nav" type="NavigationAgent2D" parent="."]

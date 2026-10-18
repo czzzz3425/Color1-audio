@@ -23,8 +23,12 @@ enum State {
 }
 
 @export_group("Movement")
-@export_range(0.0, 20000.0, 1.0) var walk_speed := 1920.0
-@export_range(0.0, 30000.0, 1.0) var run_speed := 3520.0
+@export_range(0.0, 20000.0, 1.0) var walk_speed := 1500.0
+@export_range(0.0, 30000.0, 1.0) var run_speed := 2400.0
+## 起步加速度（像素/秒²）：越大越快达到全速。
+@export_range(0.0, 40000.0, 100.0) var accel := 9000.0
+## 松手后的减速度（像素/秒²）：越大刹车越干脆。
+@export_range(0.0, 40000.0, 100.0) var decel := 14000.0
 
 @export_group("Jump")
 @export_range(0.0, 200.0, 1.0) var jump_height := 12.0
@@ -51,6 +55,12 @@ enum State {
 @export_group("Health")
 ## 最大血量（红心数）。初始 1 颗心；后续可加「心之容器」提高上限。
 @export_range(1, 20, 1) var max_health := 1
+
+@export_group("Testing")
+## 测试用：开启后玩家永久持有 红/蓝/绿 三色（消耗不减少），方便自由试玩各机制。
+@export var infinite_elements := false
+## 测试模式下的初始持有量（仅用于 HUD 显示，不参与扣除）。
+@export var infinite_amount := 999
 
 const FOOTPRINT_RADIUS := 64.0
 const OUTLINE_SHADER := preload("res://shaders/outline_colorful.gdshader")
@@ -101,10 +111,15 @@ var _freeze_preview_on := false          # 预览当前是否开启（含「手�
 var _base_collision_mask := 0    # 场景里配好的碰撞掩码（含水层）
 var _in_water := false           # 是否正站在水里（不可站水格）→ 临时忽略水层碰撞以便踩水
 var _knockback_vel := Vector2.ZERO   # 被飞行物命中时的击退速度（逐帧衰减）
+var _move_vel := Vector2.ZERO        # 输入产生的平滑移动速度（加减速用）
 var _dialogue_active := false        # 对话中禁止玩家移动
 var health := 1.0
 var _invincible_until := 0
 var _hit_t := 0.0   # 受击动画计时
+var _frozen := false        # 被冰冻（Boss 蓝弹）：禁止移动，需用红色解冻
+var _freeze_t := 0.0        # 冰冻剩余时间（超时兜底自动解冻）
+var _slow_t := 0.0          # 减速剩余时间（冰晶等地表）：不禁止移动，只是变慢
+var _slow_factor := 1.0     # 减速系数（1 = 不减速，越小越慢）
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var collision: CollisionShape2D = $Collision
@@ -135,8 +150,17 @@ func _ready() -> void:
 	_outline_material = ShaderMaterial.new()
 	_outline_material.shader = OUTLINE_SHADER
 	_select_element("")  # 初始化 HUD + 描边 + 首次信号
+	_seed_infinite_elements()
 	_setup_light()
 	_setup_range_indicator()
+
+
+## 测试模式：直接把红/蓝/绿塞进颜色库（HUD 显示 infinite_amount），供自由试玩。
+func _seed_infinite_elements() -> void:
+	if not infinite_elements:
+		return
+	_inventory = {"burn": infinite_amount, "freeze": infinite_amount, "grow": infinite_amount}
+	_select_element("burn")
 
 
 func _on_dialogue_started(_resource: DialogueResource) -> void:
@@ -167,6 +191,10 @@ func _setup_range_indicator() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _frozen:
+		_process_frozen(delta)
+		return
+	_tick_slow(delta)
 	if _range_indicator != null:
 		_range_indicator.active = _companion_recruited()
 	_handle_color_input()
@@ -197,6 +225,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	if state == State.ROTATE:
+		_move_vel = Vector2.ZERO
 		velocity = Vector2.ZERO
 		_rotate_t += delta
 		if _rotate_t >= rotate_duration:
@@ -208,7 +237,9 @@ func _physics_process(delta: float) -> void:
 
 	if state == State.JUMP:
 		_jump_t += delta / jump_duration
-		velocity = input * (run_speed if running else walk_speed)
+		var jump_speed := (run_speed if running else walk_speed) * _speed_scale()
+		_move_vel = _move_vel.move_toward(input * jump_speed, accel * delta)
+		velocity = _move_vel
 		if input != Vector2.ZERO:
 			facing = _dir_from_input(input)
 		if _jump_t >= 1.0:
@@ -230,13 +261,17 @@ func _physics_process(delta: float) -> void:
 		_start_jump()
 		return
 
+	var speed := (run_speed if running else walk_speed) * _speed_scale()
+	var target_vel := input * speed if input != Vector2.ZERO else Vector2.ZERO
+	var rate := accel if input != Vector2.ZERO else decel
+	_move_vel = _move_vel.move_toward(target_vel, rate * delta)
+	velocity = _move_vel
 	if input != Vector2.ZERO:
-		var speed := run_speed if running else walk_speed
-		velocity = input * speed
 		facing = _dir_from_input(input)
 		state = State.RUN if running else State.WALK
+	elif _move_vel.length() > 20.0:
+		state = State.RUN if _move_vel.length() > walk_speed * _speed_scale() * 0.75 else State.WALK
 	else:
-		velocity = Vector2.ZERO
 		state = State.IDLE
 
 	sprite.offset = _base_sprite_offset
@@ -270,11 +305,111 @@ func knockback(dir: Vector2, strength := 700.0) -> void:
 	_knockback_vel = dir.normalized() * strength
 
 
+## 冰冻（Boss 蓝弹命中）：冻结期间禁止移动/交互，需选中红色并左键消耗 1 颗红种子解冻；
+## duration 为超时兜底（到点自动解冻）。重复命中取较长的剩余时间。
+func freeze(duration := 3.0) -> void:
+	if health <= 0.0:
+		return
+	_freeze_t = maxf(_freeze_t, duration)
+	if _frozen:
+		return
+	_frozen = true
+	state = State.IDLE
+	_move_vel = Vector2.ZERO
+	velocity = Vector2.ZERO
+	_knockback_vel = Vector2.ZERO
+	sprite.modulate = Color(0.55, 0.75, 1.5, 1.0)
+	sprite.play("idle_down")
+	GameState.notice.emit("被冰冻！选中红色并左键解冻")
+
+
+## 解除冰冻，恢复正常控制与配色。
+func unfreeze() -> void:
+	if not _frozen:
+		return
+	_frozen = false
+	_freeze_t = 0.0
+	sprite.modulate = Color.WHITE
+	_apply_animation()
+
+
+func is_frozen_status() -> bool:
+	return _frozen
+
+
+## 减速（冰晶等地表）：不禁止移动，只是移动速度乘 factor；重复触发取更慢的系数与更长的剩余时间。
+func slow(factor := 0.5, duration := 1.0) -> void:
+	if health <= 0.0:
+		return
+	factor = clampf(factor, 0.05, 1.0)
+	if _slow_t > 0.0:
+		_slow_factor = minf(_slow_factor, factor)
+		_slow_t = maxf(_slow_t, duration)
+	else:
+		_slow_factor = factor
+		_slow_t = duration
+
+
+func is_slowed() -> bool:
+	return _slow_t > 0.0
+
+
+## 每帧衰减减速计时；到点恢复。
+func _tick_slow(delta: float) -> void:
+	if _slow_t > 0.0:
+		_slow_t = maxf(0.0, _slow_t - delta)
+		if _slow_t <= 0.0:
+			_slow_factor = 1.0
+
+
+## 当前移动速度倍率（减速中 < 1）。
+func _speed_scale() -> float:
+	return _slow_factor if _slow_t > 0.0 else 1.0
+
+
+## 冻结期间每帧处理：倒计时 + 红色解冻输入 + 保留击退位移。
+func _process_frozen(delta: float) -> void:
+	_knockback_vel = _knockback_vel.move_toward(Vector2.ZERO, 2500.0 * delta)
+	_freeze_t -= delta
+	# 左键 + 选中红 → 消耗 1 颗红种子立刻破冰。
+	if Input.is_action_just_pressed("interact") and _selected_element == "burn":
+		if _consume_element("burn", 1):
+			unfreeze()
+			GameState.notice.emit("红色解冻！")
+			return
+	if _freeze_t <= 0.0:
+		unfreeze()
+		return
+	velocity = _knockback_vel
+	move_and_slide()
+
+
+## 直接扣掉指定元素种子（不要求处于选中态）；不足返回 false。
+func _consume_element(element: String, amount: int = 1) -> bool:
+	if element == "" or amount <= 0:
+		return false
+	if infinite_elements:
+		return true
+	var have := int(_inventory.get(element, 0))
+	if have < amount:
+		return false
+	_inventory[element] = have - amount
+	if int(_inventory[element]) <= 0:
+		_inventory.erase(element)
+		if _selected_element == element:
+			var rest := _held_elements()
+			_select_element(rest[0] if not rest.is_empty() else "")
+			return true
+	_notify_inventory()
+	return true
+
+
 ## 受击：进入 HIT 状态并播一次受击动画（只播一次，HIT 分支里不再每帧重播）。
 ## 受击素材只有左右两套：朝左用左侧受击，其余（右/下/上）先用右边受击兜底。
 func _start_hit() -> void:
 	state = State.HIT
 	_hit_t = 0.0
+	_move_vel = Vector2.ZERO
 	velocity = Vector2.ZERO
 	sprite.play("hit_left" if facing == 1 else "hit_right")
 
@@ -331,7 +466,11 @@ func _die() -> void:
 
 ## 重生：回到当前房间出生点，恢复满血并给略长一点的无敌时间。
 func _respawn() -> void:
+	unfreeze()
+	_slow_t = 0.0
+	_slow_factor = 1.0
 	health = float(max_health)
+	_move_vel = Vector2.ZERO
 	velocity = Vector2.ZERO
 	_knockback_vel = Vector2.ZERO
 	global_position = _spawn_position()
@@ -578,6 +717,11 @@ func _grant() -> void:
 
 ## 扣掉当前选中元素的一颗种子，扣光后自动切到下一个持有色。
 func _consume_selected() -> void:
+	if _selected_element == "":
+		return
+	if infinite_elements:
+		_notify_inventory()
+		return
 	_inventory[_selected_element] = int(_inventory[_selected_element]) - 1
 	if int(_inventory[_selected_element]) <= 0:
 		_inventory.erase(_selected_element)
@@ -610,24 +754,26 @@ func _chest_at_mouse() -> Node:
 	return best
 
 
-## 鼠标当前指向、且在 "colorable" group 里的物体（重叠时取 z_index 最高/最上层）。
+## 鼠标当前指向的可上色目标：解密用的 "colorable" + Boss 专用 "boss_paint_target"
+## （重叠时取 z_index 最高/最上层）。
 func _colorable_at_mouse() -> Node:
 	var mp := get_global_mouse_position()
 	if global_position.distance_to(mp) > interact_range:
 		return null   # 工作圈之外：鼠标指示无效
 	var best: Node = null
 	var best_z := -INF
-	for obj in get_tree().get_nodes_in_group("colorable"):
-		if not GameState.is_in_current_scene(obj):
-			continue
-		if not obj.has_method("contains_point"):
-			continue
-		if not bool(obj.call("contains_point", mp)):
-			continue
-		var z := float(obj.get("z_index"))
-		if z >= best_z:
-			best_z = z
-			best = obj
+	for group in ["colorable", "boss_paint_target"]:
+		for obj in get_tree().get_nodes_in_group(group):
+			if not GameState.is_in_current_scene(obj):
+				continue
+			if not obj.has_method("contains_point"):
+				continue
+			if not bool(obj.call("contains_point", mp)):
+				continue
+			var z := float(obj.get("z_index"))
+			if z >= best_z:
+				best_z = z
+				best = obj
 	return best
 
 
@@ -642,7 +788,7 @@ func _colored_at_mouse() -> Node:
 ## 鼠标下、且能上色（可被赋予）的物体。
 func _grantable_at_mouse() -> Node:
 	var t := _colorable_at_mouse()
-	if t != null and t.has_method("apply_color"):
+	if t != null and (t.has_method("apply_color") or t.has_method("apply_boss_color")):
 		return t
 	return null
 

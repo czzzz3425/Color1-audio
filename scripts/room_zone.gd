@@ -37,6 +37,13 @@ func _ready() -> void:
 	_rect = _compute_rect()
 
 
+## 本房间分区的世界矩形（供相机边界 / 运行时导航烘焙使用）。
+func get_rect() -> Rect2:
+	if _rect.size == Vector2.ZERO:
+		_rect = _compute_rect()
+	return _rect
+
+
 ## 用本节点的矩形碰撞盒算相机边界（全局坐标）。
 func _compute_rect() -> Rect2:
 	for c in get_children():

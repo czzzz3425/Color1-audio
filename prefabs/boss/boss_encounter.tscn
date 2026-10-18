@@ -1,0 +1,18 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/boss_encounter.gd" id="1_encounter"]
+[ext_resource type="PackedScene" path="res://prefabs/boss/boss.tscn" id="2_boss"]
+[ext_resource type="PackedScene" path="res://prefabs/ui/hud.tscn" id="3_hud"]
+[ext_resource type="Script" path="res://scripts/nav/runtime_nav_baker.gd" id="4_nav"]
+
+[node name="BossEncounter" type="Node2D"]
+script = ExtResource("1_encounter")
+
+[node name="Boss" parent="." instance=ExtResource("2_boss")]
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]
+win_text = "Boss 已击败！"
+win_font_size = 64
+
+[node name="Nav" type="NavigationRegion2D" parent="."]
+script = ExtResource("4_nav")
