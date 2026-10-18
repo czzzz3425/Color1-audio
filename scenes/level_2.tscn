@@ -403,10 +403,12 @@ scale = Vector2(1.3597211, 1.546819)
 [node name="RoomDoor_Puzzle" parent="." unique_id=784575271 instance=ExtResource("22_63d2t")]
 position = Vector2(-13675, -15193.001)
 scale = Vector2(0.45776185, 0.52350926)
+manual_unlock = true
 
 [node name="RoomDoor_Puzzle2" parent="." unique_id=1549031746 instance=ExtResource("22_63d2t")]
 position = Vector2(1177.0001, -22558.002)
 scale = Vector2(0.45776185, 0.52350926)
+manual_unlock = true
 
 [node name="to_level_1" type="Area2D" parent="." unique_id=1761320657]
 position = Vector2(4777, -3791)
