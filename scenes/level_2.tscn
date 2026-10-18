@@ -18,6 +18,8 @@
 [ext_resource type="PackedScene" uid="uid://bgfnfyk13xrue" path="res://prefabs/items/static prop/tree.tscn" id="16_igmy8"]
 [ext_resource type="PackedScene" uid="uid://cmdgelgno7nbk" path="res://prefabs/creatures/fire_louse.tscn" id="18_7qsfm"]
 [ext_resource type="PackedScene" uid="uid://be2eeohasm6ng" path="res://prefabs/items/static prop/tree_dead.tscn" id="19_bv48q"]
+[ext_resource type="Shader" uid="uid://cc4mtqgwkocui" path="res://shaders/portal.gdshader" id="20_7egwj"]
+[ext_resource type="Texture2D" uid="uid://ch5gstr807tmq" path="res://art/picture_boluo/传送门tm.png" id="20_taw0e"]
 [ext_resource type="PackedScene" uid="uid://dy7h67xlfbi4q" path="res://prefabs/rooms/one_way_gate.tscn" id="21_k6a82"]
 [ext_resource type="PackedScene" uid="uid://dolv6j8e0ihcs" path="res://prefabs/items/static prop/grass_1.tscn" id="22_1sb0y"]
 [ext_resource type="PackedScene" uid="uid://cy404hpgl6a4i" path="res://prefabs/rooms/checkpoint.tscn" id="22_45kkt"]
@@ -270,8 +272,15 @@ sources/2 = SubResource("TileSetAtlasSource_172wr")
 sources/3 = SubResource("TileSetAtlasSource_g2hoc")
 sources/4 = SubResource("TileSetAtlasSource_1sb0y")
 
-[sub_resource type="RectangleShape2D" id="Rect_door"]
-size = Vector2(64, 96)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bhunq"]
+radius = 105.0
+height = 296.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1rxxv"]
+shader = ExtResource("20_7egwj")
+shader_parameter/distortion_strength = 0.0150000007125
+shader_parameter/distortion_speed = 2.0
+shader_parameter/portal_radius = 0.48
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_darkroom"]
 size = Vector2(400000, 400000)
@@ -407,12 +416,12 @@ target_scene = "res://scenes/level_4.tscn"
 target_entrance = "spawn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_1" unique_id=2034084032]
-shape = SubResource("Rect_door")
+shape = SubResource("CapsuleShape2D_bhunq")
 
-[node name="Visual" type="Polygon2D" parent="to_level_1" unique_id=89839615]
-z_index = 5
-color = Color(0.5, 0.85, 0.5, 1)
-polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+[node name="Sprite2D" type="Sprite2D" parent="to_level_1" unique_id=1045986273]
+material = SubResource("ShaderMaterial_1rxxv")
+scale = Vector2(2, 2)
+texture = ExtResource("20_taw0e")
 
 [node name="Fireflies" type="Node2D" parent="." unique_id=1672400937]
 y_sort_enabled = true
@@ -866,7 +875,7 @@ position = Vector2(105, -3140)
 position = Vector2(2985, -4643)
 
 [node name="Grass_12" parent="Grass_1" unique_id=1885838948 instance=ExtResource("22_1sb0y")]
-position = Vector2(4098, -3503)
+position = Vector2(5183, -3448)
 
 [node name="Grass_13" parent="Grass_1" unique_id=813830055 instance=ExtResource("22_1sb0y")]
 position = Vector2(-2311, -8032)
@@ -1091,5 +1100,5 @@ drop_id = "2"
 position = Vector2(-18544, -24585)
 
 [node name="BaoXiang2" parent="." unique_id=404647096 instance=ExtResource("24_vwfin")]
-position = Vector2(6566, -3745)
+position = Vector2(10086, -3807)
 drop_scene = ExtResource("26_va6c3")

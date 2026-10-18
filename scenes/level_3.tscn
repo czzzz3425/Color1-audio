@@ -10,6 +10,8 @@
 [ext_resource type="Texture2D" uid="uid://cpp75f0guxi8q" path="res://art/picture_boluo/地块1tm.png" id="6_s7g0b"]
 [ext_resource type="Texture2D" uid="uid://dq1mvc7v72pfr" path="res://art/picture_boluo/湖水（深水）.png" id="8_nossa"]
 [ext_resource type="Script" uid="uid://b1mxwxqbqny2x" path="res://color_change/water_spawner.gd" id="12_spawn"]
+[ext_resource type="Texture2D" uid="uid://ch5gstr807tmq" path="res://art/picture_boluo/传送门tm.png" id="13_5kn0t"]
+[ext_resource type="Shader" uid="uid://cc4mtqgwkocui" path="res://shaders/portal.gdshader" id="13_bjw4u"]
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
 [ext_resource type="PackedScene" uid="uid://bgew1y27utuh3" path="res://prefabs/items/interaction/growth_seed.tscn" id="13_p3r0x"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="14_5xqnf"]
@@ -182,8 +184,15 @@ tile_size = Vector2i(256, 256)
 sources/0 = SubResource("TileSetAtlasSource_water")
 sources/1 = SubResource("TileSetAtlasSource_hjqri")
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
-size = Vector2(64, 96)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bhunq"]
+radius = 102.0
+height = 324.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hy5x3"]
+shader = ExtResource("13_bjw4u")
+shader_parameter/distortion_strength = 0.0150000007125
+shader_parameter/distortion_speed = 2.0
+shader_parameter/portal_radius = 0.48
 
 [node name="Level3" type="Node2D" unique_id=2128445411]
 script = ExtResource("1_room")
@@ -227,19 +236,19 @@ script = ExtResource("2_entrance")
 entrance_id = "spawn"
 
 [node name="to_level_4" type="Area2D" parent="." unique_id=348229012]
-position = Vector2(-2248, 2059)
+position = Vector2(-2171, 2103)
 script = ExtResource("3_door")
 door_id = "to_level_4"
 target_scene = "res://scenes/level_4.tscn"
 target_entrance = "spawn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_4" unique_id=1705269447]
-shape = SubResource("RectangleShape2D_door")
+shape = SubResource("CapsuleShape2D_bhunq")
 
-[node name="Visual" type="Polygon2D" parent="to_level_4" unique_id=870232651]
-z_index = 5
-color = Color(0.5, 0.85, 0.5, 1)
-polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+[node name="Sprite2D" type="Sprite2D" parent="to_level_4" unique_id=1593005483]
+material = SubResource("ShaderMaterial_hy5x3")
+scale = Vector2(2, 2)
+texture = ExtResource("13_5kn0t")
 
 [node name="GrowthSeed" parent="." unique_id=1002088840 instance=ExtResource("13_p3r0x")]
 position = Vector2(2510, 7)

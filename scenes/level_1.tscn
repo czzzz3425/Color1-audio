@@ -18,6 +18,8 @@
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
 [ext_resource type="Script" uid="uid://co6ajp7px4q56" path="res://scripts/room_zone.gd" id="14_vivmo"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/ember.tscn" id="15_2cqfq"]
+[ext_resource type="Shader" uid="uid://cc4mtqgwkocui" path="res://shaders/portal.gdshader" id="16_8jqp6"]
+[ext_resource type="Texture2D" uid="uid://ch5gstr807tmq" path="res://art/picture_boluo/传送门tm.png" id="16_bamb7"]
 [ext_resource type="Texture2D" uid="uid://bqvmrxeuuahbf" path="res://art/picture_boluo/门tm.png" id="17_1aans"]
 [ext_resource type="PackedScene" uid="uid://cb56q1q7r7fke" path="res://prefabs/items/interaction/trap.tscn" id="17_trap"]
 [ext_resource type="Script" uid="uid://darjnda0vdwpq" path="res://scripts/room.gd" id="18_room"]
@@ -4303,6 +4305,16 @@ sources/0 = SubResource("TileSetAtlasSource_ycdy4")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yaehf"]
 size = Vector2(1320, 920)
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bhunq"]
+radius = 122.0
+height = 292.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dmmei"]
+shader = ExtResource("16_8jqp6")
+shader_parameter/distortion_strength = 0.0150000007125
+shader_parameter/distortion_speed = 2.0
+shader_parameter/portal_radius = 0.5
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(448, 481)
 
@@ -4375,19 +4387,21 @@ script = ExtResource("19_entrance")
 entrance_id = "spawn"
 
 [node name="to_level_2" type="Area2D" parent="." unique_id=28751892]
-position = Vector2(9618, -367)
+position = Vector2(9696, -364)
 script = ExtResource("20_door")
 door_id = "to_level_4"
 target_scene = "res://scenes/level_4.tscn"
 target_entrance = "spawn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_2" unique_id=14817283]
-shape = SubResource("RectangleShape2D_door")
+position = Vector2(13, -94)
+shape = SubResource("CapsuleShape2D_bhunq")
 
-[node name="Visual" type="Polygon2D" parent="to_level_2" unique_id=774557010]
-z_index = 5
-color = Color(0.5, 0.85, 0.5, 1)
-polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+[node name="Sprite2D" type="Sprite2D" parent="to_level_2" unique_id=1312710519]
+material = SubResource("ShaderMaterial_dmmei")
+position = Vector2(16, -104)
+scale = Vector2(2, 2.09)
+texture = ExtResource("16_bamb7")
 
 [node name="OneWayGate" type="StaticBody2D" parent="." unique_id=465708706]
 position = Vector2(-3441, 93)

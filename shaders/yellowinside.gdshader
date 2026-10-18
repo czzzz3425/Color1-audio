@@ -14,9 +14,11 @@ uniform float glow_falloff : hint_range(0.5, 4.0)   = 2.0;
 uniform float glow_pulse_speed : hint_range(0.0, 2.0) = 0.18;
 uniform float glow_pulse_amp   : hint_range(0.0, 0.2) = 0.06;
 
-// 附魔：中心向外扩散，只播一遍
-uniform float enchant_speed  : hint_range(0.05, 2.0)  = 0.35;  // 播完所需时间 = 1/speed 秒
-uniform float enchant_offset : hint_range(0.0, 1.0)   = 0.0;   // 起始相位（错开多个实例）
+// 附魔：中心向外扩散，只播一遍。
+// 进度由脚本 tween `enchant_progress`（0→1）驱动——TIME 是全局的，多次赋予之间无法重播。
+uniform float enchant_progress : hint_range(0.0, 1.0) = 0.0;
+uniform float enchant_speed  : hint_range(0.05, 2.0)  = 0.35;
+uniform float enchant_offset : hint_range(0.0, 1.0)   = 0.0;
 uniform float enchant_width  : hint_range(0.01, 0.3)  = 0.06;  // 前沿过渡宽度
 uniform float enchant_radius : hint_range(0.2, 1.0)   = 0.7071; // 扩散半径归一化
 uniform vec3  enchant_front_color     : source_color   = vec3(1.0, 1.0, 1.0);
@@ -27,7 +29,7 @@ void fragment() {
     float a0 = tex.a;
 
     // ---- 一次性附魔进度：0 → 1 后定格 ----
-    float progress = clamp(TIME * enchant_speed + enchant_offset, 0.0, 1.0);
+    float progress = clamp(enchant_progress, 0.0, 1.0);
     // 过冲一点，保证最后整张图 mask 完全为 1（角落也彻底附魔）
     float sweep = progress * (1.0 + enchant_width * 2.0);
 
