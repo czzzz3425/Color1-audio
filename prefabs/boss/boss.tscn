@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/boss.gd" id="1_boss"]
+
+[sub_resource type="RectangleShape2D" id="Rect_boss"]
+size = Vector2(240, 240)
+
+[node name="Boss" type="CharacterBody2D" groups=["enemy", "boss", "boss_paint_target"]]
+collision_layer = 4
+collision_mask = 2
+motion_mode = 1
+script = ExtResource("1_boss")
+
+[node name="Shadow" type="Polygon2D" parent="."]
+z_index = -1
+color = Color(0, 0, 0, 0.3)
+polygon = PackedVector2Array(-130, 110, 130, 110, 95, 145, -95, 145)
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.55, 0.22, 0.62, 1)
+polygon = PackedVector2Array(-120, -120, 120, -120, 120, 120, -120, 120)
+
+[node name="Core" type="Polygon2D" parent="."]
+color = Color(1, 1, 1, 0.25)
+polygon = PackedVector2Array(-56, -64, 56, -64, 56, -20, -56, -20)
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("Rect_boss")
+
+[node name="Nav" type="NavigationAgent2D" parent="."]

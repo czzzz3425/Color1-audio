@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/mechanics/parry_projectile.gd" id="1_proj"]
+
+[sub_resource type="CircleShape2D" id="Circle_fireball"]
+radius = 16.0
+
+[node name="BossFireball" type="CharacterBody2D"]
+collision_layer = 0
+collision_mask = 7
+script = ExtResource("1_proj")
+speed = 540.0
+damage = 1.0
+knockback_strength = 700.0
+parryable = true
+single_parry = true
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("Circle_fireball")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(1, 0.35, 0.2, 1)
+polygon = PackedVector2Array(0, -18, 18, 0, 0, 18, -18, 0)

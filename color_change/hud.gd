@@ -3,6 +3,11 @@ extends CanvasLayer
 
 const Rules := preload("res://scripts/element/element_rules.gd")
 
+## 胜利/击败文字。留空则保留场景里 WinLabel 的文本。
+@export var win_text := ""
+## 胜利文字字号。0 = 保留场景里的字号。
+@export_range(0, 200, 1) var win_font_size := 0
+
 ## 右下角色轮方向盘：红/绿/蓝各一张独立成品图，选中哪个元素就显示哪张。
 ## 每张图都已画好「选中色高亮、其余两色压淡」，无需 shader 旋转 / 扇区遮罩。
 const WHEEL_TEXTURES := {
@@ -26,8 +31,21 @@ var _count_label: Label
 var hint_label: Label
 var status_label: Label
 var notice_label: Label
+var notice_panel: PanelContainer
+var _notice_dot: Label
 var _hint_tween: Tween
 var _notice_tween: Tween
+
+var alert_root: Control
+var alert_panel: PanelContainer
+var alert_icon: Label
+var alert_title: Label
+var alert_subtitle: Label
+var alert_count: Label
+var alert_bar: ProgressBar
+var _alert_tween: Tween
+var _alert_left := 0.0
+var _alert_total := 1.0
 
 
 func _ready() -> void:
@@ -35,17 +53,25 @@ func _ready() -> void:
 	hint_label = _make_hint_label()
 	status_label = _make_status_label()
 	notice_label = _make_notice_label()
+	_make_alert_banner()
 	_make_hearts()
+	_make_boss_bar()
 	_make_wheel()
 	color_label.visible = false   # 调色盘改用右下角色轮，不再用左上角文字
 	GameState.hint.connect(show_hint)
 	GameState.notice.connect(show_notice)
+	GameState.alert.connect(show_alert)
+	GameState.alert_cancelled.connect(_on_alert_cancelled)
 	GameState.key_added.connect(_refresh_status)
 	GameState.key_used.connect(_refresh_status)
 	GameState.prop_added.connect(_refresh_status)
 	GameState.ability_added.connect(_refresh_status)
 	_refresh_status()
 	if win_label:
+		if win_text != "":
+			win_label.text = win_text
+		if win_font_size > 0:
+			win_label.add_theme_font_size_override("font_size", win_font_size)
 		win_label.visible = false
 	var player := get_tree().get_first_node_in_group("player")
 	if player:
@@ -142,37 +168,225 @@ static func _true_keys(d: Dictionary) -> Array[String]:
 	return out
 
 
-## 左上角短暂消息行（拾取道具 / 门被解锁等），显示 2 秒后淡出。
+## 左上角短暂消息：圆角深色卡片 + 主题色左侧描边 + 小圆点，显示 2 秒后淡出。
 func _make_notice_label() -> Label:
+	notice_panel = PanelContainer.new()
+	notice_panel.name = "NoticePanel"
+	notice_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	notice_panel.offset_left = 12.0
+	notice_panel.offset_top = 100.0
+	notice_panel.offset_right = 320.0
+	notice_panel.offset_bottom = 144.0
+	notice_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	notice_panel.add_theme_stylebox_override("panel", _notice_style())
+	notice_panel.visible = false
+	add_child(notice_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	notice_panel.add_child(margin)
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	margin.add_child(row)
+
+	_notice_dot = Label.new()
+	_notice_dot.text = "●"
+	_notice_dot.add_theme_font_size_override("font_size", 16)
+	_notice_dot.add_theme_color_override("font_color", Color(1.0, 0.82, 0.35))
+	_notice_dot.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(_notice_dot)
+
 	var l := Label.new()
 	l.name = "NoticeLabel"
-	l.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	l.offset_left = 12.0
-	l.offset_top = 96.0
-	l.offset_right = 720.0
-	l.offset_bottom = 128.0
 	l.add_theme_font_size_override("font_size", 20)
-	l.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
-	l.visible = false
-	add_child(l)
+	l.add_theme_color_override("font_color", Color(0.97, 0.93, 0.76))
+	l.add_theme_constant_override("outline_size", 4)
+	l.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.05, 0.9))
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(l)
 	return l
 
 
+func _notice_style() -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.02, 0.035, 0.06, 0.88)
+	sb.border_width_left = 5
+	sb.border_width_top = 1
+	sb.border_width_right = 1
+	sb.border_width_bottom = 1
+	sb.border_color = Color(1.0, 0.82, 0.35, 0.9)
+	sb.set_corner_radius_all(10)
+	sb.shadow_color = Color(0.0, 0.0, 0.0, 0.4)
+	sb.shadow_size = 8
+	sb.shadow_offset = Vector2(0, 3)
+	return sb
+
+
 func show_notice(text: String) -> void:
-	if notice_label == null:
+	if notice_label == null or notice_panel == null:
 		return
 	notice_label.text = text
-	notice_label.modulate.a = 1.0
-	notice_label.visible = true
+	notice_label.update_minimum_size()
+	var text_size := notice_label.get_minimum_size()
+	notice_panel.offset_right = notice_panel.offset_left + clampf(text_size.x + 92.0, 220.0, 760.0)
+	notice_panel.offset_bottom = notice_panel.offset_top + maxf(text_size.y + 24.0, 44.0)
+	notice_panel.modulate.a = 1.0
+	notice_panel.visible = true
 	if _notice_tween and _notice_tween.is_valid():
 		_notice_tween.kill()
 	_notice_tween = create_tween()
 	_notice_tween.tween_interval(2.0)
-	_notice_tween.tween_property(notice_label, "modulate:a", 0.0, 0.5)
+	_notice_tween.tween_property(notice_panel, "modulate:a", 0.0, 0.5)
 	_notice_tween.tween_callback(func():
-		notice_label.visible = false
-		notice_label.modulate.a = 1.0
+		notice_panel.visible = false
+		notice_panel.modulate.a = 1.0
 	)
+
+
+## 屏幕上方居中的 Boss 警告横幅（标题 + 副标题 + 倒计时进度条）。
+func _make_alert_banner() -> void:
+	alert_root = Control.new()
+	alert_root.name = "BossAlert"
+	alert_root.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	alert_root.offset_left = -360.0
+	alert_root.offset_right = 360.0
+	alert_root.offset_top = 64.0
+	alert_root.offset_bottom = 190.0
+	alert_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	alert_root.pivot_offset = Vector2(360.0, 63.0)
+	alert_root.visible = false
+	add_child(alert_root)
+
+	alert_panel = PanelContainer.new()
+	alert_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	alert_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	alert_panel.add_theme_stylebox_override("panel", _alert_style(Color(0.45, 0.85, 0.5)))
+	alert_root.add_child(alert_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	alert_panel.add_child(margin)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 5)
+	margin.add_child(box)
+
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 10)
+	box.add_child(top)
+
+	alert_icon = Label.new()
+	alert_icon.text = "!"
+	alert_icon.custom_minimum_size = Vector2(26, 0)
+	alert_icon.add_theme_font_size_override("font_size", 32)
+	alert_icon.add_theme_color_override("font_color", Color(0.6, 1.0, 0.65))
+	alert_icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	top.add_child(alert_icon)
+
+	alert_title = Label.new()
+	alert_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	alert_title.add_theme_font_size_override("font_size", 28)
+	alert_title.add_theme_color_override("font_color", Color(0.7, 1.0, 0.75))
+	alert_title.add_theme_constant_override("outline_size", 5)
+	alert_title.add_theme_color_override("font_outline_color", Color(0.02, 0.03, 0.05, 0.95))
+	alert_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	top.add_child(alert_title)
+
+	alert_count = Label.new()
+	alert_count.add_theme_font_size_override("font_size", 22)
+	alert_count.add_theme_color_override("font_color", Color(0.85, 1.0, 0.9))
+	alert_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	top.add_child(alert_count)
+
+	alert_subtitle = Label.new()
+	alert_subtitle.add_theme_font_size_override("font_size", 17)
+	alert_subtitle.add_theme_color_override("font_color", Color(0.86, 0.9, 0.96))
+	alert_subtitle.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	box.add_child(alert_subtitle)
+
+	alert_bar = ProgressBar.new()
+	alert_bar.custom_minimum_size = Vector2(0, 6)
+	alert_bar.show_percentage = false
+	alert_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(alert_bar)
+
+
+func _alert_style(c: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.02, 0.035, 0.06, 0.92)
+	sb.border_width_left = 3
+	sb.border_width_top = 3
+	sb.border_width_right = 3
+	sb.border_width_bottom = 3
+	sb.border_color = Color(c.r, c.g, c.b, 0.95)
+	sb.set_corner_radius_all(14)
+	sb.shadow_color = Color(c.r, c.g, c.b, 0.35)
+	sb.shadow_size = 14
+	sb.shadow_offset = Vector2(0, 4)
+	return sb
+
+
+func show_alert(title: String, subtitle: String, color: Color, duration: float) -> void:
+	if alert_root == null:
+		return
+	_alert_total = maxf(duration, 0.1)
+	_alert_left = _alert_total
+	alert_title.text = title
+	alert_subtitle.text = subtitle
+	alert_icon.add_theme_color_override("font_color", color)
+	alert_title.add_theme_color_override("font_color", color.lightened(0.2))
+	alert_count.add_theme_color_override("font_color", color.lightened(0.35))
+	alert_panel.add_theme_stylebox_override("panel", _alert_style(color))
+
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = color
+	fill.set_corner_radius_all(3)
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(1.0, 1.0, 1.0, 0.08)
+	bg.set_corner_radius_all(3)
+	alert_bar.add_theme_stylebox_override("fill", fill)
+	alert_bar.add_theme_stylebox_override("background", bg)
+	alert_bar.max_value = _alert_total
+	alert_bar.value = _alert_left
+	alert_count.text = "%ds" % int(ceil(_alert_left))
+
+	alert_root.visible = true
+	alert_root.modulate.a = 1.0
+	alert_root.scale = Vector2(0.94, 0.94)
+	if _alert_tween and _alert_tween.is_valid():
+		_alert_tween.kill()
+	_alert_tween = create_tween()
+	_alert_tween.tween_property(alert_root, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func hide_alert() -> void:
+	_alert_left = 0.0
+	if alert_root != null:
+		alert_root.visible = false
+		alert_root.modulate.a = 1.0
+
+
+func _on_alert_cancelled() -> void:
+	hide_alert()
+
+
+func _tick_alert(delta: float) -> void:
+	if _alert_left <= 0.0 or alert_root == null:
+		return
+	_alert_left = maxf(_alert_left - delta, 0.0)
+	alert_bar.value = _alert_left
+	alert_count.text = "%ds" % int(ceil(_alert_left))
+	if _alert_left <= 0.0:
+		hide_alert()
+	elif _alert_left < 0.3:
+		alert_root.modulate.a = _alert_left / 0.3
 
 
 func _on_inventory_changed(inventory: Dictionary, selected_element: String) -> void:
@@ -341,3 +555,64 @@ func _make_heart(filled: bool) -> Control:
 	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	h.self_modulate.a = 1.0 if filled else 0.22
 	return h
+
+
+# —— Boss 血条（顶部居中，绑定 "boss" 组里的 Boss）——
+
+var boss_bar: ProgressBar
+var _boss: Node
+
+
+func _make_boss_bar() -> void:
+	boss_bar = ProgressBar.new()
+	boss_bar.name = "BossBar"
+	boss_bar.min_value = 0.0
+	boss_bar.max_value = 100.0
+	boss_bar.value = 100.0
+	boss_bar.show_percentage = false
+	boss_bar.visible = false
+	boss_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_bar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	boss_bar.offset_left = -320.0
+	boss_bar.offset_right = 320.0
+	boss_bar.offset_top = 20.0
+	boss_bar.offset_bottom = 48.0
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color(0.85, 0.2, 0.25)
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.0, 0.0, 0.0, 0.6)
+	boss_bar.add_theme_stylebox_override("fill", fill)
+	boss_bar.add_theme_stylebox_override("background", bg)
+	add_child(boss_bar)
+
+
+## 每帧尝试绑定场景中的 Boss（房间异步加载 / Boss 死亡重生后自动重连）。
+func _process(delta: float) -> void:
+	_tick_alert(delta)
+	if _boss != null and is_instance_valid(_boss) and not _boss.is_queued_for_deletion():
+		return
+	_boss = null
+	var found := get_tree().get_first_node_in_group("boss")
+	if found == null:
+		boss_bar.visible = false
+		return
+	_boss = found
+	if _boss.has_signal("health_changed"):
+		_boss.health_changed.connect(_on_boss_health_changed)
+	if _boss.has_signal("died"):
+		_boss.died.connect(_on_boss_died)
+	var snap: Dictionary = _boss.health_snapshot()
+	_on_boss_health_changed(snap["health"], snap["max_health"])
+	boss_bar.visible = true
+
+
+func _on_boss_health_changed(current: float, max_health: float) -> void:
+	if boss_bar == null:
+		return
+	boss_bar.max_value = maxf(max_health, 1.0)
+	boss_bar.value = current
+
+
+func _on_boss_died() -> void:
+	if boss_bar != null:
+		boss_bar.visible = false

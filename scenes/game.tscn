@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cwyuk0m83tvqs" path="res://scripts/game_container.gd" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="2_player"]
-[ext_resource type="Script" uid="uid://c72jfj8on1i3d" path="res://color_change/hud.gd" id="3_hud"]
+[ext_resource type="PackedScene" path="res://prefabs/ui/hud.tscn" id="3_hud"]
 [ext_resource type="Script" uid="uid://bwht6afqxmfus" path="res://scripts/darkness_overlay.gd" id="4_darkness"]
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="5_gee14"]
 [ext_resource type="Material" uid="uid://by7wgjc88b0vq" path="res://shaders/darkness_material.tres" id="5_mat"]
@@ -39,37 +39,7 @@ tween_resource = SubResource("Resource_0tnpc")
 tween_on_load = false
 follow_damping = true
 
-[node name="HUD" type="CanvasLayer" parent="." unique_id=1261757595]
-script = ExtResource("3_hud")
-
-[node name="ColorLabel" type="RichTextLabel" parent="HUD" unique_id=513933860]
-offset_left = 12.0
-offset_top = 8.0
-offset_right = 512.0
-offset_bottom = 64.0
-theme_override_font_sizes/normal_font_size = 20
-bbcode_enabled = true
-fit_content = true
-scroll_active = false
-
-[node name="WinLabel" type="Label" parent="HUD" unique_id=1813536092]
-visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -80.0
-offset_right = 300.0
-offset_bottom = 80.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 72
-text = "过关！"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="HUD" parent="." unique_id=1261757595 instance=ExtResource("3_hud")]
 
 [node name="Darkness" type="Polygon2D" parent="." unique_id=1840203514]
 z_index = 4096

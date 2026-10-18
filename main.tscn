@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bkgp83ocrv3oh" path="res://color_change/colorable_sprite.gd" id="4_5vw27"]
 [ext_resource type="Texture2D" uid="uid://c00g7qises46" path="res://art/else/rock.png" id="4_272bh"]
 [ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="5_lquwl"]
-[ext_resource type="Script" uid="uid://c72jfj8on1i3d" path="res://color_change/hud.gd" id="7_kek77"]
+[ext_resource type="PackedScene" path="res://prefabs/ui/hud.tscn" id="7_kek77"]
 [ext_resource type="PackedScene" uid="uid://dj86vqolar41r" path="res://prefabs/items/interaction/box.tscn" id="8_5vw27"]
 [ext_resource type="PackedScene" uid="uid://cth270frtlesc" path="res://prefabs/items/interaction/ice_block.tscn" id="9_4c57u"]
 [ext_resource type="PackedScene" uid="uid://bgfnfyk13xrue" path="res://prefabs/items/static prop/tree.tscn" id="9_kek77"]
@@ -4196,37 +4196,7 @@ scale = Vector2(43, 36)
 texture = ExtResource("4_272bh")
 script = ExtResource("4_5vw27")
 
-[node name="HUD" type="CanvasLayer" parent="." unique_id=1213313800]
-script = ExtResource("7_kek77")
-
-[node name="ColorLabel" type="RichTextLabel" parent="HUD" unique_id=475737284]
-offset_left = 12.0
-offset_top = 8.0
-offset_right = 512.0
-offset_bottom = 64.0
-theme_override_font_sizes/normal_font_size = 20
-bbcode_enabled = true
-fit_content = true
-scroll_active = false
-
-[node name="WinLabel" type="Label" parent="HUD" unique_id=1440000001]
-visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -80.0
-offset_right = 300.0
-offset_bottom = 80.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 72
-text = "过关！"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="HUD" parent="." unique_id=1213313800 instance=ExtResource("7_kek77")]
 
 [node name="Tree" parent="." unique_id=293502526 instance=ExtResource("9_kek77")]
 position = Vector2(-1232, -1104)

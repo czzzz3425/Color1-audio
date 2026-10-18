@@ -198,6 +198,8 @@ func _submit(job: Dictionary, target: Node) -> bool:
 			return false
 	job.target = weakref(target)
 	job.settled = false
+	if job.type == "paint" and target.has_method("lock_for_paint"):
+		target.call("lock_for_paint", str(job.get("color_name", "")), float(flight_duration) + 1.0)
 	var marker := preload("res://scripts/companion_order_marker.gd").new()
 	marker.target = job.target
 	marker.tint = job.get("color", Color("687b8c"))
@@ -222,7 +224,7 @@ func _valid_target(target: Node, kind: String) -> bool:
 	if is_instance_valid(GameState.current_room) and not GameState.is_in_current_scene(target):
 		return false
 	match kind:
-		"paint": return target.has_method("apply_color")
+		"paint": return target.has_method("apply_color") or target.has_method("apply_boss_color")
 		"absorb": return target.has_method("absorb_color") and (not target.has_method("has_color") or target.has_color())
 		"interact": return target.has_method("interact") and not bool(target.get("is_open"))
 	return false
@@ -299,9 +301,16 @@ func _execute_task() -> void:
 		_task.settled = true
 		match str(_task.type):
 			"paint":
-				if not bool(target.apply_color(_task.color, _task.color_name, _task.from_pos)):
+				var applied := false
+				if target.has_method("apply_boss_color"):
+					applied = bool(target.call("apply_boss_color", _task.color, _task.color_name, _task.from_pos))
+				elif target.has_method("apply_color"):
+					applied = bool(target.call("apply_color", _task.color, _task.color_name, _task.from_pos))
+				if not applied:
 					_task.settled = false
 					_cancel_job(_task)
+				elif target.has_method("release_paint_lock"):
+					target.call("release_paint_lock")
 			"absorb":
 				var info: Dictionary = target.absorb_color()
 				var element := str(info.get("element", ""))
@@ -351,9 +360,13 @@ func _clear_marker(job: Dictionary) -> void:
 func _cancel_job(job: Dictionary) -> void:
 	if job.is_empty():
 		return
-	if job.type == "paint" and not job.settled and is_instance_valid(player):
-		job.settled = true
-		player.refund_element(str(job.element), 1)
+	if job.type == "paint":
+		var target: Node = job.target.get_ref()
+		if is_instance_valid(target) and target.has_method("release_paint_lock"):
+			target.call("release_paint_lock")
+		if not job.settled and is_instance_valid(player):
+			job.settled = true
+			player.refund_element(str(job.element), 1)
 	_clear_marker(job)
 
 
