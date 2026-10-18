@@ -83,11 +83,8 @@ func apply_color(_c: Color, color_name: String = "", _from_pos: Vector2 = Vector
 	if not _frozen:
 		_freeze(_from_pos)
 		return true
-	# 已结冰：再点一下生成一块可融冰墙（消耗 1 蓝）。
-	if _has_wall():
-		return false
-	_spawn_ice_wall()
-	return true
+	# 已结冰的水面不再接受重复蓝色，不生成额外冰块，也不消耗种子。
+	return false
 
 
 ## 是否已结冰。

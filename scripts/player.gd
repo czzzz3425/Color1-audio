@@ -398,10 +398,6 @@ func _consume_element(element: String, amount: int = 1) -> bool:
 	_inventory[element] = have - amount
 	if int(_inventory[element]) <= 0:
 		_inventory.erase(element)
-		if _selected_element == element:
-			var rest := _held_elements()
-			_select_element(rest[0] if not rest.is_empty() else "")
-			return true
 	_notify_inventory()
 	return true
 
@@ -673,7 +669,7 @@ func receive_element(element: String, amount: int) -> void:
 	if amount <= 0 or element == "":
 		return
 	_inventory[element] = int(_inventory.get(element, 0)) + amount
-	_select_element(element)  # 吸收后自动选中新拿到的颜色
+	_notify_inventory()
 
 
 ## 上色失败或目标返还元素时，退回预留的种子。
@@ -681,11 +677,7 @@ func refund_element(element: String, amount: int) -> void:
 	if amount <= 0 or element == "":
 		return
 	_inventory[element] = int(_inventory.get(element, 0)) + amount
-	# 乐观扣除曾把最后一颗扣到 0 而自动切走了选中色：退款后恢复选中。
-	if _selected_element == "":
-		_select_element(element)
-	else:
-		_notify_inventory()
+	_notify_inventory()
 
 
 ## 敌人（焰虱）碰到玩家时抢走库存种子——种子守恒的反向操作。抢到返回 true，抢不到返回 false。
@@ -698,11 +690,7 @@ func steal_element(element: String, amount: int = 1) -> bool:
 	_inventory[element] = have - amount
 	if int(_inventory[element]) <= 0:
 		_inventory.erase(element)
-		if _selected_element == element:
-			var rest := _held_elements()
-			_select_element(rest[0] if not rest.is_empty() else "")
-	else:
-		_notify_inventory()
+	_notify_inventory()
 	return true
 
 
@@ -710,6 +698,8 @@ func steal_element(element: String, amount: int = 1) -> bool:
 ## 跟班跟随之后才有交互：先预留种子，到场执行；取消/失败退回。
 func _grant() -> void:
 	if _selected_element == "" or not _companion_recruited():
+		return
+	if not infinite_elements and int(_inventory.get(_selected_element, 0)) <= 0:
 		return
 	var target := _grantable_at_mouse()
 	if target == null:
@@ -723,20 +713,19 @@ func _grant() -> void:
 		refund_element(element, 1)
 
 
-## 扣掉当前选中元素的一颗种子，扣光后自动切到下一个持有色。
+## 扣掉当前选中元素的一颗种子；扣光后保留选中色，由玩家手动切换。
 func _consume_selected() -> void:
 	if _selected_element == "":
 		return
 	if infinite_elements:
 		_notify_inventory()
 		return
+	if int(_inventory.get(_selected_element, 0)) <= 0:
+		return
 	_inventory[_selected_element] = int(_inventory[_selected_element]) - 1
 	if int(_inventory[_selected_element]) <= 0:
 		_inventory.erase(_selected_element)
-		var rest := _held_elements()
-		_select_element(rest[0] if not rest.is_empty() else "")
-	else:
-		_notify_inventory()
+	_notify_inventory()
 
 
 ## 鼠标当前指向、且未开启的宝箱（工作圈内，重叠时取 z_index 最高/最上层）。
