@@ -53,11 +53,12 @@ static func need_message(key_name: String) -> String:
 ##   无钥匙   → 发居中提示并返回 NO_KEY（门不应打开）；
 ##   有钥匙   → 消耗（销毁）该钥匙、发左上消息并返回 UNLOCKED；
 ##   未配置钥匙 → NOT_NEEDED（不发任何消息，门走自己的逻辑）。
-func try_unlock() -> Result:
+func try_unlock(show_missing_hint := true) -> Result:
 	var r := decide(required_key_id, GameState.has_key(required_key_id))
 	match r:
 		Result.NO_KEY:
-			GameState.hint.emit(need_message(GameState.key_display(required_key_id)))
+			if show_missing_hint:
+				GameState.hint.emit(need_message(GameState.key_display(required_key_id)))
 		Result.UNLOCKED:
 			GameState.consume_key(required_key_id)
 			GameState.notice.emit(use_message(GameState.key_display(required_key_id)))

@@ -83,6 +83,9 @@ func _unlock_and_pass(announce: bool) -> void:
 
 
 func _teleport() -> void:
+	if target_scene == "":
+		push_warning("Door '%s' 未配置 target_scene，无法传送" % door_id)
+		return
 	SceneManager.change_room(target_scene, target_entrance)
 
 

@@ -149,7 +149,9 @@ func _ready() -> void:
 	_apply_animation()
 	_outline_material = ShaderMaterial.new()
 	_outline_material.shader = OUTLINE_SHADER
-	_select_element("")  # 初始化 HUD + 描边 + 首次信号
+	_inventory = GameState.elements.duplicate()
+	var saved_elements := _held_elements()
+	_select_element(str(saved_elements[0]) if not saved_elements.is_empty() else "")
 	_seed_infinite_elements()
 	_setup_light()
 	_setup_range_indicator()
@@ -480,6 +482,9 @@ func _respawn() -> void:
 
 ## 出生点：当前房间的 "spawn" 入口位置（约定每个房间都有 entrance_id=spawn）。
 func _spawn_position() -> Vector2:
+	# 有存档点且存档点就在当前场景 → 优先复活到存档点。
+	if GameState.has_checkpoint() and GameState.checkpoint_scene == SceneManager.current_room_scene:
+		return GameState.checkpoint_pos
 	var room := GameState.current_room as Room
 	if room == null:
 		return global_position  # 兜底：不知道出生点就原地满血复活
@@ -527,7 +532,7 @@ func _push_boxes(dir: Vector2, delta: float) -> void:
 	for i in get_slide_collision_count():
 		var col := get_slide_collision(i)
 		var body := col.get_collider()
-		if body is CharacterBody2D and body.has_method("push"):
+		if body is PhysicsBody2D and body.has_method("push"):
 			var into := -col.get_normal()   # 指向箱子内部（被挡住的推入方向）
 			if dir.dot(into) > 0.3:
 				body.push(dir, delta)
@@ -671,7 +676,7 @@ func receive_element(element: String, amount: int) -> void:
 	_select_element(element)  # 吸收后自动选中新拿到的颜色
 
 
-## 跟班飞到后目标没吃下颜色，退回乐观扣除的种子（上色失败时由跟班回调）。
+## 上色失败或目标返还元素时，退回预留的种子。
 func refund_element(element: String, amount: int) -> void:
 	if amount <= 0 or element == "":
 		return
@@ -702,17 +707,20 @@ func steal_element(element: String, amount: int = 1) -> bool:
 
 
 ## 赋予：让跟班飞过去把当前选中的元素种到鼠标指向的可上色物体（种子守恒）。
-## 跟班跟随之后才有交互：未招募直接不做。乐观扣种子，失败由跟班回调 refund_element 退回。
+## 跟班跟随之后才有交互：先预留种子，到场执行；取消/失败退回。
 func _grant() -> void:
 	if _selected_element == "" or not _companion_recruited():
 		return
 	var target := _grantable_at_mouse()
 	if target == null:
 		return
-	var cfg := Rules.config(_selected_element)
+	var element := _selected_element
+	var cfg := Rules.config(element)
 	var companion := _companion()
-	if bool(companion.call("paint", target, cfg.get("color", Color.WHITE), cfg.get("color_name", ""), _selected_element)):
-		_consume_selected()
+	# 先预留种子；队列替换、目标失效或上色失败由跟班退回，拒绝接单则立即退回。
+	_consume_selected()
+	if not bool(companion.call("paint", target, cfg.get("color", Color.WHITE), cfg.get("color_name", ""), element)):
+		refund_element(element, 1)
 
 
 ## 扣掉当前选中元素的一颗种子，扣光后自动切到下一个持有色。

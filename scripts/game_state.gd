@@ -32,11 +32,20 @@ var elements: Dictionary = {}     # element_id -> count（由玩家 inventory �
 var opened_gates: Dictionary = {}
 ## 本次游戏已开始播放的剧情，切关保留，reset 后清空。
 var played_story: Dictionary = {}
+var companion_recruited := false
 var health_upgrades: Dictionary = {} # 道具唯一 id -> 增加的最大生命值
 var health_upgrade_names: Dictionary = {}
 
 var current_room_id: String = ""
 var current_room: Node = null
+
+## 存档点：角色最近一次到达的存档位置（场景路径 + 世界坐标）。
+var checkpoint_scene: String = ""
+var checkpoint_pos: Vector2 = Vector2.ZERO
+
+const SAVE_PATH := "user://save.json"
+## 主菜单请求的下一次启动方式。重建玩家和房间，避免继承预览状态。
+var menu_launch_action := ""
 
 const ReachabilityScript = preload("res://scripts/reachability.gd")
 
@@ -52,10 +61,144 @@ func reset() -> void:
 	elements.clear()
 	opened_gates.clear()
 	played_story.clear()
+	companion_recruited = false
 	health_upgrades.clear()
 	health_upgrade_names.clear()
 	current_room_id = ""
 	current_room = null
+	checkpoint_scene = ""
+	checkpoint_pos = Vector2.ZERO
+
+
+# —— 存档 / 读档 ——
+## 设置存档点（角色到达存档点时调用），并立即写盘。
+func set_checkpoint(scene: String, pos: Vector2) -> void:
+	checkpoint_scene = scene
+	checkpoint_pos = pos
+	save_game()
+
+
+func has_checkpoint() -> bool:
+	return checkpoint_scene != ""
+
+
+## 序列化当前进度 + 存档点到 user://save.json。
+func save_game() -> void:
+	# 飞行中预留的上色种子尚未作用到世界；存档应保留它们，避免读档丢种。
+	var saved_elements := elements.duplicate()
+	for companion in get_tree().get_nodes_in_group("companion"):
+		if companion.has_method("reserved_elements"):
+			var reserved: Dictionary = companion.reserved_elements()
+			for element in reserved:
+				saved_elements[element] = int(saved_elements.get(element, 0)) + int(reserved[element])
+	var data := {
+		"checkpoint_scene": checkpoint_scene,
+		"checkpoint_pos": [checkpoint_pos.x, checkpoint_pos.y],
+		"keys": keys,
+		"used_keys": used_keys,
+		"key_names": key_names,
+		"switches": switches,
+		"abilities": abilities,
+		"props": props,
+		"elements": saved_elements,
+		"opened_gates": opened_gates,
+		"played_story": played_story,
+		"companion_recruited": companion_recruited,
+		"health_upgrades": health_upgrades,
+		"health_upgrade_names": health_upgrade_names,
+	}
+	# 确保 user:// 目录存在（首次运行时可能还没建）。
+	if DirAccess.open("user://") == null:
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://"))
+	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if f == null:
+		push_warning("无法写入存档：%s" % SAVE_PATH)
+		return
+	f.store_string(JSON.stringify(data))
+	f.close()
+
+
+## 校验磁盘数据；失败不修改内存，也不覆盖原文件。
+func _read_save() -> Dictionary:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return {}
+	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if f == null:
+		return {}
+	var text := f.get_as_text()
+	f.close()
+	var json := JSON.new()
+	if json.parse(text) != OK:
+		return {}
+	var parsed: Variant = json.data
+	if parsed == null or not (parsed is Dictionary):
+		return {}
+	var d: Dictionary = parsed
+	if d.has("companion_recruited") and not d.companion_recruited is bool:
+		return {}
+	var scene: Variant = d.get("checkpoint_scene", "")
+	var position: Variant = d.get("checkpoint_pos", [])
+	if not scene is String or not scene.begins_with("res://") or not scene.ends_with(".tscn") or not ResourceLoader.exists(scene, "PackedScene"):
+		return {}
+	if not position is Array or position.size() != 2:
+		return {}
+	for coordinate in position:
+		if not (coordinate is float or coordinate is int) or not is_finite(float(coordinate)):
+			return {}
+	for key in ["keys", "used_keys", "key_names", "switches", "abilities", "props", "elements", "opened_gates", "played_story", "health_upgrades", "health_upgrade_names"]:
+		if not d.get(key, {}) is Dictionary:
+			return {}
+	for key in ["elements", "health_upgrades"]:
+		for value in d.get(key, {}).values():
+			if not (value is int or value is float) or not is_finite(float(value)) or value < 0:
+				return {}
+	return d
+
+
+## 检查可继续的存档，不改内存进度；缺失、损坏、场景已删除均返回 false。
+func has_valid_save() -> bool:
+	return not _read_save().is_empty()
+
+
+## 从有效存档恢复进度；先清理上一局的房间元数据。
+func load_game() -> bool:
+	var d := _read_save()
+	if d.is_empty():
+		return false
+	reset()
+	checkpoint_scene = str(d.get("checkpoint_scene", ""))
+	var pos_arr: Array = d.get("checkpoint_pos", [0.0, 0.0])
+	checkpoint_pos = Vector2(float(pos_arr[0]), float(pos_arr[1]))
+	keys = d.get("keys", {})
+	used_keys = d.get("used_keys", {})
+	key_names = d.get("key_names", {})
+	switches = d.get("switches", {})
+	abilities = d.get("abilities", {})
+	props = d.get("props", {})
+	elements = d.get("elements", {})
+	opened_gates = d.get("opened_gates", {})
+	played_story = d.get("played_story", {})
+	# 旧存档无此字段：后续关卡或已获得元素说明已完成跟班教学。
+	companion_recruited = bool(d.get("companion_recruited", checkpoint_scene != "res://scenes/level_1.tscn" or not elements.is_empty()))
+	health_upgrades = d.get("health_upgrades", {})
+	health_upgrade_names = d.get("health_upgrade_names", {})
+	return true
+
+
+## 开始新游戏：清空进度、清掉存档点、删除存档文件。
+func new_game() -> void:
+	reset()
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.remove_absolute(SAVE_PATH)
+
+
+## 继续游戏：读取存档，返回是否有可用存档。
+func continue_game() -> bool:
+	return load_game()
+
+
+func has_save_file() -> bool:
+	return FileAccess.file_exists(SAVE_PATH)
 
 
 # —— 房间元数据 ——

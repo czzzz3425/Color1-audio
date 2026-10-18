@@ -14,7 +14,7 @@ script = ExtResource("1_door")
 position = Vector2(-85.25, 74.5)
 shape = SubResource("RectangleShape2D_door")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1423275904]
+[node name="Visual" type="Sprite2D" parent="." unique_id=1423275904]
 position = Vector2(-72.24999, 74.50001)
 scale = Vector2(2.2285156, 2.1835938)
 texture = ExtResource("2_khowh")

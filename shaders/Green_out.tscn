@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://cgubmc4vv4uk3"]
+
+[ext_resource type="Shader" uid="uid://b5tkyebn0e3ba" path="res://shaders/GreenInside.gdshader" id="1_iu78x"]
+[ext_resource type="Texture2D" uid="uid://i2wr7ihe6f6u" path="res://icon.svg" id="2_fycv0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6f8o3"]
+shader = ExtResource("1_iu78x")
+shader_parameter/tint = Color(0.25, 1, 0.42, 1)
+shader_parameter/tint_amount = 0.4
+shader_parameter/glow_color = Color(1, 1, 0, 1)
+shader_parameter/glow_radius = 3.0
+shader_parameter/glow_intensity = 0.8
+shader_parameter/glow_falloff = 2.0
+shader_parameter/glow_pulse_speed = 0.18
+shader_parameter/glow_pulse_amp = 0.06
+shader_parameter/enchant_progress = 1.0
+shader_parameter/enchant_speed = 0.800000038
+shader_parameter/enchant_offset = 0.0
+shader_parameter/enchant_width = 0.00999999977648
+shader_parameter/enchant_radius = 0.7071
+shader_parameter/enchant_front_color = Color(1, 1, 1, 1)
+shader_parameter/enchant_front_intensity = 2.0
+
+[node name="GreenOut" type="Node2D" unique_id=907607796]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=487967930]
+material = SubResource("ShaderMaterial_6f8o3")
+position = Vector2(78, 73)
+texture = ExtResource("2_fycv0")

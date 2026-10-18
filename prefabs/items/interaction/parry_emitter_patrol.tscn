@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/parry_emitter.tscn" id="1_base"]
+
+[node name="ParryEmitter" instance=ExtResource("1_base")]
+move_speed = 90.0
+travel = Vector2(-320, 0)

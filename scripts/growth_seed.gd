@@ -18,11 +18,13 @@ extends Node2D
 ## ⚠️ 不要定义 is_frozen()（player._water_at_mouse 会误判成水格崩溃）。
 
 const Rules := preload("res://scripts/element/element_rules.gd")
+## 绿生长粒子（green_grow.tscn）：长藤时在种子处朝 grow_dir 喷发一撮绿叶。
+const GrowFx := preload("res://shaders/green_grow.tscn")
 
 @export_group("生长")
 ## 藤蔓延伸方向（单位向量，屏幕坐标 y 向下）。默认向右。
 @export var grow_dir := Vector2.RIGHT
-@export_range(32.0, 1024.0, 8.0) var vine_length := 256.0
+@export_range(32.0, 4096.0, 8.0) var vine_length := 256.0
 @export_range(8.0, 128.0, 4.0) var vine_thickness := 40.0
 ## 增殖：藤蔓末端碰到相邻藤种时自动连锁（绿蔓延）。0 = 不连锁。
 @export_range(0.0, 512.0, 8.0) var chain_radius := 96.0
@@ -36,10 +38,12 @@ const Rules := preload("res://scripts/element/element_rules.gd")
 @export_group("状态")
 @export var state_id: String = ""
 
-var seed_visual: Polygon2D
+var seed_visual: Sprite2D
 var vine: StaticBody2D
-var vine_visual: Polygon2D
+var vine_visual: Sprite2D
 var vine_collision: CollisionShape2D
+var _grow_fx: Node2D
+var _grow_particles: CPUParticles2D
 
 var _grown := false
 var _frozen := false
@@ -56,14 +60,14 @@ func _ready() -> void:
 	if grow_dir == Vector2.ZERO:
 		grow_dir = Vector2.RIGHT
 	grow_dir = grow_dir.normalized()
-	rotation = grow_dir.angle()   # 整个种子朝向 grow_dir，藤蔓在局部 +X 延伸
-	seed_visual = get_node_or_null("SeedVisual") as Polygon2D
+	# 不旋转整个节点：种子贴图保持原朝向，只让藤蔓子节点朝向 grow_dir。
+	seed_visual = get_node_or_null("SeedVisual") as Sprite2D
 	vine = get_node_or_null("Vine") as StaticBody2D
 	if vine != null:
-		vine_visual = vine.get_node_or_null("VineVisual") as Polygon2D
+		vine_visual = vine.get_node_or_null("VineVisual") as Sprite2D
 		vine_collision = vine.get_node_or_null("VineCollision") as CollisionShape2D
 		vine.position = Vector2.ZERO
-		vine.rotation = 0.0
+		vine.rotation = grow_dir.angle()
 		# 藤桥跨水/坑时不设物理碰撞：通行性由 set_bridged + HeightMap 接管，
 		# 否则这层 layer 2 会横在桥中段挡住玩家（只能走第一格）。
 		# 桥两侧的深水碰撞仍在，玩家不会从侧面掉出去。
@@ -73,23 +77,116 @@ func _ready() -> void:
 			vine_collision.position = Vector2(vine_length * 0.5, 0.0)
 			vine_collision.set_deferred("disabled", true)
 		if vine_visual != null:
-			vine_visual.position = Vector2(vine_length * 0.5, 0.0)
-			vine_visual.polygon = PackedVector2Array([
-				Vector2(-vine_length * 0.5, -vine_thickness * 0.5),
-				Vector2(vine_length * 0.5, -vine_thickness * 0.5),
-				Vector2(vine_length * 0.5, vine_thickness * 0.5),
-				Vector2(-vine_length * 0.5, vine_thickness * 0.5),
-			])
+			_setup_vine_texture()
 		vine.scale = Vector2(0.001, 1.0)   # 收拢：scale.x=0 会触发警告，用 0.001 近似
+	_setup_grow_fx()
 	_apply_visual()
 
 
 ## 视觉统一刷新：种子发芽变绿、藤蔓按 frozen/grown 换色。
 func _apply_visual() -> void:
 	if seed_visual != null:
-		seed_visual.color = vine_color if _grown else seed_color
+		seed_visual.modulate = vine_color if _grown else seed_color
 	if vine_visual != null:
-		vine_visual.color = frozen_color if _frozen else vine_color
+		vine_visual.modulate = frozen_color if _frozen else vine_color
+
+
+## 挂载绿生长粒子（green_grow.tscn）并适配藤蔓：喷发方向对齐 grow_dir（默认贴图朝 -X），
+## 喷发点放在藤蔓尖端、随生长推进；连续喷发（one_shot=false），生长结束才停。
+func _setup_grow_fx() -> void:
+	_grow_fx = GrowFx.instantiate()
+	_grow_fx.name = "GrowFx"
+	add_child(_grow_fx)
+	_grow_particles = _grow_fx.get_node_or_null("TipParticles") as CPUParticles2D
+	if _grow_particles == null:
+		return
+	_grow_fx.position = Vector2.ZERO
+	_grow_particles.direction = grow_dir
+	_grow_particles.one_shot = false
+	_grow_particles.emitting = false
+	# 适配长度：藤越长，沿途粒子越多（默认 256px 对应 40 粒）。
+	_grow_particles.amount = int(_grow_particles.amount * clampf(vine_length / 256.0, 0.5, 3.0))
+
+
+## 生长时播放粒子：喷发点从种子推进到藤蔓尖端，与 vine.scale:x 的 0.4s 同节奏推进，
+## 让绿叶在整段生长路径上持续喷出；生长结束停喷，剩余粒子自然消散。
+func _play_grow_fx() -> void:
+	if _grow_fx == null or _grow_particles == null:
+		return
+	_grow_fx.position = Vector2.ZERO
+	_grow_particles.emitting = true
+	var t := create_tween()
+	t.tween_property(_grow_fx, "position", grow_dir * vine_length, 0.4)
+	t.tween_callback(_on_grow_fx_done)
+
+
+func _on_grow_fx_done() -> void:
+	if _grow_particles != null:
+		_grow_particles.emitting = false
+
+
+## 贴图非透明内容的最小包围盒（裁掉四周透明边，让平铺/拉伸都以图案实际尺寸为准）。
+func _content_rect(tex: Texture2D) -> Rect2:
+	if tex == null:
+		return Rect2(Vector2.ZERO, Vector2(vine_thickness, vine_length))
+	var img := tex.get_image()
+	if img == null:
+		return Rect2(Vector2.ZERO, tex.get_size())
+	img.convert(Image.FORMAT_RGBA8)
+	var min_x := img.get_width()
+	var min_y := img.get_height()
+	var max_x := -1
+	var max_y := -1
+	for y in img.get_height():
+		for x in img.get_width():
+			if img.get_pixel(x, y).a > 0.01:
+				min_x = mini(min_x, x)
+				max_x = maxi(max_x, x)
+				min_y = mini(min_y, y)
+				max_y = maxi(max_y, y)
+	if max_x < min_x:
+		return Rect2(Vector2.ZERO, tex.get_size())
+	return Rect2(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+
+
+## 把「一段桥」的贴图按原始比例沿长度方向自动拼接成整条桥，避免拉伸变形。
+func _setup_vine_texture() -> void:
+	var tex := vine_visual.texture
+	if tex == null:
+		return
+	var content := _content_rect(tex)
+	var img := tex.get_image()
+	if img == null:
+		# 拿不到像素数据时退回旧拉伸逻辑。
+		vine_visual.centered = true
+		vine_visual.rotation = -PI * 0.5
+		vine_visual.position = Vector2(vine_length * 0.5, 0.0)
+		vine_visual.region_enabled = true
+		vine_visual.region_rect = content
+		vine_visual.scale = Vector2(vine_thickness / content.size.x, vine_length / content.size.y)
+		return
+	img.convert(Image.FORMAT_RGBA8)
+	var cw := int(content.size.x)
+	var ch := int(content.size.y)
+	var seg := Image.create(cw, ch, false, Image.FORMAT_RGBA8)
+	seg.blit_rect(img, Rect2i(int(content.position.x), int(content.position.y), cw, ch), Vector2i.ZERO)
+	# 统一缩放：让厚度 = vine_thickness，图案宽高比保持不变。
+	var scale_factor := vine_thickness / float(cw)
+	var seg_w := maxi(1, int(vine_thickness))
+	var seg_h := maxi(1, int(ch * scale_factor))
+	seg.resize(seg_w, seg_h, Image.INTERPOLATE_BILINEAR)
+	# 沿长度方向重复拼接。
+	var count := maxi(1, ceili(vine_length / float(seg_h)))
+	var total_h := seg_h * count
+	var tiled := Image.create(seg_w, total_h, false, Image.FORMAT_RGBA8)
+	for i in count:
+		tiled.blit_rect(seg, Rect2i(0, 0, seg_w, seg_h), Vector2i(0, i * seg_h))
+	vine_visual.texture = ImageTexture.create_from_image(tiled)
+	vine_visual.region_enabled = false
+	vine_visual.centered = true
+	vine_visual.rotation = -PI * 0.5
+	vine_visual.position = Vector2(vine_length * 0.5, 0.0)
+	vine_visual.scale = Vector2.ONE
 
 
 ## 直接设藤蔓终态（restore 用）；生长/收回动画走 _grow_vine/_shrink_vine。
@@ -106,6 +203,7 @@ func _set_vine(on: bool) -> void:
 
 func _grow_vine() -> void:
 	_grown = true
+	_play_grow_fx()
 	if vine == null:
 		return
 	if vine_collision != null:
@@ -161,20 +259,25 @@ func _capture_vine_cells() -> void:
 	var start := global_position
 	var end := global_position + grow_dir * vine_length
 	var steps := maxi(1, int(vine_length / (HeightMap.CELL * 0.5)))
+	var perp := Vector2(-grow_dir.y, grow_dir.x).normalized()
+	var half := vine_thickness * 0.5
 	var seen: Dictionary = {}   # grid(Vector2i) -> true，同格只记第一次（未修改前）的原值
 	for i in range(steps + 1):
-		var p := start.lerp(end, float(i) / float(steps))
-		var grid := Vector2i(floor(p.x / HeightMap.CELL), floor(p.y / HeightMap.CELL))
-		if seen.has(grid):
-			continue
-		seen[grid] = true
-		_vine_cells.append({
-			"grid": grid,
-			"walkable": HeightMap.is_walkable(p),
-			"flow": HeightMap.flow_at(p),
-		})
-		HeightMap.set_walkable(p, true)
-		HeightMap.set_flow(p, 0)
+		var base := start.lerp(end, float(i) / float(steps))
+		# 沿桥宽采样（中心 + 两侧），覆盖整条桥的通行性，避免玩家在桥边缘擦到未桥接的水。
+		for off in [-half, 0.0, half]:
+			var p: Vector2 = base + perp * float(off)
+			var grid := Vector2i(floor(p.x / HeightMap.CELL), floor(p.y / HeightMap.CELL))
+			if seen.has(grid):
+				continue
+			seen[grid] = true
+			_vine_cells.append({
+				"grid": grid,
+				"walkable": HeightMap.is_walkable(p),
+				"flow": HeightMap.flow_at(p),
+			})
+			HeightMap.set_walkable(p, true)
+			HeightMap.set_flow(p, 0)
 	_bridge_water()
 
 
@@ -186,6 +289,8 @@ func _bridge_water() -> void:
 	var start := global_position
 	var end := global_position + grow_dir * vine_length
 	var steps := maxi(1, int(vine_length / (HeightMap.CELL * 0.5)))
+	var perp := Vector2(-grow_dir.y, grow_dir.x).normalized()
+	var half := vine_thickness * 0.5
 	for obj in get_tree().get_nodes_in_group("colorable"):
 		if not is_instance_valid(obj):
 			continue
@@ -193,8 +298,12 @@ func _bridge_water() -> void:
 			continue
 		var hit := false
 		for i in range(steps + 1):
-			if bool(obj.call("contains_point", start.lerp(end, float(i) / float(steps)))):
-				hit = true
+			var base := start.lerp(end, float(i) / float(steps))
+			for off in [-half, 0.0, half]:
+				if bool(obj.call("contains_point", base + perp * float(off))):
+					hit = true
+					break
+			if hit:
 				break
 		if hit:
 			obj.call("set_bridged", true)

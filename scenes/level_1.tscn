@@ -18,6 +18,8 @@
 [ext_resource type="Texture2D" uid="uid://jbbq0d4vwblq" path="res://art/else/grass.png" id="13_grass"]
 [ext_resource type="Script" uid="uid://co6ajp7px4q56" path="res://scripts/room_zone.gd" id="14_vivmo"]
 [ext_resource type="PackedScene" path="res://prefabs/items/interaction/ember.tscn" id="15_2cqfq"]
+[ext_resource type="Shader" uid="uid://cc4mtqgwkocui" path="res://shaders/portal.gdshader" id="16_8jqp6"]
+[ext_resource type="Texture2D" uid="uid://ch5gstr807tmq" path="res://art/picture_boluo/传送门tm.png" id="16_bamb7"]
 [ext_resource type="Texture2D" uid="uid://bqvmrxeuuahbf" path="res://art/picture_boluo/门tm.png" id="17_1aans"]
 [ext_resource type="PackedScene" uid="uid://cb56q1q7r7fke" path="res://prefabs/items/interaction/trap.tscn" id="17_trap"]
 [ext_resource type="Script" uid="uid://darjnda0vdwpq" path="res://scripts/room.gd" id="18_room"]
@@ -31,11 +33,17 @@
 [ext_resource type="PackedScene" uid="uid://bv06efk7r2psm" path="res://prefabs/items/static prop/Baoxiang.tscn" id="26_hg84p"]
 [ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="26_mmfjm"]
 [ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/dia/companion.dialogue" id="27_k8ld0"]
+[ext_resource type="PackedScene" uid="uid://cmdgelgno7nbk" path="res://prefabs/creatures/fire_louse.tscn" id="27_v0i6o"]
 [ext_resource type="Script" uid="uid://bsesqduu4fs8m" path="res://scripts/companion_hint.gd" id="28_k8ld0"]
 [ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="29_hnsmf"]
 [ext_resource type="PackedScene" path="res://prefabs/rooms/room_zone.tscn" id="29_mbb35"]
 [ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="31_hjqri"]
-[ext_resource type="PackedScene" path="res://prefabs/items/interaction/red_heart.tscn" id="36_v8pws"]
+[ext_resource type="PackedScene" uid="uid://cy404hpgl6a4i" path="res://prefabs/rooms/checkpoint.tscn" id="33_v8pws"]
+[ext_resource type="PackedScene" uid="uid://dgk72eudaijk4" path="res://prefabs/items/interaction/blue_heart.tscn" id="36_tdlki"]
+[ext_resource type="PackedScene" uid="uid://chdkxg2bd1tkv" path="res://prefabs/rooms/room_door.tscn" id="37_v8pws"]
+[ext_resource type="PackedScene" uid="uid://bgew1y27utuh3" path="res://prefabs/items/interaction/growth_seed.tscn" id="39_rscm6"]
+[ext_resource type="PackedScene" path="res://prefabs/items/interaction/seed_container.tscn" id="39_wom8k"]
+[ext_resource type="PackedScene" uid="uid://dcqt7kn0dxvip" path="res://prefabs/creatures/firefly.tscn" id="41_wa552"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4c57u"]
 texture = ExtResource("13_grass")
@@ -4297,6 +4305,16 @@ sources/0 = SubResource("TileSetAtlasSource_ycdy4")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yaehf"]
 size = Vector2(1320, 920)
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bhunq"]
+radius = 122.0
+height = 292.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dmmei"]
+shader = ExtResource("16_8jqp6")
+shader_parameter/distortion_strength = 0.0150000007125
+shader_parameter/distortion_speed = 2.0
+shader_parameter/portal_radius = 0.5
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(448, 481)
 
@@ -4369,27 +4387,29 @@ script = ExtResource("19_entrance")
 entrance_id = "spawn"
 
 [node name="to_level_2" type="Area2D" parent="." unique_id=28751892]
-position = Vector2(9618, -367)
+position = Vector2(9696, -364)
 script = ExtResource("20_door")
 door_id = "to_level_4"
 target_scene = "res://scenes/level_4.tscn"
 target_entrance = "spawn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="to_level_2" unique_id=14817283]
-shape = SubResource("RectangleShape2D_door")
+position = Vector2(13, -94)
+shape = SubResource("CapsuleShape2D_bhunq")
 
-[node name="Visual" type="Polygon2D" parent="to_level_2" unique_id=774557010]
-z_index = 5
-color = Color(0.5, 0.85, 0.5, 1)
-polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
+[node name="Sprite2D" type="Sprite2D" parent="to_level_2" unique_id=1312710519]
+material = SubResource("ShaderMaterial_dmmei")
+position = Vector2(16, -104)
+scale = Vector2(2, 2.09)
+texture = ExtResource("16_bamb7")
 
 [node name="OneWayGate" type="StaticBody2D" parent="." unique_id=465708706]
 position = Vector2(-3441, 93)
 script = ExtResource("21_oneway")
-block_scale = Vector2(4, 9)
 
 [node name="Collision" type="CollisionShape2D" parent="OneWayGate" unique_id=2117144384]
-position = Vector2(-33, -51.5)
+position = Vector2(-39.00003, -31.000004)
+scale = Vector2(1, 1.7)
 shape = SubResource("RectangleShape2D_door")
 
 [node name="Sprite2D" type="Sprite2D" parent="OneWayGate" unique_id=1371349898]
@@ -5064,13 +5084,6 @@ position = Vector2(4813, -5330)
 [node name="Rocks" type="Node2D" parent="." unique_id=1006773546]
 y_sort_enabled = true
 
-[node name="rock2" type="Sprite2D" parent="Rocks" unique_id=322543601 groups=["colorable"]]
-texture_filter = 1
-position = Vector2(-2370, -2010)
-scale = Vector2(43, 36)
-texture = ExtResource("4_272bh")
-script = ExtResource("4_5vw27")
-
 [node name="rock3" type="Sprite2D" parent="Rocks" unique_id=830044779 groups=["colorable"]]
 modulate = Color(1, 0, 0.23137255, 1)
 texture_filter = 1
@@ -5133,6 +5146,9 @@ scale = Vector2(16, 16)
 position = Vector2(-10351, 8059)
 scale = Vector2(16, 16)
 
+[node name="FireLouse" parent="." unique_id=837049173 instance=ExtResource("27_v0i6o")]
+position = Vector2(682, -761)
+
 [node name="WaterFlow" type="TileMapLayer" parent="." unique_id=1100431437]
 z_index = 10
 tile_map_data = PackedByteArray("AADU/+D/AAADAAAAAADU/+H/AAADAAAAAADU/+L/AAADAAAAAADU/+P/AAADAAAAAADU/+T/AAADAAAAAADU/+X/AAADAAAAAADU/+b/AAADAAAAAADU/+f/AAADAAAAAADU/+j/AAADAAAAAADU/+n/AAADAAAAAADU/+r/AAADAAAAAADU/+v/AAADAAAAAADU/+z/AAADAAAAAADU/+3/AAADAAAAAADU/+7/AAADAAAAAADU/+//AAADAAAAAADV/+D/AAADAAAAAADV/+H/AAADAAAAAADV/+L/AAADAAAAAADV/+P/AAADAAAAAADV/+T/AAADAAAAAADV/+X/AAADAAAAAADV/+b/AAADAAAAAADV/+f/AAADAAAAAADV/+j/AAADAAAAAADV/+n/AAADAAAAAADV/+r/AAADAAAAAADV/+v/AAADAAAAAADV/+z/AAADAAAAAADV/+3/AAADAAAAAADV/+7/AAADAAAAAADV/+//AAADAAAAAADW/+D/AAADAAAAAADW/+H/AAADAAAAAADW/+L/AAADAAAAAADW/+P/AAADAAAAAADW/+T/AAADAAAAAADW/+X/AAADAAAAAADW/+b/AAADAAAAAADW/+f/AAADAAAAAADW/+j/AAADAAAAAADW/+n/AAADAAAAAADW/+r/AAADAAAAAADW/+v/AAADAAAAAADW/+z/AAADAAAAAADW/+3/AAADAAAAAADW/+7/AAADAAAAAADW/+//AAADAAAAAADX/+D/AAADAAAAAADX/+H/AAADAAAAAADX/+L/AAADAAAAAADX/+P/AAADAAAAAADX/+T/AAADAAAAAADX/+X/AAADAAAAAADX/+b/AAADAAAAAADX/+f/AAADAAAAAADX/+j/AAADAAAAAADX/+n/AAADAAAAAADX/+r/AAADAAAAAADX/+v/AAADAAAAAADX/+z/AAADAAAAAADX/+3/AAADAAAAAADX/+7/AAADAAAAAADX/+//AAADAAAAAADY/+D/AAADAAAAAADY/+H/AAADAAAAAADY/+L/AAADAAAAAADY/+P/AAADAAAAAADY/+T/AAADAAAAAADY/+X/AAADAAAAAADY/+b/AAADAAAAAADY/+f/AAADAAAAAADY/+j/AAADAAAAAADY/+n/AAADAAAAAADY/+r/AAADAAAAAADY/+v/AAADAAAAAADY/+z/AAADAAAAAADY/+3/AAADAAAAAADY/+7/AAADAAAAAADY/+//AAADAAAAAADZ/+D/AAADAAAAAADZ/+H/AAADAAAAAADZ/+L/AAADAAAAAADZ/+P/AAADAAAAAADZ/+T/AAADAAAAAADZ/+X/AAADAAAAAADZ/+b/AAADAAAAAADZ/+f/AAADAAAAAADZ/+j/AAADAAAAAADZ/+n/AAADAAAAAADZ/+r/AAADAAAAAADZ/+v/AAADAAAAAADZ/+z/AAADAAAAAADZ/+3/AAADAAAAAADZ/+7/AAADAAAAAADZ/+//AAADAAAAAADU//D/AAADAAAAAADU//H/AAADAAAAAADU//L/AAADAAAAAADU//P/AAADAAAAAADU//T/AAADAAAAAADU//X/AAADAAAAAADU//b/AAADAAAAAADU//f/AAADAAAAAADU//j/AAADAAAAAADU//n/AAADAAAAAADU//r/AAADAAAAAADU//v/AAADAAAAAADU//z/AAADAAAAAADU//3/AAADAAAAAADV//D/AAADAAAAAADV//H/AAADAAAAAADV//L/AAADAAAAAADV//P/AAADAAAAAADV//T/AAADAAAAAADV//X/AAADAAAAAADV//b/AAADAAAAAADV//f/AAADAAAAAADV//j/AAADAAAAAADV//n/AAADAAAAAADV//r/AAADAAAAAADV//v/AAADAAAAAADV//z/AAADAAAAAADV//3/AAADAAAAAADW//D/AAADAAAAAADW//H/AAADAAAAAADW//L/AAADAAAAAADW//P/AAADAAAAAADW//T/AAADAAAAAADW//X/AAADAAAAAADW//b/AAADAAAAAADW//f/AAADAAAAAADW//j/AAADAAAAAADW//n/AAADAAAAAADW//r/AAADAAAAAADW//v/AAADAAAAAADW//z/AAADAAAAAADW//3/AAADAAAAAADX//D/AAADAAAAAADX//H/AAADAAAAAADX//L/AAADAAAAAADX//P/AAADAAAAAADX//T/AAADAAAAAADX//X/AAADAAAAAADX//b/AAADAAAAAADX//f/AAADAAAAAADX//j/AAADAAAAAADX//n/AAADAAAAAADX//r/AAADAAAAAADX//v/AAADAAAAAADX//z/AAADAAAAAADX//3/AAADAAAAAADY//D/AAADAAAAAADY//H/AAADAAAAAADY//L/AAADAAAAAADY//P/AAADAAAAAADY//T/AAADAAAAAADY//X/AAADAAAAAADY//b/AAADAAAAAADY//f/AAADAAAAAADY//j/AAADAAAAAADY//n/AAADAAAAAADY//r/AAADAAAAAADY//v/AAADAAAAAADY//z/AAADAAAAAADY//3/AAADAAAAAADZ//D/AAADAAAAAADZ//H/AAADAAAAAADZ//L/AAADAAAAAADZ//P/AAADAAAAAADZ//T/AAADAAAAAADZ//X/AAADAAAAAADZ//b/AAADAAAAAADZ//f/AAADAAAAAADZ//j/AAADAAAAAADZ//n/AAADAAAAAADZ//r/AAADAAAAAADZ//v/AAADAAAAAADZ//z/AAADAAAAAADZ//3/AAADAAAAAAA=")
@@ -5170,6 +5186,9 @@ min_distance = 10.0
 jitter_amount = 4.0
 stop_speed_threshold = 7.5
 erase_speed = 5
+
+[node name="Checkpoint" parent="." unique_id=1314338313 instance=ExtResource("33_v8pws")]
+position = Vector2(-9279, -7906)
 
 [node name="CompanionHint_01" type="Node2D" parent="." unique_id=1147803756]
 position = Vector2(6107, -433)
@@ -5236,8 +5255,28 @@ color = Color(0.5, 0.85, 0.5, 1)
 polygon = PackedVector2Array(-32, -48, 32, -48, 32, 48, -32, 48)
 
 [node name="BaoXiang" parent="." unique_id=1645125291 instance=ExtResource("26_hg84p")]
-position = Vector2(4339, -586)
-drop_scene = ExtResource("36_v8pws")
+position = Vector2(3769, 10947)
+drop_scene = ExtResource("36_tdlki")
 
 [node name="BaoXiang2" parent="." unique_id=217552730 instance=ExtResource("26_hg84p")]
 position = Vector2(2475, -5202)
+drop_id = "1"
+
+[node name="RoomDoor" parent="." unique_id=1357631850 instance=ExtResource("37_v8pws")]
+position = Vector2(6661.001, -458)
+scale = Vector2(0.35041574, 0.35999912)
+required_key_id = "1"
+
+[node name="GrowthSeed" parent="." unique_id=1492456846 instance=ExtResource("39_rscm6")]
+position = Vector2(4745, -5774)
+grow_dir = Vector2(0, -1)
+vine_length = 856.0
+vine_thickness = 128.0
+chain_radius = 512.0
+
+[node name="SeedContainer" parent="." unique_id=425245008 instance=ExtResource("39_wom8k")]
+position = Vector2(1174, -98)
+grow_seeds = 3
+
+[node name="Firefly" parent="." unique_id=1805090174 instance=ExtResource("41_wa552")]
+position = Vector2(1427, -207)

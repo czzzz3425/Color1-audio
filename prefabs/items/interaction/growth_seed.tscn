@@ -1,25 +1,31 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bgew1y27utuh3"]
 
-[ext_resource type="Script" path="res://scripts/growth_seed.gd" id="1_grow"]
+[ext_resource type="Script" uid="uid://cnghxwksus7nk" path="res://scripts/growth_seed.gd" id="1_grow"]
+[ext_resource type="Texture2D" uid="uid://cqg2xneatgokr" path="res://art/picture_boluo/岩石tm.png" id="2_qma38"]
+[ext_resource type="Texture2D" uid="uid://dk6jnneshuvv0" path="res://art/picture_boluo/藤桥tm.png" id="3_gbqwb"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vine"]
 size = Vector2(256, 40)
 
-[node name="GrowthSeed" type="Node2D"]
+[node name="GrowthSeed" type="Node2D" unique_id=1492456846]
 script = ExtResource("1_grow")
 
-[node name="SeedVisual" type="Polygon2D" parent="."]
-color = Color(0.62, 0.46, 0.3, 1)
-polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+[node name="SeedVisual" type="Sprite2D" parent="." unique_id=619529343]
+position = Vector2(-1, 2)
+rotation = -0.013600508
+scale = Vector2(0.78515625, 0.75390625)
+texture = ExtResource("2_qma38")
 
-[node name="Vine" type="StaticBody2D" parent="."]
+[node name="Vine" type="StaticBody2D" parent="." unique_id=1413785428]
 collision_layer = 2
 collision_mask = 0
 
-[node name="VineCollision" type="CollisionShape2D" parent="Vine"]
-disabled = true
+[node name="VineCollision" type="CollisionShape2D" parent="Vine" unique_id=911843902]
 shape = SubResource("RectangleShape2D_vine")
+disabled = true
 
-[node name="VineVisual" type="Polygon2D" parent="Vine"]
-color = Color(0.35, 0.8, 0.4, 1)
-polygon = PackedVector2Array(-128, -20, 128, -20, 128, 20, -128, 20)
+[node name="VineVisual" type="Sprite2D" parent="Vine" unique_id=1591500050]
+position = Vector2(3, -3)
+rotation = -1.5727807
+scale = Vector2(2.5703123, 2.3046873)
+texture = ExtResource("3_gbqwb")

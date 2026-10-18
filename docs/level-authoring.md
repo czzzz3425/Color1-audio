@@ -26,10 +26,11 @@ tile 是 **256px**，物品手拖容易对不齐。在 2D 视图顶部工具栏 
 | `ember.tscn` | `ember` | `seed_amount`（默认 3） |
 | `trap.tscn` | `trap` | `fire_interval` / `aim_at_player` / `fixed_direction` |
 | `parry_emitter.tscn` | `parry_emitter` (`ParryEmitter`) | `fire_interval` / `aim_at_player` / `fire_direction` / `move_speed` / `travel` / `bounce_on_wall` / `max_health`（弹反怪，贴图固定；详见 [`level-system-usage.md`](level-system-usage.md) §7） |
+| `parry_emitter_patrol.tscn` | `parry_emitter` (`ParryEmitter`) | 继承上者，默认 `move_speed=90` / `travel=(-320,0)`：拖进关卡即走即射 |
 | `goal.tscn` | `goal` | `unlock_door_ids` / `is_final` |
 | 自建 `StaticBody2D` | `room_door` | `door_id` / `required_key_id` / `unlock_options` / `unlock_side` |
 | 自建 `Area2D` | `door` | `target_scene` / `target_entrance` / `required_key_id` / `unlock_options` |
-| 自建 `StaticBody2D` | `one_way_gate` | `pass_dir` / `block_scale`（真正单向，只能朝一边穿过） |
+| 自建 `StaticBody2D` | `one_way_gate` | `pass_dir` / `block_scale`（仅入口侧能碰开，开后门消失、双向通行） |
 | `Marker2D` | `entrance` | `entrance_id` |
 | 自建 `Area2D` | `room_zone` | `room_name` / `dark` |
 | 自建 `Node2D` | `key` | `key_id` / `key_name` |

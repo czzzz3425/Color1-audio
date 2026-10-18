@@ -105,11 +105,10 @@ RoomDoor (StaticBody2D + room_door.gd)
 |---|---|
 | `pass_dir` | 允许穿过的方向（单位向量，如 `Vector2(1, 0)`） |
 | `block_scale` | 阻挡区 = `Visual` 宽高 × 此值（`Vector2.ZERO` = 用手配的 `Collision`） |
-| `open_reach` / `close_clearance` | 入口探测距离 / 穿过后重新封堵的余量（须 > 玩家碰撞盒半宽 64） |
 
-玩家只能沿 `pass_dir` 穿过一次：从入口侧靠近自动放行，穿到出口侧后自动封堵；从出口侧靠近不开门 → 反向进不去。
+玩家从 `pass_dir` 的入口侧实际碰撞门面时，门消失并永久放行；未开启时从出口侧碰门仍被阻挡。开启后双向都可通过，解锁随存档点保存。
 
-`level_1` 里的 `OneWayGate` 是现成例子：`pass_dir = Vector2(1, 0)`（只能从左往右过）。
+`level_1` 的 `pass_dir = Vector2(1, 0)` 表示从左侧碰门开启；要从右侧开启，设为 `Vector2(-1, 0)`。
 
 ### 3e. 钥匙门（`required_key_id`，1:1）
 
@@ -191,7 +190,8 @@ scenes/level_2.tscn  (根 Room, room_id="level_2")
 
 | prefab / 节点 | 脚本 | 结构 |
 |---|---|---|
-| `prefabs/items/interaction/parry_emitter.tscn` | `parry_emitter.gd` (`ParryEmitter`, CharacterBody2D) | `Visual`(Sprite2D，固定贴图) + `Collision`(矩形 72×72) |
+| `prefabs/items/interaction/parry_emitter.tscn` | `parry_emitter.gd` (`ParryEmitter`, CharacterBody2D) | `Visual`(Sprite2D，固定贴图) + `Collision`(矩形 128×128) |
+| `prefabs/items/interaction/parry_emitter_patrol.tscn` | 继承 `parry_emitter.tscn` | 走动版：默认 `move_speed=90`、`travel=(-320,0)`，拖进关卡即走即射 |
 | `scenes/parry_projectile.tscn` | `parry_projectile.gd` (`ParryProjectile`, CharacterBody2D) | `Visual`(Sprite2D，固定贴图，自动朝向) + `Collision`(圆 r18) |
 | `Node2D` + `parry.gd` | `parry.gd` (`Parry`) | 挂在玩家上：开弹反窗口 |
 | 可上色载体 + `yellow_object.gd` | `yellow_object.gd` + `bullet_reflector.gd` | 变黄后自动被动反射 |
@@ -213,6 +213,8 @@ scenes/level_2.tscn  (根 Room, room_id="level_2")
 | `travel` | 往复终点相对起点的偏移（`Vector2.ZERO` = 不设距离终点） |
 | `bounce_on_wall` | 撞到「障碍」层（层 2）对撞面时折返 |
 | `flip_visual` | 行走时按方向水平翻转贴图 |
+| `idle_texture` / `windup_texture` | 待机贴图 / 开火前摇贴图（默认已用 Bee_Jaw 素材；留空则用场景里摆好的贴图） |
+| `windup_time` | 攻击前摇时长（秒）：开火前先亮 `windup_texture`，之后发射并切回待机 |
 
 **行走模式**：
 - `move_speed = 0` → 静止；
@@ -224,7 +226,7 @@ scenes/level_2.tscn  (根 Room, room_id="level_2")
 ```
 ParryEmitter（instance parry_emitter.tscn）        位置 (-760, -30)
   fire_interval = 1.8, aim_at_player = true
-  move_speed = 80, travel = Vector2(-540, 0)      ← 向左往复，撞中间方块折返
+  move_speed = 80, travel = Vector2(-320, 0)      ← 向左短距离往复，撞中间方块折返
 Player（instance player.tscn）
   └─ Parry（Node2D + parry.gd）parry_radius = 220
 ```

@@ -13,18 +13,37 @@ const SAFE_POS := Vector2(1e7, 1e7)  # 切房瞬间玩家的临时安全位，�
 var player: Node2D = null
 var room_container: Node = null
 var current_room: Node = null
+## 当前房间的场景路径（res://...，供存档点记录所在场景）。
+var current_room_scene: String = ""
 
 var _switching := false
 var _cooldown := 0.0
+## 切房时是否定位到存档点坐标（而不是入口）。由 resume_from_checkpoint 置位，切完即清。
+var _resume_at_checkpoint := false
 
 
 func setup(p_player: Node2D, p_room_container: Node) -> void:
+	# 主菜单重开整个游戏根节点后，单例不能保留已释放的房间引用和切房守卫。
+	if not is_instance_valid(current_room):
+		current_room = null
+		current_room_scene = ""
+		_switching = false
+		_resume_at_checkpoint = false
 	player = p_player
 	room_container = p_room_container
 
 
 func is_busy() -> bool:
 	return _switching
+
+
+## 继续游戏：切到存档点所在场景，并把玩家定位到存档点坐标。
+func resume_from_checkpoint() -> bool:
+	if _switching or not GameState.has_checkpoint() or not ResourceLoader.exists(GameState.checkpoint_scene, "PackedScene"):
+		return false
+	_resume_at_checkpoint = true
+	change_room(GameState.checkpoint_scene, "spawn")
+	return true
 
 
 func _process(delta: float) -> void:
@@ -84,6 +103,7 @@ func _do_change_room(target_scene: String, target_entrance: String) -> void:
 	player.global_position = SAFE_POS
 	room_container.add_child(new_room)
 	current_room = new_room
+	current_room_scene = target_scene
 
 	# 3. 进入新房（标记访问、恢复状态、相机边界）
 	if new_room.has_method("enter"):
@@ -91,11 +111,31 @@ func _do_change_room(target_scene: String, target_entrance: String) -> void:
 
 	# 4. 定位玩家到目标入口
 	var pos := Vector2.ZERO
-	if new_room.has_method("get_entrance_position"):
+	if _resume_at_checkpoint:
+		pos = GameState.checkpoint_pos
+		_resume_at_checkpoint = false
+	elif new_room.has_method("get_entrance_position"):
 		pos = new_room.get_entrance_position(target_entrance)
 	player.global_position = pos
 	if player is CharacterBody2D:
 		player.velocity = Vector2.ZERO
+	_restore_companion()
 
 	room_entered.emit(new_room.get("room_id"))
 	room_changed.emit(new_room.get("room_id"))
+
+
+func _restore_companion() -> void:
+	if not GameState.companion_recruited:
+		return
+	var companion: Node = null
+	for candidate in get_tree().get_nodes_in_group("companion"):
+		if is_instance_valid(candidate) and not candidate.is_queued_for_deletion():
+			companion = candidate
+			break
+	if companion == null:
+		companion = preload("res://prefabs/creatures/companion.tscn").instantiate()
+		room_container.add_child(companion)
+	elif companion.state == Companion.State.TASK:
+		return  # 正常切关时不覆盖仍在结算的吸色/上色任务。
+	companion.restore_following()

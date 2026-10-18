@@ -1,0 +1,146 @@
+[gd_scene format=3 uid="uid://bn1q48cwllxrf"]
+
+[ext_resource type="PackedScene" uid="uid://ckv74s8mkhqcg" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="Script" uid="uid://c72jfj8on1i3d" path="res://color_change/hud.gd" id="2_hud"]
+[ext_resource type="Script" uid="uid://bqt4yb3ygmiwl" path="res://scripts/mechanics/lights_out_puzzle.gd" id="3_puzzle"]
+[ext_resource type="Script" uid="uid://cgwiqk6vc2tbe" path="res://scripts/mechanics/light_switch.gd" id="4_switch"]
+[ext_resource type="Script" uid="uid://b178pnr1fp0s8" path="res://scenes/lights_out_test.gd" id="5_ctrl"]
+[ext_resource type="Texture2D" uid="uid://b37wt58ak70lb" path="res://art/else/light_switch.png" id="6_light"]
+[ext_resource type="Script" uid="uid://8xoxo53ss7et" path="res://scripts/companion.gd" id="7_companion"]
+[ext_resource type="Resource" uid="uid://cs4tg8k8wjy13" path="res://dialogue/dia/companion.dialogue" id="8_dialogue"]
+[ext_resource type="Texture2D" uid="uid://dbtugj7615pn1" path="res://art/小跟班/xiaogenban2.png" id="9_vis"]
+[ext_resource type="Script" uid="uid://bl1br0wvbivl1" path="res://scenes/Companion.gd" id="10_line"]
+[ext_resource type="PackedScene" uid="uid://chdkxg2bd1tkv" path="res://prefabs/rooms/room_door.tscn" id="11_door"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_companion"]
+radius = 732.0
+
+[node name="LightsOutTest" type="Node2D" unique_id=896395172]
+script = ExtResource("5_ctrl")
+
+[node name="Background" type="Polygon2D" parent="." unique_id=1114837939]
+z_index = -10
+color = Color(0.06, 0.07, 0.1, 1)
+polygon = PackedVector2Array(-4000, -3000, 4000, -3000, 4000, 3000, -4000, 3000)
+
+[node name="Player" parent="." unique_id=1894645628 groups=["player"] instance=ExtResource("1_player")]
+position = Vector2(0, 950)
+
+[node name="Camera" type="Camera2D" parent="Player" unique_id=778271304]
+zoom = Vector2(0.25, 0.25)
+
+[node name="Companion" type="Node2D" parent="." unique_id=1101691467]
+position = Vector2(0, 850)
+scale = Vector2(0.35, 0.35)
+script = ExtResource("7_companion")
+dialogue_resource = ExtResource("8_dialogue")
+
+[node name="InteractArea" type="Area2D" parent="Companion" unique_id=981533394]
+collision_layer = 0
+
+[node name="Collision" type="CollisionShape2D" parent="Companion/InteractArea" unique_id=1538094211]
+shape = SubResource("CircleShape2D_companion")
+
+[node name="Visual" type="Sprite2D" parent="Companion" unique_id=1118949157]
+position = Vector2(3, 18)
+scale = Vector2(0.18135531, 0.17155984)
+texture = ExtResource("9_vis")
+
+[node name="Line2D" type="Line2D" parent="Companion" unique_id=593109512 node_paths=PackedStringArray("target")]
+top_level = true
+default_color = Color(0.2509804, 1, 1, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("10_line")
+target = NodePath("..")
+max_points = 8
+min_distance = 10.0
+jitter_amount = 4.0
+stop_speed_threshold = 7.5
+erase_speed = 5
+
+[node name="Puzzle" type="Node2D" parent="." unique_id=218704774]
+script = ExtResource("3_puzzle")
+door_path = NodePath("../RoomDoor")
+
+[node name="Light0" type="Node2D" parent="Puzzle" unique_id=552880833]
+position = Vector2(700, 0)
+script = ExtResource("4_switch")
+
+[node name="Visual" type="Sprite2D" parent="Puzzle/Light0" unique_id=1573802402]
+texture = ExtResource("6_light")
+
+[node name="Light1" type="Node2D" parent="Puzzle" unique_id=790966736]
+position = Vector2(495, 495)
+script = ExtResource("4_switch")
+
+[node name="Visual" type="Sprite2D" parent="Puzzle/Light1" unique_id=197224478]
+texture = ExtResource("6_light")
+
+[node name="Light2" type="Node2D" parent="Puzzle" unique_id=713512518]
+position = Vector2(0, 700)
+script = ExtResource("4_switch")
+
+[node name="Visual" type="Sprite2D" parent="Puzzle/Light2" unique_id=1364169910]
+texture = ExtResource("6_light")
+
+[node name="Light3" type="Node2D" parent="Puzzle" unique_id=1065619296]
+position = Vector2(-495, 495)
+script = ExtResource("4_switch")
+
+[node name="Visual" type="Sprite2D" parent="Puzzle/Light3" unique_id=184142289]
+texture = ExtResource("6_light")
+
+[node name="Light4" type="Node2D" parent="Puzzle" unique_id=203070882]
+position = Vector2(-700, 0)
+script = ExtResource("4_switch")
+
+[node name="Visual" type="Sprite2D" parent="Puzzle/Light4" unique_id=1620497528]
+texture = ExtResource("6_light")
+
+[node name="Light5" type="Node2D" parent="Puzzle" unique_id=1656692118]
+position = Vector2(-495, -495)
+script = ExtResource("4_switch")
+
+[node name="Visual" type="Sprite2D" parent="Puzzle/Light5" unique_id=425758842]
+texture = ExtResource("6_light")
+
+[node name="Light6" type="Node2D" parent="Puzzle" unique_id=1614834466]
+position = Vector2(0, -700)
+script = ExtResource("4_switch")
+
+[node name="Visual" type="Sprite2D" parent="Puzzle/Light6" unique_id=446268206]
+texture = ExtResource("6_light")
+
+[node name="Light7" type="Node2D" parent="Puzzle" unique_id=1346962011]
+position = Vector2(495, -495)
+script = ExtResource("4_switch")
+
+[node name="Visual" type="Sprite2D" parent="Puzzle/Light7" unique_id=1536437091]
+texture = ExtResource("6_light")
+
+[node name="RoomDoor" parent="." unique_id=1276547031 instance=ExtResource("11_door")]
+position = Vector2(1715, 58.000008)
+scale = Vector2(0.38393742, 0.36350927)
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=2060154189]
+script = ExtResource("2_hud")
+
+[node name="ColorLabel" type="RichTextLabel" parent="HUD" unique_id=1588171196]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 760.0
+offset_bottom = 60.0
+bbcode_enabled = true
+
+[node name="WinLabel" type="Label" parent="HUD" unique_id=625201732]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+text = "过关！"
+horizontal_alignment = 1
+vertical_alignment = 1

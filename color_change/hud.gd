@@ -8,8 +8,25 @@ const Rules := preload("res://scripts/element/element_rules.gd")
 ## 胜利文字字号。0 = 保留场景里的字号。
 @export_range(0, 200, 1) var win_font_size := 0
 
+## 右下角色轮方向盘：红/绿/蓝各一张独立成品图，选中哪个元素就显示哪张。
+## 每张图都已画好「选中色高亮、其余两色压淡」，无需 shader 旋转 / 扇区遮罩。
+const WHEEL_TEXTURES := {
+	"burn": preload("res://art/ui/色轮/色轮_红.png"),     # 红
+	"grow": preload("res://art/ui/色轮/色轮_绿.png"),     # 绿
+	"freeze": preload("res://art/ui/色轮/色轮_蓝.png"),   # 蓝
+}
+## 新图为 2000×2000，色环外径约 600px（占图 60%）、内径约 131px；
+## 按色环外径约 160px 反推显示尺寸，让新图与旧图视觉大小一致。
+const WHEEL_SIZE := 256.0
+const WHEEL_MARGIN := 20.0
+const WHEEL_FADE := 0.22   # 切换颜色时淡入淡出各段时长（秒）
+
 @onready var color_label: RichTextLabel = $ColorLabel
 @onready var win_label: Label = $WinLabel
+
+var wheel: TextureRect
+var _wheel_tween: Tween
+var _count_label: Label
 
 var hint_label: Label
 var status_label: Label
@@ -39,6 +56,8 @@ func _ready() -> void:
 	_make_alert_banner()
 	_make_hearts()
 	_make_boss_bar()
+	_make_wheel()
+	color_label.visible = false   # 调色盘改用右下角色轮，不再用左上角文字
 	GameState.hint.connect(show_hint)
 	GameState.notice.connect(show_notice)
 	GameState.alert.connect(show_alert)
@@ -95,6 +114,7 @@ func _make_hint_label() -> Label:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.add_theme_font_size_override("font_size", 24)
+	l.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
 	l.visible = false
 	add_child(l)
 	return l
@@ -110,7 +130,7 @@ func _make_status_label() -> Label:
 	l.offset_right = 720.0
 	l.offset_bottom = 96.0
 	l.add_theme_font_size_override("font_size", 18)
-	l.add_theme_color_override("font_color", Color(0.95, 0.9, 0.6))
+	l.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
 	l.visible = false
 	add_child(l)
 	return l
@@ -370,7 +390,7 @@ func _tick_alert(delta: float) -> void:
 
 
 func _on_inventory_changed(inventory: Dictionary, selected_element: String) -> void:
-	color_label.text = _palette_text(inventory, selected_element)
+	_update_wheel(selected_element, int(inventory.get(selected_element, 0)))
 
 
 ## 用 bbcode 渲染颜色库：每个持有中的元素用自身颜色显示，选中的加 ▸。
@@ -393,6 +413,72 @@ func _palette_text(inventory: Dictionary, selected: String) -> String:
 
 func _hex(c: Color) -> String:
 	return "%02x%02x%02x" % [int(c.r * 255.0), int(c.g * 255.0), int(c.b * 255.0)]
+
+
+# —— 右下角色轮方向盘 ——
+## 代码里创建色轮 TextureRect（右下角）：贴图在 _update_wheel 里按选中元素切换。
+func _make_wheel() -> void:
+	wheel = TextureRect.new()
+	wheel.name = "ColorWheel"
+	wheel.custom_minimum_size = Vector2.ONE * WHEEL_SIZE
+	wheel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	wheel.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	wheel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wheel.anchor_left = 1.0
+	wheel.anchor_top = 1.0
+	wheel.anchor_right = 1.0
+	wheel.anchor_bottom = 1.0
+	wheel.offset_left = -(WHEEL_SIZE + WHEEL_MARGIN)
+	wheel.offset_top = -(WHEEL_SIZE + WHEEL_MARGIN)
+	wheel.offset_right = -WHEEL_MARGIN
+	wheel.offset_bottom = -WHEEL_MARGIN
+	wheel.visible = false
+	_count_label = _make_wheel_count_label()
+	wheel.add_child(_count_label)
+	add_child(wheel)
+
+
+## 色轮中心的数量角标：白字加描边，盖在轮心透明轮毂上。
+func _make_wheel_count_label() -> Label:
+	var l := Label.new()
+	l.name = "WheelCount"
+	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", 24)
+	l.add_theme_color_override("font_color", Color.WHITE)
+	l.add_theme_color_override("font_outline_color", Color(0.1, 0.1, 0.1))
+	l.add_theme_constant_override("outline_size", 5)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return l
+
+
+## 根据当前选中元素切换显示对应色轮图，并在轮心显示持有数量。
+func _update_wheel(selected_element: String, count: int) -> void:
+	if wheel == null:
+		return
+	if selected_element == "" or not WHEEL_TEXTURES.has(selected_element) or count <= 0:
+		wheel.visible = false
+		return
+	wheel.visible = true
+	_count_label.text = str(count)
+	_switch_wheel_texture(WHEEL_TEXTURES[selected_element])
+
+
+## 交叉淡入换图：先把旧图淡出，换上新图再淡入。
+## 只动 self_modulate，不影响作为子节点的中心数量角标。
+func _switch_wheel_texture(tex: Texture2D) -> void:
+	if wheel.texture == tex:
+		return
+	if _wheel_tween and _wheel_tween.is_valid():
+		_wheel_tween.kill()
+	wheel.self_modulate.a = 1.0
+	_wheel_tween = create_tween()
+	_wheel_tween.tween_property(wheel, "self_modulate:a", 0.0, WHEEL_FADE).set_trans(Tween.TRANS_CUBIC)
+	_wheel_tween.tween_callback(func():
+		wheel.texture = tex
+	)
+	_wheel_tween.tween_property(wheel, "self_modulate:a", 1.0, WHEEL_FADE).set_trans(Tween.TRANS_CUBIC)
 
 
 # —— 黑白贴图血量显示 ——
