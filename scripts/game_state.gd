@@ -84,6 +84,19 @@ func has_checkpoint() -> bool:
 
 ## 序列化当前进度 + 存档点到 user://save.json。
 func save_game() -> void:
+	# 存档点也要抓取当前房间，不能只等离开房间时才记录容器剩余种子。
+	if is_instance_valid(current_room) and current_room.has_method("save_state"):
+		current_room.save_state()
+	var seed_containers := {}
+	for room_id in rooms:
+		var containers := {}
+		var meta: RoomMeta = rooms[room_id]
+		for state_id in meta.stateful:
+			var object_state: Dictionary = meta.stateful[state_id]
+			if object_state.get("store") is Dictionary:
+				containers[state_id] = object_state.duplicate(true)
+		if not containers.is_empty():
+			seed_containers[room_id] = containers
 	# 飞行中预留的上色种子尚未作用到世界；存档应保留它们，避免读档丢种。
 	var saved_elements := elements.duplicate()
 	for companion in get_tree().get_nodes_in_group("companion"):
@@ -101,6 +114,7 @@ func save_game() -> void:
 		"abilities": abilities,
 		"props": props,
 		"elements": saved_elements,
+		"seed_containers": seed_containers,
 		"opened_gates": opened_gates,
 		"played_story": played_story,
 		"companion_recruited": companion_recruited,
@@ -134,6 +148,18 @@ func _read_save() -> Dictionary:
 	if parsed == null or not (parsed is Dictionary):
 		return {}
 	var d: Dictionary = parsed
+	var containers: Variant = d.get("seed_containers", {})
+	if not containers is Dictionary:
+		return {}
+	for room_states in containers.values():
+		if not room_states is Dictionary:
+			return {}
+		for container in room_states.values():
+			if not container is Dictionary or not container.get("store") is Dictionary or not container.get("frozen", false) is bool:
+				return {}
+			for count in container.store.values():
+				if not (count is float or count is int) or not is_finite(float(count)) or count < 0:
+					return {}
 	if d.has("companion_recruited") and not d.companion_recruited is bool:
 		return {}
 	var scene: Variant = d.get("checkpoint_scene", "")
@@ -182,6 +208,12 @@ func load_game() -> bool:
 	companion_recruited = bool(d.get("companion_recruited", checkpoint_scene != "res://scenes/level_1.tscn" or not elements.is_empty()))
 	health_upgrades = d.get("health_upgrades", {})
 	health_upgrade_names = d.get("health_upgrade_names", {})
+	# 仅补齐有限种子容器；其他机关仍沿用现有房间临时状态机制。
+	for room_id in d.get("seed_containers", {}):
+		var meta := get_room_meta(str(room_id))
+		var containers: Dictionary = d.seed_containers[room_id]
+		for state_id in containers:
+			meta.stateful[state_id] = containers[state_id].duplicate(true)
 	return true
 
 

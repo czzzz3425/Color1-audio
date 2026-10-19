@@ -1,5 +1,6 @@
 [gd_scene format=4 uid="uid://bqm7p6irjqkse"]
 
+[ext_resource type="PackedScene" uid="uid://cth270frtlesc" path="res://prefabs/items/interaction/ice_block.tscn" id="2_v8pws"]
 [ext_resource type="Texture2D" uid="uid://cnygc4osqxh02" path="res://art/picture_boluo/土墙块（湖水过渡）1.png" id="3_tr1x6"]
 [ext_resource type="Script" uid="uid://bkgp83ocrv3oh" path="res://color_change/colorable_sprite.gd" id="4_5vw27"]
 [ext_resource type="Texture2D" uid="uid://c00g7qises46" path="res://art/else/rock.png" id="4_272bh"]
@@ -4328,6 +4329,10 @@ y_sort_enabled = true
 script = ExtResource("18_room")
 room_id = "level_1"
 camera_limits = Rect2(-20000, -20000, 40000, 40000)
+
+[node name="IceBlock" parent="." unique_id=1422217170 instance=ExtResource("2_v8pws")]
+position = Vector2(4868, -3299)
+scale = Vector2(16, 16)
 
 [node name="Ground" type="TileMapLayer" parent="." unique_id=1123909002]
 z_index = -2
