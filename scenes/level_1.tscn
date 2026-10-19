@@ -5249,6 +5249,7 @@ script = ExtResource("28_k8ld0")
 dialogue_resource = ExtResource("27_k8ld0")
 cue = "hint_key"
 hint_id = "hint_roomdoor_key"
+required_key_id = "1"
 radius = 512.0
 
 [node name="CompanionHint_Grass5" type="Node2D" parent="."]
@@ -5257,4 +5258,4 @@ script = ExtResource("28_k8ld0")
 dialogue_resource = ExtResource("27_k8ld0")
 cue = "hint_south_item"
 hint_id = "hint_grass5_south"
-radius = 512.0
+radius = 1024.0
